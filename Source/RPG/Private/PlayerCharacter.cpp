@@ -5,6 +5,8 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "Animation/AnimMontage.h"
+#include "PlayerAnimInstance.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -64,10 +66,27 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 }
 
+void APlayerCharacter::Attack(const FInputActionValue& Value)
+{
+	UE_LOG(LogTemp, Warning, TEXT("FPressed"));
+
+	UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if (AnimInstance)
+	{
+		float Speed = AnimInstance->GetGroundSpeed();
+		
+		if (Speed == 0)
+		{
+			PlayAnimMontage(AttackA);
+		}
+	}
+
+}
+
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	//commitTest
+	
 }
 
 //automatically called by UnrealEngine 
@@ -80,6 +99,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
+		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 
 	}
 }

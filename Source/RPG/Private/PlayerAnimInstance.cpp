@@ -11,6 +11,7 @@ void UPlayerAnimInstance::NativeInitializeAnimation()
 	//call parent version of function
 	Super::NativeInitializeAnimation();
 
+	//find pawn Instance that currently applied on animation blueprint
 	PlayerCharacter = Cast<APlayerCharacter>(TryGetPawnOwner());
 	if (PlayerCharacter) //casting can be failed
 	{

@@ -36,5 +36,8 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement | Player State")
 	EPlayerState PlayerState;
+
+public:
+	FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }
 	
 };

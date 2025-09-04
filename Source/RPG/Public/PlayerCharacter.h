@@ -5,12 +5,14 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
-#include "PlayerType.h"
+#include "PlayerType.h" //for EPlayerState
 #include "PlayerCharacter.generated.h"
 
 class UInputMappingContext;
 class UInputAction;
 class AItem;
+class UAnimMontage;
+class UPlayerAnimInstance;
 
 UCLASS()
 class RPG_API APlayerCharacter : public ACharacter
@@ -38,8 +40,16 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* JumpAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* AttackAction;
+	
+	UPROPERTY(EditAnywhere, Category = Input)
+	UAnimMontage* AttackA;
+
+	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
+	void Attack(const FInputActionValue& Value);
 
 private:
 	//default state is unequipped
