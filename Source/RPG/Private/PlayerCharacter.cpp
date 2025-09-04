@@ -67,7 +67,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-
+	//commitTest
 }
 
 //automatically called by UnrealEngine 
