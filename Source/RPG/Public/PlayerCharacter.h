@@ -46,6 +46,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UAnimMontage* AttackA;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UAnimMontage* AttackB;
+
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -61,6 +64,7 @@ private:
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE EPlayerState GetPlayerState() const { return PlayerState; }
+	FORCEINLINE void SetPlayerState(EPlayerState State) { PlayerState = State; }
 
 
 };

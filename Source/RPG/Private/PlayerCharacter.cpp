@@ -68,16 +68,26 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("FPressed"));
+	const float AttackValue = Value.Get<float>();
 
 	UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	if (AnimInstance)
 	{
 		float Speed = AnimInstance->GetGroundSpeed();
 		
-		if (Speed == 0)
+		if (Speed == 0 && GetPlayerState() != EPlayerState::ECS_Attacking)
 		{
-			PlayAnimMontage(AttackA);
+			SetPlayerState(EPlayerState::ECS_Attacking);
+			if (AttackValue == 1.f)
+			{
+				PlayAnimMontage(AttackA);
+				
+			}
+			else if (AttackValue == -1.f)
+			{
+				PlayAnimMontage(AttackB);
+			}
+			SetPlayerState(EPlayerState::ECS_NotAttacking);
 		}
 	}
 
