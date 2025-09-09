@@ -7,6 +7,7 @@
 #include "EnhancedInputSubsystems.h"
 #include "Animation/AnimMontage.h"
 #include "PlayerAnimInstance.h"
+#include "ComboManageComponent.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -29,7 +30,33 @@ void APlayerCharacter::BeginPlay()
 			Subsystem->AddMappingContext(PlayerContext, 0);
 		}
 	}
+	//cast animInstance In here (for reuse)
+	CachedAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	if (CachedAnimInstance)
+	{
+		//binding to MontageEnd Delegate 
+		CachedAnimInstance->OnAttackMontageEnd.AddDynamic(this, &APlayerCharacter::OnAttackMontageEnded);
+	}
+
+	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
+	if (CachedComboManageComponent)
+	{
+		CachedComboManageComponent->OnComboComplete.AddDynamic(this, &APlayerCharacter::OnComboComplete);
+	}
 	
+}
+
+void APlayerCharacter::OnAttackMontageEnded()
+{
+	SetPlayerState(EPlayerState::ECS_NotAttacking);
+}
+
+//delegate callback function (when combo matches)
+void APlayerCharacter::OnComboComplete(int ComboNum)
+{
+	PlayAnimMontage(CachedComboManageComponent->GetComboAnimMontage(ComboNum));
+	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
+	SetPlayerState(EPlayerState::ECS_NotAttacking);
 }
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
@@ -70,27 +97,32 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
 	const float AttackValue = Value.Get<float>();
 
-	UPlayerAnimInstance* AnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
-	if (AnimInstance)
+	EAttackKeyType InputType;
+
+	if (GetPlayerState() != EPlayerState::ECS_Attacking)
 	{
-		float Speed = AnimInstance->GetGroundSpeed();
-		
-		if (Speed == 0 && GetPlayerState() != EPlayerState::ECS_Attacking)
+		SetPlayerState(EPlayerState::ECS_Attacking);
+		if (CachedAnimInstance)
 		{
-			SetPlayerState(EPlayerState::ECS_Attacking);
+			//X Button
 			if (AttackValue == 1.f)
 			{
-				PlayAnimMontage(AttackA);
-				
+				InputType = EAttackKeyType::X;
+				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
+				CachedAnimInstance->Montage_Play(AttackA);
+
 			}
+			//Y Button
 			else if (AttackValue == -1.f)
 			{
-				PlayAnimMontage(AttackB);
+				InputType = EAttackKeyType::Y;
+				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
+				CachedAnimInstance->Montage_Play(AttackB);
 			}
-			SetPlayerState(EPlayerState::ECS_NotAttacking);
 		}
 	}
-
+	//send ENUM to InputSequence array (for Combo check)
+	CachedComboManageComponent->AddInputKey(InputType);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)

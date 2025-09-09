@@ -6,6 +6,7 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "PlayerType.h" //for EPlayerState
+#include "ComboInput.h"
 #include "PlayerCharacter.generated.h"
 
 class UInputMappingContext;
@@ -13,6 +14,7 @@ class UInputAction;
 class AItem;
 class UAnimMontage;
 class UPlayerAnimInstance;
+class UComboManageComponent;
 
 UCLASS()
 class RPG_API APlayerCharacter : public ACharacter
@@ -54,13 +56,24 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 
+	UFUNCTION()
+	void OnAttackMontageEnded();
+
+	UFUNCTION()
+	void OnComboComplete(int ComboNum);
+
 private:
 	//default state is unequipped
 	EPlayerState PlayerState = EPlayerState::ECS_UnEquipped;
 
+	UPlayerAnimInstance* CachedAnimInstance;
+
+	UComboManageComponent* CachedComboManageComponent;
+
 	//only visible in Detail Panel
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
+
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
 	FORCEINLINE EPlayerState GetPlayerState() const { return PlayerState; }

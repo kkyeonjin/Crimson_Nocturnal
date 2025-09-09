@@ -31,3 +31,10 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 
 }
+
+void UPlayerAnimInstance::AnimNotify_AttackEnd()
+{
+	// 캐스팅으로 캐릭터 접근
+	OnAttackMontageEnd.Broadcast();
+	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+}

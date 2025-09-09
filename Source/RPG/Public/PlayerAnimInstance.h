@@ -10,6 +10,8 @@
 class UCharacterMovementComponent;
 class APlayerCharacter;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackMontageEnd);
+
 /**
  * 
  */
@@ -21,6 +23,12 @@ class RPG_API UPlayerAnimInstance : public UAnimInstance
 public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
+
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
+
+	UPROPERTY(BlueprintAssignable)
+	FOnAttackMontageEnd OnAttackMontageEnd;
 
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter* PlayerCharacter;
