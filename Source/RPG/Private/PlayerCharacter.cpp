@@ -16,6 +16,8 @@ APlayerCharacter::APlayerCharacter()
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
 
 }
 
@@ -120,9 +122,10 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 				CachedAnimInstance->Montage_Play(AttackB);
 			}
 		}
+
+		//send ENUM to InputSequence array (for Combo check)
+		CachedComboManageComponent->AddInputKey(InputType);
 	}
-	//send ENUM to InputSequence array (for Combo check)
-	CachedComboManageComponent->AddInputKey(InputType);
 }
 
 void APlayerCharacter::Tick(float DeltaTime)

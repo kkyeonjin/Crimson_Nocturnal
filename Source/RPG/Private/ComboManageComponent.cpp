@@ -9,6 +9,7 @@ UComboManageComponent::UComboManageComponent()
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
 	InitializeComboPattern();
+
 	// ...
 }
 
@@ -31,6 +32,8 @@ void UComboManageComponent::ResetInputSequence()
 void UComboManageComponent::AddInputKey(EAttackKeyType Key)
 {
 	InputKeySequence.Add(Key);
+	TimeSinceLastInput = 0.f;
+
 	UE_LOG(LogTemp, Warning, TEXT("InputKeySequence"));
 
 	for (int32 i = 0; i < ComboPatterns.Num(); i++)
