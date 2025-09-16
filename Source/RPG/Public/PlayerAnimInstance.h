@@ -24,11 +24,16 @@ public:
 	virtual void NativeInitializeAnimation() override;
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
-	UFUNCTION()
-	void AnimNotify_AttackEnd();
+	void PlayAnimMontage(int32 Num);
 
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackMontageEnd OnAttackMontageEnd;
+
+
+protected:
+
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
 
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter* PlayerCharacter;
@@ -44,6 +49,20 @@ public:
 
 	UPROPERTY(BlueprintReadOnly, Category="Movement | Player State")
 	EPlayerState PlayerState;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackA;
+
+	UPROPERTY(EditAnywhere, Category = "Attack")
+	UAnimMontage* AttackB;
+
+	UPROPERTY(EditAnywhere, Category = "Combo")
+	UAnimMontage* ComboA;
+
+	UPROPERTY(EditAnywhere, Category = "Combo")
+	UAnimMontage* ComboB;
+
+	
 
 public:
 	FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }

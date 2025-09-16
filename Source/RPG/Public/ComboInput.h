@@ -21,7 +21,7 @@ struct FComboPattern
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
     int32 ComboNum;
 
-    //use soft pointer to avoid GC crash
+    //designate their own number 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-    TSoftObjectPtr<UAnimMontage> ComboAnimMontage;
+    int32 AnimMontageNum;
 };

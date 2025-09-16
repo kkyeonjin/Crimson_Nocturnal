@@ -53,15 +53,13 @@ void UComboManageComponent::AddInputKey(EAttackKeyType Key)
 			if (IsComboMatch)
 			{
 				//start broadcast when combo matches
-				OnComboComplete.Broadcast(ComboPatterns[i].ComboNum);
+				OnComboComplete.Broadcast(ComboPatterns[i].AnimMontageNum);
 				UE_LOG(LogTemp, Warning, TEXT("ComboMatch!!"));
 				ResetInputSequence();
 				break;
 			}
 		}
-
 	}
-
 }
 
 void UComboManageComponent::InitializeComboPattern()
@@ -70,12 +68,14 @@ void UComboManageComponent::InitializeComboPattern()
 	FComboPattern ComboA;
 	ComboA.ComboKeySequence = { EAttackKeyType::X, EAttackKeyType::X, EAttackKeyType::Y };
 	ComboA.ComboNum = 0;
+	ComboA.AnimMontageNum = 10;
 	ComboPatterns.Add(ComboA);
 
 	//ComboB
 	FComboPattern ComboB;
 	ComboB.ComboKeySequence = { EAttackKeyType::X, EAttackKeyType::Y, EAttackKeyType::X };
 	ComboB.ComboNum = 1;
+	ComboB.AnimMontageNum = 11;
 	ComboPatterns.Add(ComboB);
 }
 
@@ -90,20 +90,9 @@ void UComboManageComponent::CheckComboTimeOut(float DeltaTime)
 	}
 }
 
-UAnimMontage* UComboManageComponent::GetComboAnimMontage(int ComboNum)
+int32 UComboManageComponent::GetComboAnimMontage(int32 ComboAnimNum)
 {
-	if (!ComboPatterns.IsValidIndex(ComboNum))
-	{
-		return nullptr;
-	}
-
-	if (ComboPatterns[ComboNum].ComboAnimMontage.IsValid())
-	{
-		return ComboPatterns[ComboNum].ComboAnimMontage.Get();
-	}
-	
-	return ComboPatterns[ComboNum].ComboAnimMontage.LoadSynchronous();
-
+	return ComboPatterns[ComboAnimNum].AnimMontageNum;
 }
 
 // Called every frame

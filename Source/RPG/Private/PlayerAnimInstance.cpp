@@ -38,3 +38,29 @@ void UPlayerAnimInstance::AnimNotify_AttackEnd()
 	OnAttackMontageEnd.Broadcast();
 	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
+
+void UPlayerAnimInstance::PlayAnimMontage(int32 Num)
+{
+	switch (Num)
+	{
+		//Primary Animations
+		case 0:
+			Montage_Play(AttackA);
+			break;
+		case 1:
+			Montage_Play(AttackB);
+			break;
+
+		//Combo Animations
+		case 10:
+			Montage_Play(ComboA);
+			break;
+		case 11:
+			Montage_Play(ComboB);
+			break;
+
+		default:
+			break;
+	}
+
+}

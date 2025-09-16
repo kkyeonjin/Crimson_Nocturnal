@@ -7,7 +7,8 @@
 #include "ComboInput.h"
 #include "ComboManageComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboComplete, int, ComboNum);
+//delegate rings(broadcast) when combo matches
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboComplete, int, ComboAnimNum);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_API UComboManageComponent : public UActorComponent
@@ -24,19 +25,17 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnComboComplete OnComboComplete;
 
-	UAnimMontage* GetComboAnimMontage(int ComboNum);
+	int32 GetComboAnimMontage(int32 ComboAnimNum);
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Combo")
+	UPROPERTY(BlueprintReadOnly, Category = "Combo")
 	TArray<FComboPattern> ComboPatterns;
 
 private:
 	TArray<EAttackKeyType> InputKeySequence;
-
-	//TArray<FComboPattern> ComboPatterns;
 
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	float ComboTimeOut = 2.f;

@@ -21,22 +21,22 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="WeaponL")
 	USceneComponent* TraceStartPointL;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponL")
 	USceneComponent* TraceEndPointL;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponR")
 	USceneComponent* TraceStartPointR;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponR")
 	USceneComponent* TraceEndPointR;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponL")
 	UShapeComponent* BladeBoxL;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Weapon")
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponR")
 	UShapeComponent* BladeBoxR;
 
 	//callback func to delegate
@@ -48,7 +48,7 @@ protected:
 
 	void BindingOverlapDelegate();
 
-	UFUNCTION(BlueprintCallable, Category = "Weapon")
+	UFUNCTION(BlueprintCallable)
 	void InitializeWeaponComponents(
 		USceneComponent* NewTraceStartPointL,
 		USceneComponent* NewTraceEndPointL,

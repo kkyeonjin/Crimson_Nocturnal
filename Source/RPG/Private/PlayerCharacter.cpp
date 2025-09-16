@@ -54,9 +54,9 @@ void APlayerCharacter::OnAttackMontageEnded()
 }
 
 //delegate callback function (when combo matches)
-void APlayerCharacter::OnComboComplete(int ComboNum)
+void APlayerCharacter::OnComboComplete(int32 ComboAnimNum)
 {
-	PlayAnimMontage(CachedComboManageComponent->GetComboAnimMontage(ComboNum));
+	CachedAnimInstance->PlayAnimMontage(ComboAnimNum);
 	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
 	SetPlayerState(EPlayerState::ECS_NotAttacking);
 }
@@ -111,7 +111,7 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 			{
 				InputType = EAttackKeyType::X;
 				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-				CachedAnimInstance->Montage_Play(AttackA);
+				CachedAnimInstance->PlayAnimMontage(0); //Attack A
 
 			}
 			//Y Button
@@ -119,7 +119,7 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 			{
 				InputType = EAttackKeyType::Y;
 				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-				CachedAnimInstance->Montage_Play(AttackB);
+				CachedAnimInstance->PlayAnimMontage(1); // Attack B
 			}
 		}
 

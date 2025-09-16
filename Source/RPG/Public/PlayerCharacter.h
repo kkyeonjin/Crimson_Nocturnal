@@ -44,12 +44,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
-	
-	UPROPERTY(EditAnywhere, Category = Input)
-	UAnimMontage* AttackA;
-
-	UPROPERTY(EditAnywhere, Category = Input)
-	UAnimMontage* AttackB;
 
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
@@ -60,7 +54,7 @@ protected:
 	void OnAttackMontageEnded();
 
 	UFUNCTION()
-	void OnComboComplete(int ComboNum);
+	void OnComboComplete(int32 ComboNum);
 
 private:
 	//default state is unequipped
