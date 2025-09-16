@@ -24,6 +24,7 @@ ADevil::ADevil()
 	DevilMesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("DevilMesh"));
 	DevilMesh->SetupAttachment(GetRootComponent());
 
+	/*
 	SpringArm = CreateDefaultSubobject<USpringArmComponent>(TEXT("SpringArm"));
 	SpringArm->SetupAttachment(GetRootComponent());
 	SpringArm->TargetArmLength = 300.f;
@@ -32,7 +33,7 @@ ADevil::ADevil()
 	ViewCamera->SetupAttachment(SpringArm);
 
 	AutoPossessPlayer = EAutoReceiveInput::Player0;
-
+	*/
 }
 
 // Called when the game starts or when spawned
