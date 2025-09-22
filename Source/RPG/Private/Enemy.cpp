@@ -3,6 +3,8 @@
 
 #include "Enemy.h"
 
+#include "GameFramework/CharacterMovementComponent.h"
+
 // Sets default values
 AEnemy::AEnemy()
 {
@@ -16,6 +18,12 @@ void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 	
+}
+
+void AEnemy::SetEnemyGroundSpeed(float NewSpeed)
+{
+	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
+
 }
 
 // Called every frame
