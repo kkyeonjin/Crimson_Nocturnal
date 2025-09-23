@@ -1,6 +1,5 @@
-# Visual Studio 2022, Visual Code user specific files
+# Visual Studio 2015 user specific files
 .vs/
-.vscode/
 
 # Compiled Object files
 *.slo
@@ -73,9 +72,3 @@ Plugins/**/Intermediate/*
 
 # Cache files for the editor to use
 DerivedDataCache/*
-
-# Unreal's Content folder and its subfolders
-Content/*/**
-
-#The specific folder inside the Content folder is included.
-!Content/00_Project/**

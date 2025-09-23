@@ -28,3 +28,8 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		//UE_LOG(LogTemp, Warning, TEXT("Ground Speed: %f"), GroundSpeed);
 	}
 }
+
+void UEnemyAnimInstance::PlayAnimMontage()
+{
+	Montage_Play(AttackA);
+}

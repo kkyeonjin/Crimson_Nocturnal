@@ -6,14 +6,25 @@
 #include "GameFramework/Character.h"
 #include "Enemy.generated.h"
 
+class UEnemyAnimInstance;
+
 UCLASS()
 class RPG_API AEnemy : public ACharacter
 {
 	GENERATED_BODY()
 
 public:
+	// Called every frame
+	virtual void Tick(float DeltaTime) override;
+
+	// Called to bind functionality to input
+	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
 	// Sets default values for this character's properties
 	AEnemy();
+
+	UFUNCTION()
+	void AttackStart();
 
 protected:
 	// Called when the game starts or when spawned
@@ -22,11 +33,13 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetEnemyGroundSpeed(float NewSpeed);
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+	float PatrolSpeed = 250.f;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
+	float ChaseSpeed = 500.f;
 
+private:
+	UEnemyAnimInstance* EnemyAnimInstance;
+	
 };
