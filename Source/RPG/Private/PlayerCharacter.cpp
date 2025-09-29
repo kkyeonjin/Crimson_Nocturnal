@@ -38,8 +38,9 @@ void APlayerCharacter::BeginPlay()
 	{
 		//binding to MontageEnd Delegate 
 		CachedAnimInstance->OnAttackMontageEnd.AddDynamic(this, &APlayerCharacter::OnAttackMontageEnded);
+		CachedAnimInstance->OnMoveEnable.AddDynamic(this, &APlayerCharacter::SetMoveEnable);
 	}
-
+	
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
 	if (CachedComboManageComponent)
 	{
@@ -50,7 +51,7 @@ void APlayerCharacter::BeginPlay()
 
 void APlayerCharacter::OnAttackMontageEnded()
 {
-	SetPlayerState(EPlayerState::ECS_NotAttacking);
+	SetPlayerCombatState(EPlayerCombatState::EPCS_NotAttacking);
 }
 
 //delegate callback function (when combo matches)
@@ -58,26 +59,34 @@ void APlayerCharacter::OnComboComplete(int32 ComboAnimNum)
 {
 	CachedAnimInstance->PlayAnimMontage(ComboAnimNum);
 	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
-	SetPlayerState(EPlayerState::ECS_NotAttacking);
 }
+
+void APlayerCharacter::SetMoveEnable()
+{
+	SetPlayerMoveState(EPlayerMoveState::EPMS_MoveEnabled);
+}
+
+
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
-	const FVector2D MovementVector = Value.Get<FVector2D>();
+	if (GetPlayerMoveState() == EPlayerMoveState::EPMS_MoveEnabled)
+	{
+		const FVector2D MovementVector = Value.Get<FVector2D>();
 
-	const FRotator Rotation = Controller->GetControlRotation();
-	const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
+		const FRotator Rotation = Controller->GetControlRotation();
+		const FRotator YawRotation(0.f, Rotation.Yaw, 0.f);
 
-	//FRotationMatrix(YawRotation): Make Rotation Matrix using Z-Axis Rotate
-	//GetUnitAxis(EAxis::X): Original Forward Vector
-	//FVector Forward: adjusted Forward Vector("Forward" based on the direction you are looking)
-	const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
-	AddMovementInput(Forward, MovementVector.Y);
+		//FRotationMatrix(YawRotation): Make Rotation Matrix using Z-Axis Rotate
+		//GetUnitAxis(EAxis::X): Original Forward Vector
+		//FVector Forward: adjusted Forward Vector("Forward" based on the direction you are looking)
+		const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
+		AddMovementInput(Forward, MovementVector.Y);
 
 
-	const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
-	AddMovementInput(Right, MovementVector.X);
-
+		const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
+		AddMovementInput(Right, MovementVector.X);
+	}
 }
 
 void APlayerCharacter::Jump()
@@ -101,9 +110,11 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 
 	EAttackKeyType InputType;
 
-	if (GetPlayerState() != EPlayerState::ECS_Attacking)
+	if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
 	{
-		SetPlayerState(EPlayerState::ECS_Attacking);
+		SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
+		//disable move input when player is attacking
+		SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
 		if (CachedAnimInstance)
 		{
 			//X Button

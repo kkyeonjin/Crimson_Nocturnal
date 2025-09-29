@@ -14,6 +14,8 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 {
     Super::ExecuteTask(OwnerComp, NodeMemory);
 
+    CachedOwnerComp = &OwnerComp;
+
     UE_LOG(LogTemp, Display, TEXT("ExecuteAttack"));
 
     if (OwnerComp.GetAIOwner() == nullptr)
@@ -48,6 +50,13 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     EnemyLocal->AttackStart();
 
     UE_LOG(LogTemp, Display, TEXT("AttackStart called"));
+    EnemyLocal->OnEnemyAttackEnd.AddDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
 
     return EBTNodeResult::InProgress;
 }
+
+void UBTT_Attack::OnEnemyAttackEnd()
+{
+    FinishLatentTask(*CachedOwnerComp, EBTNodeResult::Succeeded);
+}
+

@@ -9,6 +9,8 @@
 class UCharacterMovementComponent;
 class AEnemy;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackMontageEnd);
+
 /**
  * 
  */
@@ -24,8 +26,13 @@ public:
 	UFUNCTION()
 	void PlayAnimMontage();
 
+	FOnEnemyAttackMontageEnd OnEnemyAttackMontageEnd;
+
 
 protected:
+
+	UFUNCTION()
+	void AnimNotify_AttackEnd();
 
 	UPROPERTY(BlueprintReadOnly)
 	AEnemy* Enemy;
@@ -38,6 +45,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackA;
+
+private:
+	//void AnimNotify_AttackEnd();
 
 
 public:

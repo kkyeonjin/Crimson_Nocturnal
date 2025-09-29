@@ -1,12 +1,18 @@
 #pragma once
 
 UENUM(BlueprintType)
-enum class EPlayerState : uint8
+enum class EPlayerCombatState : uint8
 {
-	ECS_UnEquipped UMETA(DisplayName = "Unequipped"),
-	ECS_Equipped UMETA(DisplayName = "Equipped"),
-	ECS_Attacking UMETA(DisplayName = "Attacking"),
-	ECS_NotAttacking UMETA(DisplayName = "NotAttacking")
+	EPCS_Attacking UMETA(DisplayName = "Attacking"),
+	EPCS_NotAttacking UMETA(DisplayName = "NotAttacking")
+
+};
+
+UENUM(BlueprintType)
+enum class EPlayerMoveState : uint8
+{
+	EPMS_MoveEnabled UMETA(DisplayName = "MoveEnabled"),
+	EPMS_MoveDisabled UMETA(DisplayName = "MoveDisabled")
 
 };
 

@@ -11,6 +11,7 @@ class UCharacterMovementComponent;
 class APlayerCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackMontageEnd);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveEnable);
 
 /**
  * 
@@ -29,11 +30,17 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackMontageEnd OnAttackMontageEnd;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnMoveEnable OnMoveEnable;
+
 
 protected:
 
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
+
+	UFUNCTION()
+	void AnimNotify_MoveEnable();
 
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter* PlayerCharacter;
@@ -47,8 +54,8 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	bool IsFalling;
 
-	UPROPERTY(BlueprintReadOnly, Category="Movement | Player State")
-	EPlayerState PlayerState;
+	//UPROPERTY(BlueprintReadOnly, Category="Movement | Player State")
+	//EPlayerState PlayerState;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackA;

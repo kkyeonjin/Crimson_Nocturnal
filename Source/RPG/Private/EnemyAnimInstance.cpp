@@ -6,6 +6,12 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
 
+void UEnemyAnimInstance::AnimNotify_AttackEnd()
+{
+	OnEnemyAttackMontageEnd.Broadcast();
+	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+}
+
 void UEnemyAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();

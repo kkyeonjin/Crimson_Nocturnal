@@ -22,8 +22,9 @@ void AEnemy::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AnimInstance Cast Failed in BeginPlay"));
 	}
-
+	IsAttacking = false;
 }
+	
 
 // Called every frame
 void AEnemy::Tick(float DeltaTime)
@@ -37,12 +38,20 @@ void AEnemy::AttackStart()
 	if (EnemyAnimInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackStart"));
+
 		EnemyAnimInstance->PlayAnimMontage();
+		EnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
+		IsAttacking = true;
 	}
-	else
+}
+
+void AEnemy::OnEnemyAttackMontageEnded()
+{
+	if (EnemyAnimInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackFailed"));
+		OnEnemyAttackEnd.Broadcast();
 	}
+	IsAttacking = false;
 }
 
 

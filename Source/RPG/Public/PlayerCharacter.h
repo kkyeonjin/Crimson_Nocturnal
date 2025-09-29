@@ -56,9 +56,15 @@ protected:
 	UFUNCTION()
 	void OnComboComplete(int32 ComboNum);
 
+	UFUNCTION()
+	void SetMoveEnable();
+
 private:
 	//default state is unequipped
-	EPlayerState PlayerState = EPlayerState::ECS_UnEquipped;
+	EPlayerCombatState PlayerCombatState = EPlayerCombatState::EPCS_NotAttacking;
+
+	//default state is moveEnabled
+	EPlayerMoveState PlayerMoveState = EPlayerMoveState::EPMS_MoveEnabled;
 
 	UPlayerAnimInstance* CachedAnimInstance;
 
@@ -70,8 +76,11 @@ private:
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
-	FORCEINLINE EPlayerState GetPlayerState() const { return PlayerState; }
-	FORCEINLINE void SetPlayerState(EPlayerState State) { PlayerState = State; }
+	FORCEINLINE EPlayerCombatState GetPlayerCombatState() const { return PlayerCombatState; }
+	FORCEINLINE void SetPlayerCombatState(EPlayerCombatState State) { PlayerCombatState = State; }
+
+	FORCEINLINE EPlayerMoveState GetPlayerMoveState() const { return PlayerMoveState; }
+	FORCEINLINE void SetPlayerMoveState(EPlayerMoveState State) { PlayerMoveState = State; }
 
 
 };

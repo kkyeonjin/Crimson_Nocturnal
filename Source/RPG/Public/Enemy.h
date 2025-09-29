@@ -8,6 +8,8 @@
 
 class UEnemyAnimInstance;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackEnd);
+
 UCLASS()
 class RPG_API AEnemy : public ACharacter
 {
@@ -26,6 +28,11 @@ public:
 	UFUNCTION()
 	void AttackStart();
 
+	UFUNCTION()
+	void OnEnemyAttackMontageEnded();
+
+	FOnEnemyAttackEnd OnEnemyAttackEnd;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -41,5 +48,7 @@ protected:
 
 private:
 	UEnemyAnimInstance* EnemyAnimInstance;
+
+	bool IsAttacking;
 	
 };

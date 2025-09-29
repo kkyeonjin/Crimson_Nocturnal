@@ -27,7 +27,7 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		GroundSpeed = UKismetMathLibrary::VSizeXY(PlayerCharacterMovement->Velocity);
 		IsFalling = PlayerCharacterMovement->IsFalling();
-		PlayerState = PlayerCharacter->GetPlayerState();
+		//PlayerState = PlayerCharacter->GetPlayerState();
 	}
 
 }
@@ -37,6 +37,11 @@ void UPlayerAnimInstance::AnimNotify_AttackEnd()
 	// 캐스팅으로 캐릭터 접근
 	OnAttackMontageEnd.Broadcast();
 	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+}
+
+void UPlayerAnimInstance::AnimNotify_MoveEnable()
+{
+	OnMoveEnable.Broadcast();
 }
 
 void UPlayerAnimInstance::PlayAnimMontage(int32 Num)
