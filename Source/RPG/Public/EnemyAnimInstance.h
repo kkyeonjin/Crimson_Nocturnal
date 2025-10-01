@@ -24,7 +24,7 @@ public:
 	virtual void NativeUpdateAnimation(float DeltaSeconds) override;
 
 	UFUNCTION()
-	void PlayAnimMontage();
+	void PlayAnimMontage(int32 Num);
 
 	FOnEnemyAttackMontageEnd OnEnemyAttackMontageEnd;
 
@@ -45,6 +45,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackA;
+
+	UPROPERTY(EditAnywhere, Category = "Hit Reaction")
+	UAnimMontage* HitReactA;
 
 private:
 	//void AnimNotify_AttackEnd();

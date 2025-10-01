@@ -17,8 +17,8 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
-	EnemyAnimInstance = Cast<UEnemyAnimInstance>(GetMesh()->GetAnimInstance());
-	if (!EnemyAnimInstance)
+	CachedEnemyAnimInstance = Cast<UEnemyAnimInstance>(GetMesh()->GetAnimInstance());
+	if (!CachedEnemyAnimInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AnimInstance Cast Failed in BeginPlay"));
 	}
@@ -35,19 +35,19 @@ void AEnemy::Tick(float DeltaTime)
 
 void AEnemy::AttackStart()
 {
-	if (EnemyAnimInstance)
+	if (CachedEnemyAnimInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackStart"));
 
-		EnemyAnimInstance->PlayAnimMontage();
-		EnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
+		CachedEnemyAnimInstance->PlayAnimMontage(0);
+		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		IsAttacking = true;
 	}
 }
 
 void AEnemy::OnEnemyAttackMontageEnded()
 {
-	if (EnemyAnimInstance)
+	if (CachedEnemyAnimInstance)
 	{
 		OnEnemyAttackEnd.Broadcast();
 	}
@@ -67,5 +67,15 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+}
+
+void AEnemy::GetHit(const FVector& ImpactPoint)
+{
+	UE_LOG(LogTemp, Display, TEXT("EnemyHit!!!"));
+	if (CachedEnemyAnimInstance)
+	{
+		CachedEnemyAnimInstance->PlayAnimMontage(1);
+	}
+	
 }
 

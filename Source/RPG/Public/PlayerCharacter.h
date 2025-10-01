@@ -9,6 +9,7 @@
 #include "ComboInput.h"
 #include "PlayerCharacter.generated.h"
 
+class UWeaponComponent;
 class UInputMappingContext;
 class UInputAction;
 class AItem;
@@ -59,6 +60,12 @@ protected:
 	UFUNCTION()
 	void SetMoveEnable();
 
+	UFUNCTION()
+	void SetWeaponCollisionEnable();
+
+	UFUNCTION()
+	void SetWeaponCollisionDisable();
+
 private:
 	//default state is unequipped
 	EPlayerCombatState PlayerCombatState = EPlayerCombatState::EPCS_NotAttacking;
@@ -69,6 +76,8 @@ private:
 	UPlayerAnimInstance* CachedAnimInstance;
 
 	UComboManageComponent* CachedComboManageComponent;
+
+	UWeaponComponent* CachedWeaponComponent;
 
 	//only visible in Detail Panel
 	UPROPERTY(VisibleInstanceOnly)

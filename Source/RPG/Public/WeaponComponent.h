@@ -17,6 +17,12 @@ public:
 	UWeaponComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+	UFUNCTION()
+	void OnCollisionEnable();
+
+	UFUNCTION()
+	void OnCollisionDisable();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -39,12 +45,12 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponR")
 	UShapeComponent* BladeBoxR;
 
+
 	//callback func to delegate
 	UFUNCTION()
-	void OnBladeROverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	void OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
-	UFUNCTION()
-	void OnBladeLOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	
 
 	void BindingOverlapDelegate();
 

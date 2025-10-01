@@ -4,7 +4,7 @@
 #include "WeaponComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/ShapeComponent.h"
-
+#include "Interfaces/HitInterface.h"
 // Sets default values for this component's properties
 UWeaponComponent::UWeaponComponent()
 {
@@ -23,13 +23,13 @@ void UWeaponComponent::BeginPlay()
 
 	// ...
 	
-	
 }
 
 void UWeaponComponent::BindingOverlapDelegate()
 {
-	BladeBoxL->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnBladeLOverlap);
-	BladeBoxR->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnBladeROverlap);
+	BladeBoxL->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnBladeOverlap);
+	BladeBoxR->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnBladeOverlap);
+
 }
 
 void UWeaponComponent::InitializeWeaponComponents(USceneComponent* NewTraceStartPointL, USceneComponent* NewTraceEndPointL, USceneComponent* NewTraceStartPointR, USceneComponent* NewTraceEndPointR, UShapeComponent* NewBladeBoxL, UShapeComponent* NewBladeBoxR)
@@ -41,60 +41,105 @@ void UWeaponComponent::InitializeWeaponComponents(USceneComponent* NewTraceStart
 	BladeBoxL = NewBladeBoxL;
 	BladeBoxR = NewBladeBoxR;
 
+	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+
 	BindingOverlapDelegate();
 }
 
 
-//called when the overlap occur (Blade & Enemy..etc)
-void UWeaponComponent::OnBladeROverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
-{
-	const FVector StartR = TraceStartPointR->GetComponentLocation();
-	const FVector EndR = TraceEndPointR->GetComponentLocation();
 
+
+//called when the overlap occur (Blade & Enemy..etc)
+void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
-	FHitResult HitResultR;
 	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 
-	UKismetSystemLibrary::BoxTraceSingle(
-		this,
-		StartR,
-		EndR,
-		FVector(2.f, 2.f, 2.f),
-		TraceStartPointR->GetComponentRotation(),
-		TraceChannel,
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
-		HitResultR,
-		true
-	);
+	if (OverlappedComponent == BladeBoxL)
+	{
+		const FVector StartL = TraceStartPointL->GetComponentLocation();
+		const FVector EndL = TraceEndPointL->GetComponentLocation();
+
+		//TArray<AActor*> ActorsToIgnore;
+		//ActorsToIgnore.Add(GetOwner());
+		FHitResult HitResultL;
+		//ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
+
+		UKismetSystemLibrary::BoxTraceSingle(
+			this,
+			StartL,
+			EndL,
+			FVector(2.f, 2.f, 2.f),
+			TraceStartPointL->GetComponentRotation(),
+			TraceChannel,
+			false,
+			ActorsToIgnore,
+			EDrawDebugTrace::ForDuration,
+			HitResultL,
+			true
+		);
+
+		if (HitResultL.GetActor())
+		{
+			IHitInterface* HitInterface = Cast<IHitInterface>(HitResultL.GetActor());
+
+			if (HitInterface)
+			{
+				HitInterface->GetHit(HitResultL.ImpactPoint);
+			}
+		}
+	}
+
+	else if (OverlappedComponent == BladeBoxR)
+	{
+		const FVector StartR = TraceStartPointR->GetComponentLocation();
+		const FVector EndR = TraceEndPointR->GetComponentLocation();
+
+		//TArray<AActor*> ActorsToIgnore;
+		//ActorsToIgnore.Add(GetOwner());
+		FHitResult HitResultR;
+		//ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
+
+		UKismetSystemLibrary::BoxTraceSingle(
+			this,
+			StartR,
+			EndR,
+			FVector(2.f, 2.f, 2.f),
+			TraceStartPointR->GetComponentRotation(),
+			TraceChannel,
+			false,
+			ActorsToIgnore,
+			EDrawDebugTrace::ForDuration,
+			HitResultR,
+			true
+		);
+
+		if (HitResultR.GetActor())
+		{
+			IHitInterface* HitInterface = Cast<IHitInterface>(HitResultR.GetActor());
+
+			if (HitInterface)
+			{
+				HitInterface->GetHit(HitResultR.ImpactPoint);
+			}
+		}
+	}
+
 
 }
 
-void UWeaponComponent::OnBladeLOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UWeaponComponent::OnCollisionEnable()
 {
-	const FVector StartL = TraceStartPointL->GetComponentLocation();
-	const FVector EndL = TraceEndPointL->GetComponentLocation();
+	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
 
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(GetOwner());
-	FHitResult HitResultL;
-	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
-	UKismetSystemLibrary::BoxTraceSingle(
-		this,
-		StartL,
-		EndL,
-		FVector(2.f, 2.f, 2.f),
-		TraceStartPointL->GetComponentRotation(),
-		TraceChannel,
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
-		HitResultL,
-		true
-	);
-
+void UWeaponComponent::OnCollisionDisable()
+{
+	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 

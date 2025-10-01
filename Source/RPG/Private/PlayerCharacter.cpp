@@ -8,6 +8,7 @@
 #include "Animation/AnimMontage.h"
 #include "PlayerAnimInstance.h"
 #include "ComboManageComponent.h"
+#include "WeaponComponent.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -39,6 +40,8 @@ void APlayerCharacter::BeginPlay()
 		//binding to MontageEnd Delegate 
 		CachedAnimInstance->OnAttackMontageEnd.AddDynamic(this, &APlayerCharacter::OnAttackMontageEnded);
 		CachedAnimInstance->OnMoveEnable.AddDynamic(this, &APlayerCharacter::SetMoveEnable);
+		CachedAnimInstance->OnCollisionEnable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionEnable);
+		CachedAnimInstance->OnCollisionDisable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionDisable);
 	}
 	
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
@@ -46,6 +49,8 @@ void APlayerCharacter::BeginPlay()
 	{
 		CachedComboManageComponent->OnComboComplete.AddDynamic(this, &APlayerCharacter::OnComboComplete);
 	}
+
+	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
 	
 }
 
@@ -64,6 +69,16 @@ void APlayerCharacter::OnComboComplete(int32 ComboAnimNum)
 void APlayerCharacter::SetMoveEnable()
 {
 	SetPlayerMoveState(EPlayerMoveState::EPMS_MoveEnabled);
+}
+
+void APlayerCharacter::SetWeaponCollisionEnable()
+{
+	CachedWeaponComponent->OnCollisionEnable();
+}
+
+void APlayerCharacter::SetWeaponCollisionDisable()
+{
+	CachedWeaponComponent->OnCollisionDisable();
 }
 
 

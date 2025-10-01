@@ -12,6 +12,8 @@ class APlayerCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackMontageEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveEnable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionEnable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionDisable);
 
 /**
  * 
@@ -33,6 +35,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnMoveEnable OnMoveEnable;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnCollisionEnable OnCollisionEnable;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCollisionDisable OnCollisionDisable;
+
 
 protected:
 
@@ -41,6 +49,12 @@ protected:
 
 	UFUNCTION()
 	void AnimNotify_MoveEnable();
+
+	UFUNCTION()
+	void AnimNotify_CollisionEnable();
+
+	UFUNCTION()
+	void AnimNotify_CollisionDisable();
 
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter* PlayerCharacter;

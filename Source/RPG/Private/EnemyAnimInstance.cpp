@@ -35,7 +35,19 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	}
 }
 
-void UEnemyAnimInstance::PlayAnimMontage()
+void UEnemyAnimInstance::PlayAnimMontage(int32 Num)
 {
-	Montage_Play(AttackA);
+	switch (Num)
+	{
+		//0-9: primary animations(attack, hit reaction,,,etc)
+		case 0:
+			Montage_Play(AttackA);
+			break;
+		case 1:
+			Montage_Play(HitReactA);
+			break;
+		default:
+			break;
+
+	}
 }

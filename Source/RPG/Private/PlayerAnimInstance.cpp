@@ -42,6 +42,17 @@ void UPlayerAnimInstance::AnimNotify_AttackEnd()
 void UPlayerAnimInstance::AnimNotify_MoveEnable()
 {
 	OnMoveEnable.Broadcast();
+	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+}
+
+void UPlayerAnimInstance::AnimNotify_CollisionEnable()
+{
+	OnCollisionEnable.Broadcast();
+}
+
+void UPlayerAnimInstance::AnimNotify_CollisionDisable()
+{
+	OnCollisionDisable.Broadcast();
 }
 
 void UPlayerAnimInstance::PlayAnimMontage(int32 Num)

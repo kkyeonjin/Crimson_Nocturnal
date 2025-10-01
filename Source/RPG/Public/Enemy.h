@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
 class UEnemyAnimInstance;
@@ -11,7 +12,7 @@ class UEnemyAnimInstance;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackEnd);
 
 UCLASS()
-class RPG_API AEnemy : public ACharacter
+class RPG_API AEnemy : public ACharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -21,6 +22,8 @@ public:
 
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	virtual void GetHit(const FVector& ImpactPoint) override;
 
 	// Sets default values for this character's properties
 	AEnemy();
@@ -47,7 +50,7 @@ protected:
 	float ChaseSpeed = 500.f;
 
 private:
-	UEnemyAnimInstance* EnemyAnimInstance;
+	UEnemyAnimInstance* CachedEnemyAnimInstance;
 
 	bool IsAttacking;
 	
