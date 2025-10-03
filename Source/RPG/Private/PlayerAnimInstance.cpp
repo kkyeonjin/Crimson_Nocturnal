@@ -45,14 +45,26 @@ void UPlayerAnimInstance::AnimNotify_MoveEnable()
 	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
-void UPlayerAnimInstance::AnimNotify_CollisionEnable()
+void UPlayerAnimInstance::AnimNotify_WeaponCollisionEnable()
 {
-	OnCollisionEnable.Broadcast();
+	OnWeaponCollisionEnable.Broadcast();
 }
 
-void UPlayerAnimInstance::AnimNotify_CollisionDisable()
+void UPlayerAnimInstance::AnimNotify_WeaponCollisionDisable()
 {
-	OnCollisionDisable.Broadcast();
+	OnWeaponCollisionDisable.Broadcast();
+}
+
+void UPlayerAnimInstance::AnimNotify_KickCollisionEnable()
+{
+	OnKickCollisionEnable.Broadcast();
+	UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+}
+
+void UPlayerAnimInstance::AnimNotify_KickCollisionDisable()
+{
+	OnKickCollisionDisable.Broadcast();
+	UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::PlayAnimMontage(int32 Num)
@@ -80,3 +92,24 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 Num)
 	}
 
 }
+
+void UPlayerAnimInstance::PlayChainAttackMontage(int32 Num, FName Section)
+{
+	switch (Num)
+	{
+		//Primary Animations
+	case 0:
+		Montage_Play(AttackA);
+		Montage_JumpToSection(Section, AttackA);
+		break;
+	case 1:
+		Montage_Play(AttackB);
+		Montage_JumpToSection(Section, AttackB);
+		break;
+
+
+	default:
+		break;
+	}
+}
+

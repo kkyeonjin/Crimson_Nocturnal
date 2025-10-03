@@ -35,7 +35,7 @@ void UKickComponent::OnKickOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
 	FHitResult HitResult;
-	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
+	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1); //PlayerAttack Trace Channel
 
 	UKismetSystemLibrary::BoxTraceSingle(
 		this,
@@ -46,9 +46,10 @@ void UKickComponent::OnKickOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 		TraceChannel,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
+		EDrawDebugTrace::Persistent,
 		HitResult,
-		true
+		true,
+		FLinearColor::Blue
 	);
 
 	if (HitResult.GetActor())
@@ -78,6 +79,16 @@ void UKickComponent::InitializeKickComponents(USceneComponent* NewTraceStartPoin
 	LegBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 
 	BindingOverlapDelegate();
+}
+
+void UKickComponent::OnCollisionEnable()
+{
+	LegBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void UKickComponent::OnCollisionDisable()
+{
+	LegBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 

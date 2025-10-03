@@ -9,6 +9,7 @@
 #include "PlayerAnimInstance.h"
 #include "ComboManageComponent.h"
 #include "WeaponComponent.h"
+#include "PlayerComponents/KickComponent.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -40,8 +41,10 @@ void APlayerCharacter::BeginPlay()
 		//binding to MontageEnd Delegate 
 		CachedAnimInstance->OnAttackMontageEnd.AddDynamic(this, &APlayerCharacter::OnAttackMontageEnded);
 		CachedAnimInstance->OnMoveEnable.AddDynamic(this, &APlayerCharacter::SetMoveEnable);
-		CachedAnimInstance->OnCollisionEnable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionEnable);
-		CachedAnimInstance->OnCollisionDisable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionDisable);
+		CachedAnimInstance->OnWeaponCollisionEnable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionEnable);
+		CachedAnimInstance->OnWeaponCollisionDisable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionDisable);
+		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionEnable);
+		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionDisable);
 	}
 	
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
@@ -51,6 +54,7 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
+	CachedKickComponent = FindComponentByClass<UKickComponent>();
 	
 }
 
@@ -79,6 +83,16 @@ void APlayerCharacter::SetWeaponCollisionEnable()
 void APlayerCharacter::SetWeaponCollisionDisable()
 {
 	CachedWeaponComponent->OnCollisionDisable();
+}
+
+void APlayerCharacter::SetKickCollisionEnable()
+{
+	CachedKickComponent->OnCollisionEnable();
+}
+
+void APlayerCharacter::SetKickCollisionDisable()
+{
+	CachedKickComponent->OnCollisionDisable();
 }
 
 
@@ -137,15 +151,14 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 			{
 				InputType = EAttackKeyType::X;
 				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-				CachedAnimInstance->PlayAnimMontage(0); //Attack A
-
+				CachedAnimInstance->PlayChainAttackMontage(0, CachedComboManageComponent->ChainAttackCount(InputType)); //AttackA
 			}
 			//Y Button
 			else if (AttackValue == -1.f)
 			{
 				InputType = EAttackKeyType::Y;
 				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-				CachedAnimInstance->PlayAnimMontage(1); // Attack B
+				CachedAnimInstance->PlayChainAttackMontage(1, CachedComboManageComponent->ChainAttackCount(InputType)); //AttackB
 			}
 		}
 

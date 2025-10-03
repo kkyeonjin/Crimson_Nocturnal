@@ -29,6 +29,8 @@ public:
 
 	void PlayAnimMontage(int32 Num);
 
+	void PlayChainAttackMontage(int32 Num, FName Section);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackMontageEnd OnAttackMontageEnd;
 
@@ -36,10 +38,16 @@ public:
 	FOnMoveEnable OnMoveEnable;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCollisionEnable OnCollisionEnable;
+	FOnCollisionEnable OnWeaponCollisionEnable;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCollisionDisable OnCollisionDisable;
+	FOnCollisionDisable OnWeaponCollisionDisable;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCollisionEnable OnKickCollisionEnable;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCollisionDisable OnKickCollisionDisable;
 
 
 protected:
@@ -51,10 +59,16 @@ protected:
 	void AnimNotify_MoveEnable();
 
 	UFUNCTION()
-	void AnimNotify_CollisionEnable();
+	void AnimNotify_WeaponCollisionEnable();
 
 	UFUNCTION()
-	void AnimNotify_CollisionDisable();
+	void AnimNotify_WeaponCollisionDisable();
+
+	UFUNCTION()
+	void AnimNotify_KickCollisionEnable();
+
+	UFUNCTION()
+	void AnimNotify_KickCollisionDisable();
 
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter* PlayerCharacter;

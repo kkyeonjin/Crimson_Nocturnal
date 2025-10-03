@@ -29,12 +29,18 @@ void UComboManageComponent::ResetInputSequence()
 	TimeSinceLastInput = 0.f;
 }
 
-void UComboManageComponent::AddInputKey(EAttackKeyType Key)
+
+
+void UComboManageComponent::AddInputKey(EAttackKeyType Key) //이름다시지을필요가존나있음 
 {
 	InputKeySequence.Add(Key);
 	TimeSinceLastInput = 0.f;
 
-	UE_LOG(LogTemp, Warning, TEXT("InputKeySequence"));
+	GetWorld()->GetTimerManager().SetTimer(
+		ComboTimeOutTimer, this, &UComboManageComponent::CheckComboTimeOut, ComboTimeOut, false
+	); //last parameter false-> call Timer just once 
+
+	//UE_LOG(LogTemp, Warning, TEXT("InputKeySequence"));
 
 	for (int32 i = 0; i < ComboPatterns.Num(); i++)
 	{
@@ -62,6 +68,35 @@ void UComboManageComponent::AddInputKey(EAttackKeyType Key)
 	}
 }
 
+FName UComboManageComponent::ChainAttackCount(EAttackKeyType Key)
+{
+	FString SectionNameStr;
+
+	if (Key == EAttackKeyType::X)
+	{
+		//UE_LOG(LogTemp, Display, TEXT("CountX : %d"), ChainAttackCountX);
+		if (ChainAttackCountX == 3)
+		{
+			ChainAttackCountX = 0;
+		}
+		ChainAttackCountX++;
+		UE_LOG(LogTemp, Display, TEXT("CountX : %d"), ChainAttackCountX);
+		SectionNameStr = FString::Printf(TEXT("Chain%d"), ChainAttackCountX);
+	}
+	else if (Key == EAttackKeyType::Y)
+	{
+		if (ChainAttackCountY == 2)
+		{
+			ChainAttackCountY = 0;
+		}
+		ChainAttackCountY++;
+		UE_LOG(LogTemp, Display, TEXT("CountY : %d"), ChainAttackCountX);
+		SectionNameStr = FString::Printf(TEXT("Chain%d"), ChainAttackCountY);
+	}
+	FName SectionName(*SectionNameStr);
+	return SectionName;
+}
+
 void UComboManageComponent::InitializeComboPattern()
 {
 	//ComboA
@@ -79,15 +114,24 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboPatterns.Add(ComboB);
 }
 
-void UComboManageComponent::CheckComboTimeOut(float DeltaTime)
+void UComboManageComponent::CheckComboTimeOut()
 {
-	TimeSinceLastInput += DeltaTime;
+	//TimeSinceLastInput += DeltaTime;
 
+	ResetInputSequence();
+	ChainAttackCountX = 0;
+	ChainAttackCountY = 0;
+	UE_LOG(LogTemp, Warning, TEXT("InputReset"));
+
+	/*
 	if (TimeSinceLastInput > ComboTimeOut)
 	{
 		ResetInputSequence();
+		ChainAttackCountX = 0;
+		ChainAttackCountY = 0;
 		UE_LOG(LogTemp, Warning, TEXT("InputReset"));
 	}
+	*/
 }
 
 int32 UComboManageComponent::GetComboAnimMontage(int32 ComboAnimNum)
@@ -95,11 +139,13 @@ int32 UComboManageComponent::GetComboAnimMontage(int32 ComboAnimNum)
 	return ComboPatterns[ComboAnimNum].AnimMontageNum;
 }
 
+
+
 // Called every frame
 void UComboManageComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
 {
 	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	CheckComboTimeOut(DeltaTime);
+	//CheckComboTimeOut(DeltaTime);
 	// ...
 }

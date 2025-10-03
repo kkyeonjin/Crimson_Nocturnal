@@ -22,10 +22,14 @@ public:
 
 	void AddInputKey(EAttackKeyType Key);
 
+	FName ChainAttackCount(EAttackKeyType Key);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnComboComplete OnComboComplete;
 
 	int32 GetComboAnimMontage(int32 ComboAnimNum);
+
+
 
 protected:
 	// Called when the game starts
@@ -40,13 +44,21 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	float ComboTimeOut = 2.f;
 
+	FTimerHandle ComboTimeOutTimer;
+
 	float TimeSinceLastInput = 0.f;
+
+	int32 ChainAttackCountX = 0;
+
+	int32 ChainAttackCountY = 0;
 
 	void ResetInputSequence();
 
 	void InitializeComboPattern();
 
-	void CheckComboTimeOut(float DeltaTime);
+	void CheckComboTimeOut();
+
+
 
 
 
