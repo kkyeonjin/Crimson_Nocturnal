@@ -10,6 +10,7 @@
 #include "ComboManageComponent.h"
 #include "WeaponComponent.h"
 #include "PlayerComponents/KickComponent.h"
+#include "PlayerComponents/PlayerAttributeComponent.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -55,6 +56,11 @@ void APlayerCharacter::BeginPlay()
 
 	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
 	CachedKickComponent = FindComponentByClass<UKickComponent>();
+	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
+	if (!CachedAttributeComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("PlayerAttributeComp Cannot Find"));
+	}
 	
 }
 
@@ -187,6 +193,13 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	}
 }
+
+void APlayerCharacter::HandleAttack(AActor* Target)
+{
+	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
+}
+
+
 
 
 

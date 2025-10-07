@@ -2,6 +2,8 @@
 
 
 #include "WeaponComponent.h"
+
+#include "PlayerCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/ShapeComponent.h"
 #include "Interfaces/HitInterface.h"
@@ -118,6 +120,15 @@ void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 		if (HitResultR.GetActor())
 		{
+			if (HitResultR.GetActor()->ActorHasTag("Enemy"))
+			{
+				APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+				if (PlayerCharacter)
+				{
+					PlayerCharacter->HandleAttack(HitResultR.GetActor());
+				}
+			}
+
 			IHitInterface* HitInterface = Cast<IHitInterface>(HitResultR.GetActor());
 
 			if (HitInterface)

@@ -9,6 +9,7 @@
 #include "ComboInput.h"
 #include "PlayerCharacter.generated.h"
 
+class UPlayerAttributeComponent;
 class UKickComponent;
 class UWeaponComponent;
 class UInputMappingContext;
@@ -27,6 +28,8 @@ public:
 	APlayerCharacter();
 	virtual void Tick(float DeltaTime) override;
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+
+	void HandleAttack(AActor* Target);
 
 protected:
 	virtual void BeginPlay() override;
@@ -87,6 +90,8 @@ private:
 	UWeaponComponent* CachedWeaponComponent;
 
 	UKickComponent* CachedKickComponent;
+
+	UPlayerAttributeComponent* CachedAttributeComponent;
 
 	//only visible in Detail Panel
 	UPROPERTY(VisibleInstanceOnly)

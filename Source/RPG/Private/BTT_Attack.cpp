@@ -50,6 +50,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     EnemyLocal->AttackStart();
 
     UE_LOG(LogTemp, Display, TEXT("AttackStart called"));
+    EnemyLocal->OnEnemyAttackEnd.RemoveDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
     EnemyLocal->OnEnemyAttackEnd.AddDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
 
     return EBTNodeResult::InProgress;

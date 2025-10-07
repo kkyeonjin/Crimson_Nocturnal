@@ -3,6 +3,7 @@
 
 #include "Enemy.h"
 #include "EnemyAnimInstance.h"
+#include "EnemyComponents/EnemyAttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
@@ -22,6 +23,11 @@ void AEnemy::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AnimInstance Cast Failed in BeginPlay"));
 	}
+	CachedEnemyAttributeComponent = FindComponentByClass<UEnemyAttributeComponent>();
+	if (!CachedEnemyAttributeComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyAttributeComp Finding Failed in BeginPlay"));
+	}
 	IsAttacking = false;
 }
 	
@@ -40,6 +46,7 @@ void AEnemy::AttackStart()
 		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackStart"));
 
 		CachedEnemyAnimInstance->PlayAnimMontage(0);
+		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.RemoveDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		IsAttacking = true;
 	}
@@ -76,6 +83,9 @@ void AEnemy::GetHit(const FVector& ImpactPoint)
 	{
 		CachedEnemyAnimInstance->PlayAnimMontage(1);
 	}
-	
+	if (CachedEnemyAttributeComponent)
+	{
+		CachedEnemyAttributeComponent->ApplyDamage();
+	}
 }
 

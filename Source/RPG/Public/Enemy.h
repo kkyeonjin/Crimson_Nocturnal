@@ -8,6 +8,7 @@
 #include "Enemy.generated.h"
 
 class UEnemyAnimInstance;
+class UEnemyAttributeComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackEnd);
 
@@ -51,6 +52,7 @@ protected:
 
 private:
 	UEnemyAnimInstance* CachedEnemyAnimInstance;
+	UEnemyAttributeComponent* CachedEnemyAttributeComponent;
 
 	bool IsAttacking;
 	
