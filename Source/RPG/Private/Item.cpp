@@ -1,7 +1,7 @@
 #include "Item.h"
 #include "DrawDebugHelpers.h"
 #include "Components/SphereComponent.h"
-#include "PlayerCharacter.h"
+#include "Player/PlayerCharacter.h"
 
 // Sets default values
 AItem::AItem()
