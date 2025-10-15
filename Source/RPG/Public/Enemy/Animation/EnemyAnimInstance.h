@@ -10,6 +10,8 @@ class UCharacterMovementComponent;
 class AEnemy;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackMontageEnd);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyCollisionEnable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyCollisionDisable);
 
 /**
  * 
@@ -27,12 +29,19 @@ public:
 	void PlayAnimMontage(int32 Num);
 
 	FOnEnemyAttackMontageEnd OnEnemyAttackMontageEnd;
-
+	FOnEnemyCollisionEnable OnEnemyCollisionEnable;
+	FOnEnemyCollisionDisable OnEnemyCollisionDisable;
 
 protected:
 
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
+
+	UFUNCTION()
+	void AnimNotify_CollisionEnable();
+
+	UFUNCTION()
+	void AnimNotify_CollisionDisable();
 
 	UPROPERTY(BlueprintReadOnly)
 	AEnemy* Enemy;
@@ -48,6 +57,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Hit Reaction")
 	UAnimMontage* HitReactA;
+
+	UPROPERTY(EditAnywhere, Category = "Death")
+	UAnimMontage* Death;
 
 private:
 	//void AnimNotify_AttackEnd();

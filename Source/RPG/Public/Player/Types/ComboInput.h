@@ -24,4 +24,11 @@ struct FComboPattern
     //designate their own number 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
     int32 AnimMontageNum;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+    float ComboAttackMultiplier;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
+    int32 BPValue;
+
 };

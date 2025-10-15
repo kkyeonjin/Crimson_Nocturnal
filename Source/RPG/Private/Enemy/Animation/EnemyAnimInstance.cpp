@@ -12,6 +12,17 @@ void UEnemyAnimInstance::AnimNotify_AttackEnd()
 	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
+void UEnemyAnimInstance::AnimNotify_CollisionEnable()
+{
+	OnEnemyCollisionEnable.Broadcast();
+	UE_LOG(LogTemp, Warning, TEXT("CollisionEnableNotifyRings"));
+}
+
+void UEnemyAnimInstance::AnimNotify_CollisionDisable()
+{
+	OnEnemyCollisionDisable.Broadcast();
+}
+
 void UEnemyAnimInstance::NativeInitializeAnimation()
 {
 	Super::NativeInitializeAnimation();
@@ -45,6 +56,9 @@ void UEnemyAnimInstance::PlayAnimMontage(int32 Num)
 			break;
 		case 1:
 			Montage_Play(HitReactA);
+			break;
+		case 2:
+			Montage_Play(Death);
 			break;
 		default:
 			break;

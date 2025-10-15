@@ -97,7 +97,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	UAnimMontage* ComboB;
 
-	
+	UPROPERTY(EditAnywhere, Category = "Stun")
+	UAnimMontage* StunA;
+
 
 public:
 	FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }

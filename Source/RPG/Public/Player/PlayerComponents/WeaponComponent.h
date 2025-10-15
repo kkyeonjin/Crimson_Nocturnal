@@ -4,11 +4,12 @@
 
 #include "CoreMinimal.h"
 #include "Components/SceneComponent.h"
+#include "Interfaces/AttackCollisionInterface.h"
 #include "WeaponComponent.generated.h"
 
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
-class RPG_API UWeaponComponent : public UActorComponent
+class RPG_API UWeaponComponent : public UActorComponent, public IAttackCollisionInterface
 {
 	GENERATED_BODY()
 
@@ -18,10 +19,15 @@ public:
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
-	void OnCollisionEnable();
+	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	UFUNCTION()
-	void OnCollisionDisable();
+	virtual void OnAttackCollisionEnable() override;
+
+	UFUNCTION()
+	virtual void OnAttackCollisionDisable() override;
+
+	virtual void BindingOverlapDelegate() override;
 
 protected:
 	// Called when the game starts
@@ -44,15 +50,6 @@ protected:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponR")
 	UShapeComponent* BladeBoxR;
-
-
-	//callback func to delegate
-	UFUNCTION()
-	void OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
-
-	
-
-	void BindingOverlapDelegate();
 
 	UFUNCTION(BlueprintCallable)
 	void InitializeWeaponComponents(

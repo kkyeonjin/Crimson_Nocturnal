@@ -51,11 +51,13 @@ void APlayerCharacter::BeginPlay()
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
 	if (CachedComboManageComponent)
 	{
-		CachedComboManageComponent->OnComboComplete.AddDynamic(this, &APlayerCharacter::OnComboComplete);
+		CachedComboManageComponent->OnComboMatch.AddDynamic(this, &APlayerCharacter::OnComboComplete);
+		CachedComboManageComponent->OnChainAttack.AddDynamic(this, &APlayerCharacter::OnChainAttack);
 	}
 
 	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
 	CachedKickComponent = FindComponentByClass<UKickComponent>();
+
 	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
 	if (!CachedAttributeComponent)
 	{
@@ -70,37 +72,43 @@ void APlayerCharacter::OnAttackMontageEnded()
 }
 
 //delegate callback function (when combo matches)
-void APlayerCharacter::OnComboComplete(int32 ComboAnimNum)
+void APlayerCharacter::OnComboComplete(int32 ComboAnimNum, int32 BPValue)
 {
-	CachedAnimInstance->PlayAnimMontage(ComboAnimNum);
+	CachedAnimInstance->PlayAnimMontage(ComboAnimNum); //Play Combo Animation
+	CachedAttributeComponent->SetBPtoGet(BPValue);//Set BPValue to get
 	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
+}
+
+void APlayerCharacter::OnChainAttack(int32 AnimNum, FName SectionName)
+{
+	CachedAnimInstance->PlayChainAttackMontage(AnimNum, SectionName);
 }
 
 void APlayerCharacter::SetMoveEnable()
 {
 	SetPlayerMoveState(EPlayerMoveState::EPMS_MoveEnabled);
+	UE_LOG(LogTemp, Display, TEXT("PlayerMoveEnableSet"));
 }
 
 void APlayerCharacter::SetWeaponCollisionEnable()
 {
-	CachedWeaponComponent->OnCollisionEnable();
+	CachedWeaponComponent->OnAttackCollisionEnable();
 }
 
 void APlayerCharacter::SetWeaponCollisionDisable()
 {
-	CachedWeaponComponent->OnCollisionDisable();
+	CachedWeaponComponent->OnAttackCollisionDisable();
 }
 
 void APlayerCharacter::SetKickCollisionEnable()
 {
-	CachedKickComponent->OnCollisionEnable();
+	CachedKickComponent->OnAttackCollisionEnable();
 }
 
 void APlayerCharacter::SetKickCollisionDisable()
 {
-	CachedKickComponent->OnCollisionDisable();
+	CachedKickComponent->OnAttackCollisionDisable();
 }
-
 
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
@@ -117,7 +125,6 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		//FVector Forward: adjusted Forward Vector("Forward" based on the direction you are looking)
 		const FVector Forward = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::X);
 		AddMovementInput(Forward, MovementVector.Y);
-
 
 		const FVector Right = FRotationMatrix(YawRotation).GetUnitAxis(EAxis::Y);
 		AddMovementInput(Right, MovementVector.X);
@@ -150,26 +157,35 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 		SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
 		//disable move input when player is attacking
 		SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
-		if (CachedAnimInstance)
+
+		//X Button
+		if (AttackValue == 1.f)
+		{
+			InputType = EAttackKeyType::X;
+			UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
+		}
+		//Y Button
+		else if (AttackValue == -1.f)
+		{
+			InputType = EAttackKeyType::Y;
+			UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
+		}
+
+		//send ENUM to InputSequence array (for Combo check)
+		if (!CachedComboManageComponent->IsComboMatch(InputType))
 		{
 			//X Button
 			if (AttackValue == 1.f)
 			{
-				InputType = EAttackKeyType::X;
-				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-				CachedAnimInstance->PlayChainAttackMontage(0, CachedComboManageComponent->ChainAttackCount(InputType)); //AttackA
+				CachedComboManageComponent->ChainAttackCount(InputType);
 			}
 			//Y Button
 			else if (AttackValue == -1.f)
 			{
-				InputType = EAttackKeyType::Y;
-				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-				CachedAnimInstance->PlayChainAttackMontage(1, CachedComboManageComponent->ChainAttackCount(InputType)); //AttackB
+				CachedComboManageComponent->ChainAttackCount(InputType);
 			}
 		}
-
-		//send ENUM to InputSequence array (for Combo check)
-		CachedComboManageComponent->AddInputKey(InputType);
+		CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentChainAttackMultiplier());
 	}
 }
 
@@ -197,6 +213,15 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 void APlayerCharacter::HandleAttack(AActor* Target)
 {
 	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
+}
+
+void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
+{
+	UE_LOG(LogTemp, Error, TEXT("Player Hit!!!"));
+	CachedAnimInstance->PlayAnimMontage(2);
+	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
+	CachedAttributeComponent->ApplyDamage();
+
 }
 
 

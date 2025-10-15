@@ -20,12 +20,15 @@ void UPlayerAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
+	//get Stats from DataTable to variables
 	FPlayerStat* Row = PlayerStatTable->FindRow<FPlayerStat>(FName(TEXT("MainPlayer")), TEXT("Load Player Stat Data"));
 	if (Row)
 	{
 		ATK = Row->ATK;
 		DEF = Row->DEF;
 		CurrentHP = Row->CurrentHP;
+		CurrentBP = Row->CurrentBp;
+		EXP = Row->EXP;
 	}
 	// ...
 	
@@ -36,29 +39,48 @@ void UPlayerAttributeComponent::InitializePlayerStat()
 	//PlayerStat.
 }
 
-
-// Called every frame
-void UPlayerAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
+//Calculation Damage Value to Enemy when Player hits Enemy
+int32 UPlayerAttributeComponent::CalcDamage()
 {
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
+	if (BPtoGet != 0)
+	{
+		UE_LOG(LogTemp, Display, TEXT("BPtoGet: %d"), BPtoGet);
+		CurrentBP += BPtoGet;
+		CurrentBP = FMath::Clamp(CurrentBP, 0.f, MaxBP);
+		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
+		BPtoGet = 0;
+	}
 
-	// ...
-}
-
-float UPlayerAttributeComponent::CalcDamage()
-{
 	if (!EnemyAttributeComponent)
 	{
 		UE_LOG(LogTemp, Error, TEXT("EAC is not Found"));
 		return 0.f;
 	}
-	float EnemyDEF = EnemyAttributeComponent->GetDEF();
-	return ATK - EnemyDEF;
+	
+	float Damage = ATK - EnemyAttributeComponent->GetDEF();
+	if (Damage > 0)
+	{
+		return FMath::RoundToInt32(Damage);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
+//Apply Damage(=Reduce Player's HP) that Enemy gave to Player
 void UPlayerAttributeComponent::ApplyDamage()
 {
-
+	if (EnemyAttributeComponent)
+	{
+		int32 Damage = EnemyAttributeComponent->CalcDamage();
+		CurrentHP -= Damage;
+		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
+	}
+	else
+	{
+		//UE_LOG(LogTemp, Error, TEXT("EnemyAttributeComponent CANNOT FIND"));
+	}
 }
 
 void UPlayerAttributeComponent::SetEnemyAttributeComponent(AActor* Target)
@@ -66,8 +88,14 @@ void UPlayerAttributeComponent::SetEnemyAttributeComponent(AActor* Target)
 	EnemyAttributeComponent = Target->FindComponentByClass<UEnemyAttributeComponent>();
 	if (!EnemyAttributeComponent)
 	{
-		UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Cannot Find"));
+		//UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Cannot Find"));
 	}
-	UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Find"));
+	//UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Find"));
+}
+
+void UPlayerAttributeComponent::AddEXP(int32 EXPValue)
+{
+	EXP += EXPValue;
+	UE_LOG(LogTemp, Display, TEXT("EXP: %d"), EXP);
 }
 

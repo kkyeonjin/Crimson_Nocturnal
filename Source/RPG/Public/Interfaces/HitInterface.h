@@ -24,5 +24,5 @@ class RPG_API IHitInterface
 public:
 	//pure virtual function
 	//must be implemented in child class (not in this class)
-	virtual void GetHit(const FVector& ImpactPoint) = 0;
+	virtual void GetHit(const FVector& ImpactPoint, AActor* Target) = 0;
 };

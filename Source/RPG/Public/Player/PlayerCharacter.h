@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "Interfaces/HitInterface.h"
 #include "Player/Types/PlayerType.h" //for EPlayerState
 #include "Player/Types/ComboInput.h"
 #include "PlayerCharacter.generated.h"
@@ -20,7 +21,7 @@ class UPlayerAnimInstance;
 class UComboManageComponent;
 
 UCLASS()
-class RPG_API APlayerCharacter : public ACharacter
+class RPG_API APlayerCharacter : public ACharacter, public IHitInterface
 {
 	GENERATED_BODY()
 
@@ -30,6 +31,8 @@ public:
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
 	void HandleAttack(AActor* Target);
+
+	void GetHit(const FVector& ImpactPoint, AActor* Target) override;
 
 protected:
 	virtual void BeginPlay() override;
@@ -59,7 +62,10 @@ protected:
 	void OnAttackMontageEnded();
 
 	UFUNCTION()
-	void OnComboComplete(int32 ComboNum);
+	void OnComboComplete(int32 ComboNum, int32 BPValue);
+
+	UFUNCTION()
+	void OnChainAttack(int32 AnimNum, FName SectionName);
 
 	UFUNCTION()
 	void SetMoveEnable();

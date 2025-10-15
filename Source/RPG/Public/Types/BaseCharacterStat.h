@@ -10,15 +10,15 @@ struct FBaseCharacterStat : public FTableRowBase
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float MaxHP;
+    int32 MaxHP;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float CurrentHP;
+    int32 CurrentHP;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float ATK;
+    int32 ATK;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    float DEF;
+    int32 DEF;
 
 };

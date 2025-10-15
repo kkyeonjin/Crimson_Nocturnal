@@ -32,50 +32,63 @@ void UEnemyAttributeComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("PlayerCharacter From EnemyComp Load Failed"));
 	}
 
-	FBaseCharacterStat* Row = EnemyStatTable->FindRow<FBaseCharacterStat>(FName(TEXT("Mutant")), TEXT("Load Enemy Stat Data"));
+	FEnemyStat* Row = EnemyStatTable->FindRow<FEnemyStat>(FName(TEXT("Mutant")), TEXT("Load Enemy Stat Data"));
 	if (Row)
 	{
 		ATK = Row->ATK;
 		DEF = Row->DEF;
 		CurrentHP = Row->CurrentHP;
+		EXPValue = Row->EXPValue;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("ENemyStatTable Load Failed"));
+		UE_LOG(LogTemp, Error, TEXT("EnemyStatTable Load Failed"));
 	}
 	// ...
 	
 }
+
 
 void UEnemyAttributeComponent::InitializeEnemyStat()
 {
 }
 
 
-// Called every frame
-void UEnemyAttributeComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
-	// ...
-}
-
-float UEnemyAttributeComponent::CalcDamage()
+int32 UEnemyAttributeComponent::CalcDamage()
 {
-	return 0.0f;
+	if (!PlayerAttributeComponent)
+	{
+		UE_LOG(LogTemp, Error, TEXT("EAC is not Found"));
+		return 0.f;
+	}
+	float Damage = ATK - PlayerAttributeComponent->GetDEF();
+	if (Damage > 0)
+	{
+		return FMath::RoundToInt32(Damage);
+	}
+	else
+	{
+		return 0;
+	}
 }
 
 void UEnemyAttributeComponent::ApplyDamage()
 {
 	if (PlayerAttributeComponent)
 	{
-		float Damage = PlayerAttributeComponent->CalcDamage();
+		int32 Damage = PlayerAttributeComponent->CalcDamage();
 		CurrentHP -= Damage;
-		UE_LOG(LogTemp, Display, TEXT("EnemyHP: %f"), CurrentHP);
+		UE_LOG(LogTemp, Display, TEXT("EnemyHP: %d"), CurrentHP);
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("PAC CANNOT FIND"));
 	}
+}
+
+void UEnemyAttributeComponent::SendEXPValue()
+{
+	PlayerAttributeComponent->AddEXP(EXPValue);
 }
 

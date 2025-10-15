@@ -26,8 +26,7 @@ void UKickComponent::BeginPlay()
 	
 }
 
-void UKickComponent::OnKickOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
-	UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	const FVector Start = TraceStartPoint->GetComponentLocation();
 	const FVector End = TraceEndPoint->GetComponentLocation();
@@ -58,15 +57,24 @@ void UKickComponent::OnKickOverlap(UPrimitiveComponent* OverlappedComponent, AAc
 
 		if (HitInterface)
 		{
-			HitInterface->GetHit(HitResult.ImpactPoint);
+			HitInterface->GetHit(HitResult.ImpactPoint, HitResult.GetActor());
 		}
 	}
-	
 }
 
 void UKickComponent::BindingOverlapDelegate()
 {
-	LegBox->OnComponentBeginOverlap.AddDynamic(this, &UKickComponent::OnKickOverlap);
+	LegBox->OnComponentBeginOverlap.AddDynamic(this, &UKickComponent::OnAttackCollisionOverlap);
+}
+
+void UKickComponent::OnAttackCollisionEnable()
+{
+	LegBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+}
+
+void UKickComponent::OnAttackCollisionDisable()
+{
+	LegBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
 void UKickComponent::InitializeKickComponents(USceneComponent* NewTraceStartPoint, USceneComponent* NewTraceEndPoint,
@@ -81,16 +89,6 @@ void UKickComponent::InitializeKickComponents(USceneComponent* NewTraceStartPoin
 	BindingOverlapDelegate();
 }
 
-void UKickComponent::OnCollisionEnable()
-{
-	LegBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-}
-
-void UKickComponent::OnCollisionDisable()
-{
-	LegBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-}
-
 
 // Called every frame
 void UKickComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
@@ -99,4 +97,6 @@ void UKickComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorC
 
 	// ...
 }
+
+
 

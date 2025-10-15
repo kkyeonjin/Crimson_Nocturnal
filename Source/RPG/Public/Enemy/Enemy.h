@@ -7,6 +7,7 @@
 #include "Interfaces/HitInterface.h"
 #include "Enemy.generated.h"
 
+class UEnemyAttackComponent;
 class UEnemyAnimInstance;
 class UEnemyAttributeComponent;
 
@@ -24,7 +25,7 @@ public:
 	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
-	virtual void GetHit(const FVector& ImpactPoint) override;
+	virtual void GetHit(const FVector& ImpactPoint, AActor* unused) override;
 
 	// Sets default values for this character's properties
 	AEnemy();
@@ -41,6 +42,12 @@ protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
+	UFUNCTION()
+	void SetAttackCollisionEnable();
+
+	UFUNCTION()
+	void SetAttackCollisionDisable();
+
 	UFUNCTION(BlueprintCallable)
 	void SetEnemyGroundSpeed(float NewSpeed);
 
@@ -53,7 +60,13 @@ protected:
 private:
 	UEnemyAnimInstance* CachedEnemyAnimInstance;
 	UEnemyAttributeComponent* CachedEnemyAttributeComponent;
+	UEnemyAttackComponent* CachedEnemyAttackComponent;
 
 	bool IsAttacking;
+
+	bool bIsDead;
+
+public:
+	FORCEINLINE bool IsDead() { return bIsDead; }
 	
 };

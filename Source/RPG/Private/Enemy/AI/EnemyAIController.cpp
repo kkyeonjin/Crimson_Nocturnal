@@ -3,10 +3,23 @@
 #include "Enemy/AI/EnemyAIController.h"
 #include "Perception/AIPerceptionComponent.h"
 #include "BehaviorTree/BlackboardComponent.h"
+#include "Enemy/Enemy.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 void AEnemyAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	if (Owner && Owner->IsDead())
+	{
+		StopMovement();
+		UCharacterMovementComponent* MoveComp = Owner->GetCharacterMovement();
+		if (MoveComp)
+		{
+			MoveComp->StopMovementImmediately();
+			MoveComp->DisableMovement();
+		}
+		return;
+	}
 }
 
 void AEnemyAIController::BeginPlay()
@@ -21,6 +34,8 @@ void AEnemyAIController::BeginPlay()
 		PerceptionComponent = GetPerceptionComponent();
 		UE_LOG(LogTemp, Warning, TEXT("Perception Set"));
 	}
+
+	Owner = Cast<AEnemy>(GetPawn());
 
 	PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
 }

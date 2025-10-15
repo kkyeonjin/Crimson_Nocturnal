@@ -17,5 +17,10 @@ struct FPlayerStat : public FBaseCharacterStat
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 EXP;
+
+	/*
+	UPROPERTY(EditAnywhere, BlueprintReadWrite)
+	float ComboAttackMultiplier;
+	*/
 	
 };

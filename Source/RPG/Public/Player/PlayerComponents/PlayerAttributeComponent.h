@@ -18,13 +18,12 @@ class RPG_API UPlayerAttributeComponent : public UActorComponent, public IAttrib
 public:	
 	// Sets default values for this component's properties
 	UPlayerAttributeComponent();
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
-	virtual float CalcDamage() override;
+	
+	virtual int32 CalcDamage() override;
 	virtual void ApplyDamage() override;
 
 	void SetEnemyAttributeComponent(AActor* Target);
+	void AddEXP(int32 EXPValue);
 
 protected:
 	// Called when the game starts
@@ -37,14 +36,24 @@ private:
 	//to get enemy's DEF value for Damage Calculation
 	UEnemyAttributeComponent* EnemyAttributeComponent;
 
-	float ATK;
-	float DEF;
-	float CurrentHP;
+	int32 ATK;
+	int32 DEF;
+	int32 CurrentHP;
+	int32 CurrentBP;
+	int32 MaxBP;
+	int32 EXP;
+	float AttackMultiplier;
+
+	int32 BPtoGet = 0;
 
 	void InitializePlayerStat();
 
 public:
-	FORCEINLINE virtual float GetATK() override { return ATK; }
-	FORCEINLINE virtual float GetDEF() override { return DEF; }
-		
+	FORCEINLINE virtual int32 GetATK() override { return ATK; }
+	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
+	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
+
+	FORCEINLINE void SetAttackMultiplier(float CurrentAttackMultiplier) { AttackMultiplier = CurrentAttackMultiplier; }
+	FORCEINLINE void SetBPtoGet(int32 BPValue) { BPtoGet = BPValue; }
+	//FORCEINLINE void AddEXP(int32 EXPValue) { EXP += EXPValue; }
 };

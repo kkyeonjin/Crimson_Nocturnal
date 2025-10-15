@@ -2,7 +2,6 @@
 
 
 #include "Player/PlayerComponents/WeaponComponent.h"
-
 #include "Player/PlayerCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/ShapeComponent.h"
@@ -29,9 +28,8 @@ void UWeaponComponent::BeginPlay()
 
 void UWeaponComponent::BindingOverlapDelegate()
 {
-	BladeBoxL->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnBladeOverlap);
-	BladeBoxR->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnBladeOverlap);
-
+	BladeBoxL->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnAttackCollisionOverlap);
+	BladeBoxR->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnAttackCollisionOverlap);
 }
 
 void UWeaponComponent::InitializeWeaponComponents(USceneComponent* NewTraceStartPointL, USceneComponent* NewTraceEndPointL, USceneComponent* NewTraceStartPointR, USceneComponent* NewTraceEndPointR, UShapeComponent* NewBladeBoxL, UShapeComponent* NewBladeBoxR)
@@ -49,11 +47,8 @@ void UWeaponComponent::InitializeWeaponComponents(USceneComponent* NewTraceStart
 	BindingOverlapDelegate();
 }
 
-
-
-
 //called when the overlap occur (Blade & Enemy..etc)
-void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
 	TArray<AActor*> ActorsToIgnore;
 	ActorsToIgnore.Add(GetOwner());
@@ -73,7 +68,7 @@ void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, 
 			this,
 			StartL,
 			EndL,
-			FVector(2.f, 2.f, 2.f),
+			FVector(5.f, 5.f, 5.f),
 			TraceStartPointL->GetComponentRotation(),
 			TraceChannel,
 			false,
@@ -85,11 +80,20 @@ void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 		if (HitResultL.GetActor())
 		{
+			if (HitResultL.GetActor()->ActorHasTag("Enemy"))
+			{
+				APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
+				if (PlayerCharacter)
+				{
+					PlayerCharacter->HandleAttack(HitResultL.GetActor());
+				}
+			}
+
 			IHitInterface* HitInterface = Cast<IHitInterface>(HitResultL.GetActor());
 
 			if (HitInterface)
 			{
-				HitInterface->GetHit(HitResultL.ImpactPoint);
+				HitInterface->GetHit(HitResultL.ImpactPoint, HitResultL.GetActor());
 			}
 		}
 	}
@@ -108,7 +112,7 @@ void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, 
 			this,
 			StartR,
 			EndR,
-			FVector(2.f, 2.f, 2.f),
+			FVector(5.f, 5.f, 5.f),
 			TraceStartPointR->GetComponentRotation(),
 			TraceChannel,
 			false,
@@ -133,21 +137,19 @@ void UWeaponComponent::OnBladeOverlap(UPrimitiveComponent* OverlappedComponent, 
 
 			if (HitInterface)
 			{
-				HitInterface->GetHit(HitResultR.ImpactPoint);
+				HitInterface->GetHit(HitResultR.ImpactPoint, HitResultR.GetActor());
 			}
 		}
 	}
-
-
 }
 
-void UWeaponComponent::OnCollisionEnable()
+void UWeaponComponent::OnAttackCollisionEnable()
 {
 	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-void UWeaponComponent::OnCollisionDisable()
+void UWeaponComponent::OnAttackCollisionDisable()
 {
 	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::NoCollision);

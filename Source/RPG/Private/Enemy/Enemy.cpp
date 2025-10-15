@@ -3,6 +3,7 @@
 
 #include "Enemy/Enemy.h"
 #include "Enemy/Animation/EnemyAnimInstance.h"
+#include "Enemy/EnemyComponents/EnemyAttackComponent.h"
 #include "Enemy/EnemyComponents/EnemyAttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 
@@ -28,7 +29,32 @@ void AEnemy::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyAttributeComp Finding Failed in BeginPlay"));
 	}
+	CachedEnemyAttackComponent = FindComponentByClass<UEnemyAttackComponent>();
+	if (!CachedEnemyAttackComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackComp Finding Failed in BeginPlay"));
+	}
 	IsAttacking = false;
+	bIsDead = false;
+
+	CachedEnemyAnimInstance->OnEnemyCollisionEnable.AddDynamic(this, &AEnemy::SetAttackCollisionEnable);
+	CachedEnemyAnimInstance->OnEnemyCollisionDisable.AddDynamic(this, &AEnemy::SetAttackCollisionDisable);
+}
+
+void AEnemy::SetAttackCollisionEnable()
+{
+	if (CachedEnemyAttackComponent)
+	{
+		CachedEnemyAttackComponent->OnAttackCollisionEnable();
+	}
+}
+
+void AEnemy::SetAttackCollisionDisable()
+{
+	if (CachedEnemyAttackComponent)
+	{
+		CachedEnemyAttackComponent->OnAttackCollisionDisable();
+	}
 }
 	
 
@@ -76,16 +102,25 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
-void AEnemy::GetHit(const FVector& ImpactPoint)
+void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 {
 	UE_LOG(LogTemp, Display, TEXT("EnemyHit!!!"));
-	if (CachedEnemyAnimInstance)
-	{
-		CachedEnemyAnimInstance->PlayAnimMontage(1);
-	}
 	if (CachedEnemyAttributeComponent)
 	{
 		CachedEnemyAttributeComponent->ApplyDamage();
+	}
+	if (CachedEnemyAnimInstance)
+	{
+		if (CachedEnemyAttributeComponent->GetCurrentHP() <= 0.f)
+		{
+			CachedEnemyAnimInstance->PlayAnimMontage(2); //Play Death AnimMontage
+			CachedEnemyAttributeComponent->SendEXPValue(); //Send EXP to Player that should gain
+			bIsDead = true;
+		}
+		else
+		{
+			CachedEnemyAnimInstance->PlayAnimMontage(1);
+		}
 	}
 }
 

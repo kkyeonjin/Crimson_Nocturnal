@@ -72,11 +72,16 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 Num)
 	switch (Num)
 	{
 		//Primary Animations
+		/*
 		case 0:
 			Montage_Play(AttackA);
 			break;
 		case 1:
 			Montage_Play(AttackB);
+			break;
+			*/
+		case 2:
+			Montage_Play(StunA);
 			break;
 
 		//Combo Animations
@@ -106,7 +111,6 @@ void UPlayerAnimInstance::PlayChainAttackMontage(int32 Num, FName Section)
 		Montage_Play(AttackB);
 		Montage_JumpToSection(Section, AttackB);
 		break;
-
 
 	default:
 		break;

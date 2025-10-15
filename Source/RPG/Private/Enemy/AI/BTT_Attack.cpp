@@ -20,14 +20,14 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 
     if (OwnerComp.GetAIOwner() == nullptr)
     {
-        UE_LOG(LogTemp, Error, TEXT("OwnerComp.GetAIOwner() is nullptr"));
+        //UE_LOG(LogTemp, Error, TEXT("OwnerComp.GetAIOwner() is nullptr"));
         return EBTNodeResult::Failed;
     }
 
     APawn* AIPawn = OwnerComp.GetAIOwner()->GetPawn();
     if (AIPawn == nullptr)
     {
-        UE_LOG(LogTemp, Error, TEXT("Pawn is nullptr"));
+        //UE_LOG(LogTemp, Error, TEXT("Pawn is nullptr"));
         return EBTNodeResult::Failed;
     }
     else
@@ -43,13 +43,13 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     }
     else
     {
-        UE_LOG(LogTemp, Display, TEXT("Cast succeeded"));
+        //UE_LOG(LogTemp, Display, TEXT("Cast succeeded"));
     }
 
-    UE_LOG(LogTemp, Display, TEXT("Calling AttackStart..."));
+    //UE_LOG(LogTemp, Display, TEXT("Calling AttackStart..."));
     EnemyLocal->AttackStart();
 
-    UE_LOG(LogTemp, Display, TEXT("AttackStart called"));
+    //UE_LOG(LogTemp, Display, TEXT("AttackStart called"));
     EnemyLocal->OnEnemyAttackEnd.RemoveDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
     EnemyLocal->OnEnemyAttackEnd.AddDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
 

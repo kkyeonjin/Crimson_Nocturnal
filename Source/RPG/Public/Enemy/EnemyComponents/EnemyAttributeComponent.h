@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Interfaces/AttributeInterface.h"
+#include "Enemy/Types/EnemyStat.h"
 #include "EnemyAttributeComponent.generated.h"
 
 class UPlayerAttributeComponent;
@@ -18,11 +19,12 @@ class RPG_API UEnemyAttributeComponent : public UActorComponent, public IAttribu
 public:	
 	// Sets default values for this component's properties
 	UEnemyAttributeComponent();
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-	
-	virtual float CalcDamage() override;
+
+	virtual int32 CalcDamage() override;
 	virtual void ApplyDamage() override;
+
+	//send EXPValue to Player when Enemy is dead
+	void SendEXPValue();
 
 protected:
 	// Called when the game starts
@@ -33,17 +35,19 @@ protected:
 
 private:
 
-	float ATK;
-	float DEF;
-	float CurrentHP;
+	int32 ATK;
+	int32 DEF;
+	int32 CurrentHP;
+	int32 EXPValue;
 
 	UPlayerAttributeComponent* PlayerAttributeComponent;
 
 	void InitializeEnemyStat();
 
 public:
-	FORCEINLINE virtual float GetATK() override { return ATK; }
-	FORCEINLINE virtual float GetDEF() override { return DEF; }
+	FORCEINLINE virtual int32 GetATK() override { return ATK; }
+	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
+	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
 
 		
 };

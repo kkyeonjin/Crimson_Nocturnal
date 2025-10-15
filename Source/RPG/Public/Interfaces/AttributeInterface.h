@@ -22,10 +22,11 @@ class RPG_API IAttributeInterface
 
 	// Add interface functions to this class. This is the class that will be inherited to implement this interface.
 public:
-	virtual float GetATK() = 0;
-	virtual float GetDEF() = 0;
+	virtual int32 GetATK() = 0;
+	virtual int32 GetDEF() = 0;
+	virtual int32 GetCurrentHP() = 0;
 
-	virtual float CalcDamage() = 0;
+	virtual int32 CalcDamage() = 0;
 	virtual void ApplyDamage() = 0;
 
 };

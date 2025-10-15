@@ -8,7 +8,8 @@
 #include "ComboManageComponent.generated.h"
 
 //delegate rings(broadcast) when combo matches
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnComboComplete, int, ComboAnimNum);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComboMatch, int32, ComboAnimNum, int32, BPValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChainAttack, int32, AttackAnimNum, FName, SectionName);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_API UComboManageComponent : public UActorComponent
@@ -20,12 +21,15 @@ public:
 	UComboManageComponent();
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
-	void AddInputKey(EAttackKeyType Key);
+	bool IsComboMatch(EAttackKeyType Key);
 
-	FName ChainAttackCount(EAttackKeyType Key);
+	void ChainAttackCount(EAttackKeyType Key);
 
-	UPROPERTY(BlueprintAssignable)
-	FOnComboComplete OnComboComplete;
+	UPROPERTY()
+	FOnComboMatch OnComboMatch;
+
+	UPROPERTY()
+	FOnChainAttack OnChainAttack;
 
 	int32 GetComboAnimMontage(int32 ComboAnimNum);
 
@@ -52,14 +56,16 @@ private:
 
 	int32 ChainAttackCountY = 0;
 
+	float CurrentAttackMultiplier;
+
 	void ResetInputSequence();
 
 	void InitializeComboPattern();
 
 	void CheckComboTimeOut();
 
-
-
+public:
+	FORCEINLINE float GetCurrentChainAttackMultiplier() { return CurrentAttackMultiplier; }
 
 
 };

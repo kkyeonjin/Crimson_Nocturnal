@@ -6,6 +6,8 @@
 #include "AIController.h"
 #include "EnemyAIController.generated.h"
 
+class AEnemy;
+
 //class UAIPerceptionComponent;
 
 /**
@@ -32,4 +34,6 @@ protected:
 
 private:
 	void CalcDistance();
+
+	AEnemy* Owner;
 };
