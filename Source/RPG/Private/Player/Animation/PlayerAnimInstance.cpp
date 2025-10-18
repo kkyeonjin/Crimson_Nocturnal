@@ -45,26 +45,36 @@ void UPlayerAnimInstance::AnimNotify_MoveEnable()
 	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
-void UPlayerAnimInstance::AnimNotify_WeaponCollisionEnable()
+void UPlayerAnimInstance::AnimNotify_BladeLCollisionEnable()
 {
-	OnWeaponCollisionEnable.Broadcast();
+	OnBladeLCollisionEnable.Broadcast();
 }
 
-void UPlayerAnimInstance::AnimNotify_WeaponCollisionDisable()
+void UPlayerAnimInstance::AnimNotify_BladeLCollisionDisable()
 {
-	OnWeaponCollisionDisable.Broadcast();
+	OnBladeLCollisionDisable.Broadcast();
+}
+
+void UPlayerAnimInstance::AnimNotify_BladeRCollisionEnable()
+{
+	OnBladeRCollisionEnable.Broadcast();
+}
+
+void UPlayerAnimInstance::AnimNotify_BladeRCollisionDisable()
+{
+	OnBladeRCollisionDisable.Broadcast();
 }
 
 void UPlayerAnimInstance::AnimNotify_KickCollisionEnable()
 {
 	OnKickCollisionEnable.Broadcast();
-	UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::AnimNotify_KickCollisionDisable()
 {
 	OnKickCollisionDisable.Broadcast();
-	UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::PlayAnimMontage(int32 Num)

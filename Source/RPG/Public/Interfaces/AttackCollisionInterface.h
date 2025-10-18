@@ -25,6 +25,7 @@ public:
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor,
 		UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) = 0;
 	virtual void BindingOverlapDelegate() = 0;
-	virtual void OnAttackCollisionEnable() = 0;
-	virtual void OnAttackCollisionDisable() = 0;
+	virtual void OnAttackCollisionEnable(int32 BladeSide) = 0;
+	virtual void OnAttackCollisionDisable(int32 BladeSide) = 0;
+	virtual void InitializeActorsToIgnore() = 0;
 };

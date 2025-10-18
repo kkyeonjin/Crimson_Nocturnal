@@ -12,4 +12,5 @@ struct FEnemyStat : public FBaseCharacterStat
 	//EXP that Player gain when enemy killed
 	UPROPERTY(EditAnywhere, BlueprintReadWrite)
 	int32 EXPValue;
+
 };

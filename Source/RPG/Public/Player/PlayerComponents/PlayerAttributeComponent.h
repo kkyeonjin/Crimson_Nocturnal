@@ -42,9 +42,16 @@ private:
 	int32 CurrentBP;
 	int32 MaxBP;
 	int32 EXP;
+	int32 Level;
+	int32 SkillPoint;
+
 	float AttackMultiplier;
 
 	int32 BPtoGet = 0;
+
+	//Leveling Variables
+	int32 BaseEXP;
+	float GrowthRate;
 
 	void InitializePlayerStat();
 
@@ -53,7 +60,10 @@ public:
 	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
 
+	FORCEINLINE int32 ADDCurrentHP(int32 HPtoAdd) { return CurrentHP += HPtoAdd; }
+
 	FORCEINLINE void SetAttackMultiplier(float CurrentAttackMultiplier) { AttackMultiplier = CurrentAttackMultiplier; }
 	FORCEINLINE void SetBPtoGet(int32 BPValue) { BPtoGet = BPValue; }
+	FORCEINLINE int32 GetRequiredEXPForNextLevel() { return FMath::FloorToInt32(BaseEXP * FMath::Pow(GrowthRate, Level - 1)); }
 	//FORCEINLINE void AddEXP(int32 EXPValue) { EXP += EXPValue; }
 };

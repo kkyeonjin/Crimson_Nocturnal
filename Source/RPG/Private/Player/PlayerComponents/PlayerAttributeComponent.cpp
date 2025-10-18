@@ -29,6 +29,9 @@ void UPlayerAttributeComponent::BeginPlay()
 		CurrentHP = Row->CurrentHP;
 		CurrentBP = Row->CurrentBp;
 		EXP = Row->EXP;
+		Level = Row->Level;
+		SkillPoint = Row->SkillPoint;
+
 	}
 	// ...
 	
@@ -46,7 +49,7 @@ int32 UPlayerAttributeComponent::CalcDamage()
 	{
 		UE_LOG(LogTemp, Display, TEXT("BPtoGet: %d"), BPtoGet);
 		CurrentBP += BPtoGet;
-		CurrentBP = FMath::Clamp(CurrentBP, 0.f, MaxBP);
+		//CurrentBP = FMath::Clamp(CurrentBP, 0.f, MaxBP);
 		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
 		BPtoGet = 0;
 	}
@@ -90,12 +93,22 @@ void UPlayerAttributeComponent::SetEnemyAttributeComponent(AActor* Target)
 	{
 		//UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Cannot Find"));
 	}
-	//UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Find"));
 }
 
+//take Enemy's EXP value who player just killed 
 void UPlayerAttributeComponent::AddEXP(int32 EXPValue)
 {
 	EXP += EXPValue;
+
+	while (EXP >= GetRequiredEXPForNextLevel())
+	{
+		EXP -= GetRequiredEXPForNextLevel();
+		Level++;
+
+		// OnLevelUp(); // 레벨 상승 시 추가 이벤트 많이 필요하면 호출
+		SkillPoint += 2;
+	}
+
 	UE_LOG(LogTemp, Display, TEXT("EXP: %d"), EXP);
 }
 

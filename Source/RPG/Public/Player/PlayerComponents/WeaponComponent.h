@@ -22,12 +22,14 @@ public:
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	UFUNCTION()
-	virtual void OnAttackCollisionEnable() override;
+	virtual void OnAttackCollisionEnable(int32 BladeSide) override;
 
 	UFUNCTION()
-	virtual void OnAttackCollisionDisable() override;
+	virtual void OnAttackCollisionDisable(int32 BladeSide) override;
 
 	virtual void BindingOverlapDelegate() override;
+
+	virtual void InitializeActorsToIgnore() override;
 
 protected:
 	// Called when the game starts
@@ -59,4 +61,9 @@ protected:
 		USceneComponent* NewTraceEndPointR,
 		UShapeComponent* NewBladeBoxL,
 		UShapeComponent* NewBladeBoxR);
+
+
+private:
+	TArray<AActor*> ActorsToIgnore;
+
 };

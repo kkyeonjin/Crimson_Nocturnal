@@ -65,7 +65,7 @@ private:
 	void CheckComboTimeOut();
 
 public:
-	FORCEINLINE float GetCurrentChainAttackMultiplier() { return CurrentAttackMultiplier; }
-
+	FORCEINLINE float GetCurrentAttackMultiplier() { return CurrentAttackMultiplier; }
+	FORCEINLINE TArray<FComboPattern>* GetComboPatterns() { return &ComboPatterns; }
 
 };

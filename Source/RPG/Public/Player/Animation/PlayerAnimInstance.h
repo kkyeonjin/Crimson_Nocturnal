@@ -38,10 +38,16 @@ public:
 	FOnMoveEnable OnMoveEnable;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCollisionEnable OnWeaponCollisionEnable;
+	FOnCollisionEnable OnBladeLCollisionEnable;
 
 	UPROPERTY(BlueprintAssignable)
-	FOnCollisionDisable OnWeaponCollisionDisable;
+	FOnCollisionDisable OnBladeLCollisionDisable;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCollisionEnable OnBladeRCollisionEnable;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnCollisionDisable OnBladeRCollisionDisable;
 
 	UPROPERTY(BlueprintAssignable)
 	FOnCollisionEnable OnKickCollisionEnable;
@@ -59,10 +65,16 @@ protected:
 	void AnimNotify_MoveEnable();
 
 	UFUNCTION()
-	void AnimNotify_WeaponCollisionEnable();
+	void AnimNotify_BladeLCollisionEnable();
 
 	UFUNCTION()
-	void AnimNotify_WeaponCollisionDisable();
+	void AnimNotify_BladeLCollisionDisable();
+
+	UFUNCTION()
+	void AnimNotify_BladeRCollisionEnable();
+
+	UFUNCTION()
+	void AnimNotify_BladeRCollisionDisable();
 
 	UFUNCTION()
 	void AnimNotify_KickCollisionEnable();

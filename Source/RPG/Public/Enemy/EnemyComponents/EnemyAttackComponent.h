@@ -21,12 +21,14 @@ public:
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
 	UFUNCTION()
-	virtual void OnAttackCollisionEnable() override;
+	virtual void OnAttackCollisionEnable(int32 Unused) override;
 
 	UFUNCTION()
-	virtual void OnAttackCollisionDisable() override;
+	virtual void OnAttackCollisionDisable(int32 Unused) override;
 
 	virtual void BindingOverlapDelegate() override;
+
+	virtual void InitializeActorsToIgnore() override;
 
 protected:
 	// Called when the game starts
@@ -49,5 +51,8 @@ public:
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
+
+private:
+	TArray<AActor*> ActorsToIgnore;
 		
 };

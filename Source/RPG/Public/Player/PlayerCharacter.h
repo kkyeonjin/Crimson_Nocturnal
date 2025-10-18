@@ -10,6 +10,7 @@
 #include "Player/Types/ComboInput.h"
 #include "PlayerCharacter.generated.h"
 
+class UUltimateSkillComponent;
 class UPlayerAttributeComponent;
 class UKickComponent;
 class UWeaponComponent;
@@ -53,10 +54,14 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* AttackAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* SkillActivation;
+
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
+	void Skill();
 
 	UFUNCTION()
 	void OnAttackMontageEnded();
@@ -71,10 +76,16 @@ protected:
 	void SetMoveEnable();
 
 	UFUNCTION()
-	void SetWeaponCollisionEnable();
+	void SetBladeLCollisionEnable();
 
 	UFUNCTION()
-	void SetWeaponCollisionDisable();
+	void SetBladeLCollisionDisable();
+
+	UFUNCTION()
+	void SetBladeRCollisionEnable();
+
+	UFUNCTION()
+	void SetBladeRCollisionDisable();
 
 	UFUNCTION()
 	void SetKickCollisionEnable();
@@ -82,12 +93,18 @@ protected:
 	UFUNCTION()
 	void SetKickCollisionDisable();
 
+	//SkillA
+	UFUNCTION()
+	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);
+
 private:
 	//default state is unequipped
 	EPlayerCombatState PlayerCombatState = EPlayerCombatState::EPCS_NotAttacking;
 
 	//default state is moveEnabled
 	EPlayerMoveState PlayerMoveState = EPlayerMoveState::EPMS_MoveEnabled;
+
+	EUltimateSkill SelectedSkill = EUltimateSkill::SkillA;
 
 	UPlayerAnimInstance* CachedAnimInstance;
 
@@ -98,6 +115,10 @@ private:
 	UKickComponent* CachedKickComponent;
 
 	UPlayerAttributeComponent* CachedAttributeComponent;
+
+	UUltimateSkillComponent* CachedUltimateSkillComponent;
+
+	bool IsSkillOn = false;
 
 	//only visible in Detail Panel
 	UPROPERTY(VisibleInstanceOnly)
@@ -111,5 +132,5 @@ public:
 	FORCEINLINE EPlayerMoveState GetPlayerMoveState() const { return PlayerMoveState; }
 	FORCEINLINE void SetPlayerMoveState(EPlayerMoveState State) { PlayerMoveState = State; }
 
-
+	FORCEINLINE void SetIsSkillOn(bool bIsSkillOn) { IsSkillOn = bIsSkillOn; }
 };

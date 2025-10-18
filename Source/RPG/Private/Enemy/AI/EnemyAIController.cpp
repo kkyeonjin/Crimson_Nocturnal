@@ -9,7 +9,7 @@
 void AEnemyAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
-	if (Owner && Owner->IsDead())
+	if (Owner && Owner->GetEnemyCombatState() == EEnemyCombatState::EECS_Dead)
 	{
 		StopMovement();
 		UCharacterMovementComponent* MoveComp = Owner->GetCharacterMovement();

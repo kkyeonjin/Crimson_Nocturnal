@@ -6,6 +6,7 @@
 #include "Enemy/EnemyComponents/EnemyAttackComponent.h"
 #include "Enemy/EnemyComponents/EnemyAttributeComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 AEnemy::AEnemy()
@@ -34,8 +35,6 @@ void AEnemy::BeginPlay()
 	{
 		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackComp Finding Failed in BeginPlay"));
 	}
-	IsAttacking = false;
-	bIsDead = false;
 
 	CachedEnemyAnimInstance->OnEnemyCollisionEnable.AddDynamic(this, &AEnemy::SetAttackCollisionEnable);
 	CachedEnemyAnimInstance->OnEnemyCollisionDisable.AddDynamic(this, &AEnemy::SetAttackCollisionDisable);
@@ -45,7 +44,7 @@ void AEnemy::SetAttackCollisionEnable()
 {
 	if (CachedEnemyAttackComponent)
 	{
-		CachedEnemyAttackComponent->OnAttackCollisionEnable();
+		CachedEnemyAttackComponent->OnAttackCollisionEnable(-1);
 	}
 }
 
@@ -53,7 +52,7 @@ void AEnemy::SetAttackCollisionDisable()
 {
 	if (CachedEnemyAttackComponent)
 	{
-		CachedEnemyAttackComponent->OnAttackCollisionDisable();
+		CachedEnemyAttackComponent->OnAttackCollisionDisable(-1);
 	}
 }
 	
@@ -74,7 +73,7 @@ void AEnemy::AttackStart()
 		CachedEnemyAnimInstance->PlayAnimMontage(0);
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.RemoveDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
-		IsAttacking = true;
+		//IsAttacking = true;
 	}
 }
 
@@ -84,7 +83,9 @@ void AEnemy::OnEnemyAttackMontageEnded()
 	{
 		OnEnemyAttackEnd.Broadcast();
 	}
-	IsAttacking = false;
+	EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
+	CachedEnemyAttackComponent->InitializeActorsToIgnore();
+	//IsAttacking = false;
 }
 
 
@@ -115,12 +116,21 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 		{
 			CachedEnemyAnimInstance->PlayAnimMontage(2); //Play Death AnimMontage
 			CachedEnemyAttributeComponent->SendEXPValue(); //Send EXP to Player that should gain
-			bIsDead = true;
+			EnemyCombatState = EEnemyCombatState::EECS_Dead;
+			//bIsDead = true;
 		}
 		else
 		{
 			CachedEnemyAnimInstance->PlayAnimMontage(1);
 		}
+	}
+	if (HitParticles && GetWorld())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			HitParticles,
+			ImpactPoint
+		);
 	}
 }
 

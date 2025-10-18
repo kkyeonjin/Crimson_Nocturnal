@@ -11,6 +11,7 @@
 #include "Player/PlayerComponents/WeaponComponent.h"
 #include "Player/PlayerComponents/KickComponent.h"
 #include "Player/PlayerComponents/PlayerAttributeComponent.h"
+#include "Player/PlayerComponents/UltimateSkillComponent.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -42,8 +43,12 @@ void APlayerCharacter::BeginPlay()
 		//binding to MontageEnd Delegate 
 		CachedAnimInstance->OnAttackMontageEnd.AddDynamic(this, &APlayerCharacter::OnAttackMontageEnded);
 		CachedAnimInstance->OnMoveEnable.AddDynamic(this, &APlayerCharacter::SetMoveEnable);
-		CachedAnimInstance->OnWeaponCollisionEnable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionEnable);
-		CachedAnimInstance->OnWeaponCollisionDisable.AddDynamic(this, &APlayerCharacter::SetWeaponCollisionDisable);
+
+		CachedAnimInstance->OnBladeLCollisionEnable.AddDynamic(this, &APlayerCharacter::SetBladeLCollisionEnable);
+		CachedAnimInstance->OnBladeLCollisionDisable.AddDynamic(this, &APlayerCharacter::SetBladeLCollisionDisable);
+		CachedAnimInstance->OnBladeRCollisionEnable.AddDynamic(this, &APlayerCharacter::SetBladeRCollisionEnable);
+		CachedAnimInstance->OnBladeRCollisionDisable.AddDynamic(this, &APlayerCharacter::SetBladeRCollisionDisable);
+
 		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionEnable);
 		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionDisable);
 	}
@@ -63,12 +68,19 @@ void APlayerCharacter::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("PlayerAttributeComp Cannot Find"));
 	}
-	
+
+	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
+	if (CachedUltimateSkillComponent)
+	{
+		CachedUltimateSkillComponent->OnSkill1Attack.AddDynamic(this, &APlayerCharacter::OnSkill1Attack);
+	}
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
 {
 	SetPlayerCombatState(EPlayerCombatState::EPCS_NotAttacking);
+	CachedWeaponComponent->InitializeActorsToIgnore();
+	CachedKickComponent->InitializeActorsToIgnore();
 }
 
 //delegate callback function (when combo matches)
@@ -90,24 +102,41 @@ void APlayerCharacter::SetMoveEnable()
 	UE_LOG(LogTemp, Display, TEXT("PlayerMoveEnableSet"));
 }
 
-void APlayerCharacter::SetWeaponCollisionEnable()
+void APlayerCharacter::SetBladeLCollisionEnable()
 {
-	CachedWeaponComponent->OnAttackCollisionEnable();
+	CachedWeaponComponent->OnAttackCollisionEnable(0); //0 is for left
 }
 
-void APlayerCharacter::SetWeaponCollisionDisable()
+void APlayerCharacter::SetBladeLCollisionDisable()
 {
-	CachedWeaponComponent->OnAttackCollisionDisable();
+	CachedWeaponComponent->OnAttackCollisionDisable(0);
+}
+
+void APlayerCharacter::SetBladeRCollisionEnable()
+{
+	CachedWeaponComponent->OnAttackCollisionEnable(1); //1 is for right
+}
+
+void APlayerCharacter::SetBladeRCollisionDisable()
+{
+	CachedWeaponComponent->OnAttackCollisionDisable(1);
 }
 
 void APlayerCharacter::SetKickCollisionEnable()
 {
-	CachedKickComponent->OnAttackCollisionEnable();
+	CachedKickComponent->OnAttackCollisionEnable(-1);
 }
 
 void APlayerCharacter::SetKickCollisionDisable()
 {
-	CachedKickComponent->OnAttackCollisionDisable();
+	CachedKickComponent->OnAttackCollisionDisable(-1);
+}
+
+void APlayerCharacter::OnSkill1Attack(int32 AnimNum, float AttackMultiplier)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Skill Broadcast Received"));
+	CachedAttributeComponent->SetAttackMultiplier(AttackMultiplier);
+	CachedAnimInstance->PlayAnimMontage(AnimNum);
 }
 
 
@@ -150,43 +179,59 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
 	const float AttackValue = Value.Get<float>();
 
-	EAttackKeyType InputType;
-
-	if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
+	if(CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill==EUltimateSkill::SkillA)
 	{
-		SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
-		//disable move input when player is attacking
-		SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+		CachedUltimateSkillComponent->Skill1(AttackValue);
+	}
 
-		//X Button
-		if (AttackValue == 1.f)
-		{
-			InputType = EAttackKeyType::X;
-			UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-		}
-		//Y Button
-		else if (AttackValue == -1.f)
-		{
-			InputType = EAttackKeyType::Y;
-			UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-		}
+	else
+	{
+		EAttackKeyType InputType;
 
-		//send ENUM to InputSequence array (for Combo check)
-		if (!CachedComboManageComponent->IsComboMatch(InputType))
+		if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
 		{
+			SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
+			//disable move input when player is attacking
+			SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+
 			//X Button
 			if (AttackValue == 1.f)
 			{
-				CachedComboManageComponent->ChainAttackCount(InputType);
+				InputType = EAttackKeyType::X;
+				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
 			}
 			//Y Button
 			else if (AttackValue == -1.f)
 			{
-				CachedComboManageComponent->ChainAttackCount(InputType);
+				InputType = EAttackKeyType::Y;
+				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
 			}
+
+			//send ENUM to InputSequence array (for Combo check)
+			if (!CachedComboManageComponent->IsComboMatch(InputType))
+			{
+				//X Button
+				if (AttackValue == 1.f)
+				{
+					CachedComboManageComponent->ChainAttackCount(InputType);
+				}
+				//Y Button
+				else if (AttackValue == -1.f)
+				{
+					CachedComboManageComponent->ChainAttackCount(InputType);
+				}
+			}
+			CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
 		}
-		CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentChainAttackMultiplier());
 	}
+}
+
+void APlayerCharacter::Skill()
+{
+	//SKill 1
+	CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+	CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
+
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -206,7 +251,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
-
+		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::Skill);
 	}
 }
 
@@ -221,7 +266,7 @@ void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 	CachedAnimInstance->PlayAnimMontage(2);
 	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
 	CachedAttributeComponent->ApplyDamage();
-
+	
 }
 
 

@@ -33,8 +33,6 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 	const FVector Start = TraceStartPoint->GetComponentLocation();
 	const FVector End = TraceEndPoint->GetComponentLocation();
 
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(GetOwner());
 	FHitResult HitResult;
 	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2); //EnemyAttack Trace Channel
 
@@ -55,6 +53,7 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 
 	if (HitResult.GetActor())
 	{
+		ActorsToIgnore.Add(HitResult.GetActor());
 		IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor());
 
 		if (HitInterface)
@@ -64,12 +63,12 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 	}
 }
 
-void UEnemyAttackComponent::OnAttackCollisionEnable()
+void UEnemyAttackComponent::OnAttackCollisionEnable(int32 Unused)
 {
 	AttackCollision->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-void UEnemyAttackComponent::OnAttackCollisionDisable()
+void UEnemyAttackComponent::OnAttackCollisionDisable(int32 Unused)
 {
 	AttackCollision->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
@@ -79,12 +78,18 @@ void UEnemyAttackComponent::BindingOverlapDelegate()
 	AttackCollision->OnComponentBeginOverlap.AddDynamic(this, &UEnemyAttackComponent::OnAttackCollisionOverlap);
 }
 
+void UEnemyAttackComponent::InitializeActorsToIgnore()
+{
+	ActorsToIgnore.Empty();
+	ActorsToIgnore.Add(GetOwner());
+}
+
 // Called when the game starts
 void UEnemyAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	InitializeActorsToIgnore();
 	
 }
 

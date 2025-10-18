@@ -22,7 +22,7 @@ void UKickComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
+	InitializeActorsToIgnore();
 	
 }
 
@@ -31,8 +31,6 @@ void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedCom
 	const FVector Start = TraceStartPoint->GetComponentLocation();
 	const FVector End = TraceEndPoint->GetComponentLocation();
 
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(GetOwner());
 	FHitResult HitResult;
 	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1); //PlayerAttack Trace Channel
 
@@ -40,7 +38,7 @@ void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedCom
 		this,
 		Start,
 		End,
-		FVector(2.f, 2.f, 2.f),
+		FVector(5.f, 5.f, 5.f),
 		TraceStartPoint->GetComponentRotation(),
 		TraceChannel,
 		false,
@@ -53,6 +51,7 @@ void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedCom
 
 	if (HitResult.GetActor())
 	{
+		ActorsToIgnore.Add(HitResult.GetActor());
 		IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor());
 
 		if (HitInterface)
@@ -67,18 +66,24 @@ void UKickComponent::BindingOverlapDelegate()
 	LegBox->OnComponentBeginOverlap.AddDynamic(this, &UKickComponent::OnAttackCollisionOverlap);
 }
 
-void UKickComponent::OnAttackCollisionEnable()
+void UKickComponent::OnAttackCollisionEnable(int32 Unused)
 {
 	LegBox->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
 }
 
-void UKickComponent::OnAttackCollisionDisable()
+void UKickComponent::OnAttackCollisionDisable(int32 Unused)
 {
 	LegBox->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 }
 
+void UKickComponent::InitializeActorsToIgnore()
+{
+	ActorsToIgnore.Empty();
+	ActorsToIgnore.Add(GetOwner());
+}
+
 void UKickComponent::InitializeKickComponents(USceneComponent* NewTraceStartPoint, USceneComponent* NewTraceEndPoint,
-	UShapeComponent* NewLegBox)
+                                              UShapeComponent* NewLegBox)
 {
 	TraceStartPoint = NewTraceStartPoint;
 	TraceEndPoint = NewTraceEndPoint;

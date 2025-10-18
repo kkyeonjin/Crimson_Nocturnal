@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
+#include "Enemy/Types/EnemyType.h"
 #include "Enemy.generated.h"
 
 class UEnemyAttackComponent;
@@ -62,11 +63,15 @@ private:
 	UEnemyAttributeComponent* CachedEnemyAttributeComponent;
 	UEnemyAttackComponent* CachedEnemyAttackComponent;
 
-	bool IsAttacking;
+	UPROPERTY(EditAnywhere, Category = "VFX")
+	UParticleSystem* HitParticles;
 
-	bool bIsDead;
+	EEnemyCombatState EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
 
 public:
-	FORCEINLINE bool IsDead() { return bIsDead; }
+	//FORCEINLINE bool IsDead() { return bIsDead; }
+	FORCEINLINE EEnemyCombatState GetEnemyCombatState() { return EnemyCombatState; }
+	FORCEINLINE void SetEnemyCombatState(EEnemyCombatState State) { EnemyCombatState = State; }
+	
 	
 };

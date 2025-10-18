@@ -22,14 +22,19 @@ void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// ...
-	
+	InitializeActorsToIgnore();
 }
 
 void UWeaponComponent::BindingOverlapDelegate()
 {
 	BladeBoxL->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnAttackCollisionOverlap);
 	BladeBoxR->OnComponentBeginOverlap.AddDynamic(this, &UWeaponComponent::OnAttackCollisionOverlap);
+}
+
+void UWeaponComponent::InitializeActorsToIgnore()
+{
+	ActorsToIgnore.Empty();
+	ActorsToIgnore.Add(GetOwner());
 }
 
 void UWeaponComponent::InitializeWeaponComponents(USceneComponent* NewTraceStartPointL, USceneComponent* NewTraceEndPointL, USceneComponent* NewTraceStartPointR, USceneComponent* NewTraceEndPointR, UShapeComponent* NewBladeBoxL, UShapeComponent* NewBladeBoxR)
@@ -50,8 +55,6 @@ void UWeaponComponent::InitializeWeaponComponents(USceneComponent* NewTraceStart
 //called when the overlap occur (Blade & Enemy..etc)
 void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	TArray<AActor*> ActorsToIgnore;
-	ActorsToIgnore.Add(GetOwner());
 	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 
 	if (OverlappedComponent == BladeBoxL)
@@ -80,11 +83,13 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 
 		if (HitResultL.GetActor())
 		{
+			ActorsToIgnore.Add(HitResultL.GetActor());
 			if (HitResultL.GetActor()->ActorHasTag("Enemy"))
 			{
 				APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 				if (PlayerCharacter)
 				{
+					//send info of Target to Player 
 					PlayerCharacter->HandleAttack(HitResultL.GetActor());
 				}
 			}
@@ -124,6 +129,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 
 		if (HitResultR.GetActor())
 		{
+			ActorsToIgnore.Add(HitResultR.GetActor());
 			if (HitResultR.GetActor()->ActorHasTag("Enemy"))
 			{
 				APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
@@ -143,18 +149,29 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 	}
 }
 
-void UWeaponComponent::OnAttackCollisionEnable()
+void UWeaponComponent::OnAttackCollisionEnable(int32 BladeSide)
 {
-	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
-	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	if (BladeSide == 0) //left
+	{
+		BladeBoxL->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
+	if (BladeSide == 1) //right
+	{
+		BladeBoxR->SetCollisionEnabled(ECollisionEnabled::QueryOnly);
+	}
 }
 
-void UWeaponComponent::OnAttackCollisionDisable()
+void UWeaponComponent::OnAttackCollisionDisable(int32 BladeSide)
 {
-	BladeBoxL->SetCollisionEnabled(ECollisionEnabled::NoCollision);
-	BladeBoxR->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	if (BladeSide == 0) //left
+	{
+		BladeBoxL->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
+	if (BladeSide == 1) //right
+	{
+		BladeBoxR->SetCollisionEnabled(ECollisionEnabled::NoCollision);
+	}
 }
-
 
 // Called every frame
 void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)

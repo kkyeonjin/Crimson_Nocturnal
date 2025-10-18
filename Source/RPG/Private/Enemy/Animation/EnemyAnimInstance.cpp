@@ -1,6 +1,5 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
-
 #include "Enemy/Animation/EnemyAnimInstance.h"
 #include "Enemy/Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -9,13 +8,13 @@
 void UEnemyAnimInstance::AnimNotify_AttackEnd()
 {
 	OnEnemyAttackMontageEnd.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
+	UE_LOG(LogTemp, Warning, TEXT("EnemyAttackEndNotifyRings"));
 }
 
 void UEnemyAnimInstance::AnimNotify_CollisionEnable()
 {
 	OnEnemyCollisionEnable.Broadcast();
-	UE_LOG(LogTemp, Warning, TEXT("CollisionEnableNotifyRings"));
+	//UE_LOG(LogTemp, Warning, TEXT("CollisionEnableNotifyRings"));
 }
 
 void UEnemyAnimInstance::AnimNotify_CollisionDisable()

@@ -25,10 +25,12 @@ public:
 	virtual void BindingOverlapDelegate() override;
 
 	UFUNCTION()
-	virtual void OnAttackCollisionEnable() override;
+	virtual void OnAttackCollisionEnable(int32 Unused) override;
 
 	UFUNCTION()
-	virtual void OnAttackCollisionDisable() override;
+	virtual void OnAttackCollisionDisable(int32 Unused) override;
+
+	virtual void InitializeActorsToIgnore() override;
 
 protected:
 	// Called when the game starts
@@ -50,7 +52,9 @@ protected:
 		UShapeComponent* NewLegBox
 		);
 
-	
+
+private:
+	TArray<AActor*> ActorsToIgnore;
 
 		
 };

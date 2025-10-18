@@ -16,7 +16,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
 
     CachedOwnerComp = &OwnerComp;
 
-    UE_LOG(LogTemp, Display, TEXT("ExecuteAttack"));
+    //UE_LOG(LogTemp, Display, TEXT("ExecuteAttack"));
 
     if (OwnerComp.GetAIOwner() == nullptr)
     {

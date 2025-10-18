@@ -50,7 +50,8 @@ bool UComboManageComponent::IsComboMatch(EAttackKeyType Key) //이름다시지을필요�
 				if (InputKeySequence[j] != ComboPatterns[i].ComboKeySequence[j])
 				{
 					bIsComboMatch = false;
-					return bIsComboMatch;
+					break;
+					//return bIsComboMatch;
 				}
 			}
 			if (bIsComboMatch)
@@ -80,7 +81,7 @@ void UComboManageComponent::ChainAttackCount(EAttackKeyType Key)
 			ChainAttackCountX = 0;
 		}
 		ChainAttackCountX++;
-		UE_LOG(LogTemp, Display, TEXT("CountX : %d"), ChainAttackCountX);
+		//UE_LOG(LogTemp, Display, TEXT("CountX : %d"), ChainAttackCountX);
 		SectionNameStr = FString::Printf(TEXT("Chain%d"), ChainAttackCountX);
 		AnimNum = 0;
 
@@ -101,7 +102,7 @@ void UComboManageComponent::ChainAttackCount(EAttackKeyType Key)
 			ChainAttackCountY = 0;
 		}
 		ChainAttackCountY++;
-		UE_LOG(LogTemp, Display, TEXT("CountY : %d"), ChainAttackCountX);
+		//UE_LOG(LogTemp, Display, TEXT("CountY : %d"), ChainAttackCountX);
 		SectionNameStr = FString::Printf(TEXT("Chain%d"), ChainAttackCountY);
 		AnimNum = 1;
 
