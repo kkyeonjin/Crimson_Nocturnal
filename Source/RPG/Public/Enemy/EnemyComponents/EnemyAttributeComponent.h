@@ -38,6 +38,7 @@ private:
 	int32 ATK;
 	int32 DEF;
 	int32 CurrentHP;
+	int32 MaxHP;
 	int32 EXPValue;
 
 	UPlayerAttributeComponent* PlayerAttributeComponent;
@@ -48,6 +49,7 @@ public:
 	FORCEINLINE virtual int32 GetATK() override { return ATK; }
 	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
+	FORCEINLINE virtual int32 GetMaxHP() override { return MaxHP; }
 
 		
 };

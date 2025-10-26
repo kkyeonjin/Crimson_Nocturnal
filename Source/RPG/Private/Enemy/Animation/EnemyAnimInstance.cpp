@@ -8,7 +8,8 @@
 void UEnemyAnimInstance::AnimNotify_AttackEnd()
 {
 	OnEnemyAttackMontageEnd.Broadcast();
-	UE_LOG(LogTemp, Warning, TEXT("EnemyAttackEndNotifyRings"));
+	//UE_LOG(LogTemp, Warning, TEXT("EnemyAttackEndNotifyRings"));
+	IsAttacking = false;
 }
 
 void UEnemyAnimInstance::AnimNotify_CollisionEnable()
@@ -51,6 +52,7 @@ void UEnemyAnimInstance::PlayAnimMontage(int32 Num)
 	{
 		//0-9: primary animations(attack, hit reaction,,,etc)
 		case 0:
+			IsAttacking = true;
 			Montage_Play(AttackA);
 			break;
 		case 1:

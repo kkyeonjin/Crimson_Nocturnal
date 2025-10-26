@@ -66,22 +66,7 @@ void AEnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActor
 				TargetActor = Actor;
 				Blackboard->SetValueAsObject("TargetActor", TargetActor);
 				Blackboard->SetValueAsBool("IsPlayerDetected", true);
-
-				/*
-				//set IsInAttackRange true when Player is in AttackRadius
-				if (Blackboard->GetValueAsFloat("TargetDistance") <= AttackRadius)
-				{
-					//UE_LOG(LogTemp, Warning, TEXT("TargetDistance: %f"), Blackboard->GetValueAsFloat("TargetDistance"));
-					//UE_LOG(LogTemp, Warning, TEXT("AttackRadius: %f"), AttackRadius);
-					Blackboard->SetValueAsBool("IsInAttackRange", true);
-					UE_LOG(LogTemp, Warning, TEXT("IsInAttackRange?: %s"), Blackboard->GetValueAsBool("IsInAttackRange") ? TEXT("TRUE") : TEXT("FALSE"));
-				}
-				else
-				{
-					Blackboard->SetValueAsBool("IsInAttackRange", false);
-					UE_LOG(LogTemp, Warning, TEXT("IsInAttackRange?: %s"), Blackboard->GetValueAsBool("IsInAttackRange") ? TEXT("TRUE") : TEXT("FALSE"));
-				}
-				*/
+				
 			}
 			else
 			{

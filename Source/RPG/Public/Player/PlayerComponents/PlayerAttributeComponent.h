@@ -40,6 +40,7 @@ private:
 	int32 DEF;
 	int32 CurrentHP;
 	int32 CurrentBP;
+	int32 MaxHP;
 	int32 MaxBP;
 	int32 EXP;
 	int32 Level;
@@ -59,6 +60,7 @@ public:
 	FORCEINLINE virtual int32 GetATK() override { return ATK; }
 	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
+	FORCEINLINE virtual int32 GetMaxHP() override { return MaxHP; }
 
 	FORCEINLINE int32 ADDCurrentHP(int32 HPtoAdd) { return CurrentHP += HPtoAdd; }
 

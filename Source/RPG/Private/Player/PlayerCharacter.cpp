@@ -8,6 +8,7 @@
 #include "Animation/AnimMontage.h"
 #include "Player/Animation/PlayerAnimInstance.h"
 #include "Player/PlayerComponents/ComboManageComponent.h"
+#include "Player/PlayerComponents/HUDComponent.h"
 #include "Player/PlayerComponents/WeaponComponent.h"
 #include "Player/PlayerComponents/KickComponent.h"
 #include "Player/PlayerComponents/PlayerAttributeComponent.h"
@@ -74,6 +75,11 @@ void APlayerCharacter::BeginPlay()
 	{
 		CachedUltimateSkillComponent->OnSkill1Attack.AddDynamic(this, &APlayerCharacter::OnSkill1Attack);
 	}
+
+	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
+	CachedHUDComponent->UpdatePlayerHP(
+		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
+	);
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
@@ -226,12 +232,17 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 	}
 }
 
-void APlayerCharacter::Skill()
+void APlayerCharacter::SkillStart()
 {
 	//SKill 1
 	CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
 	CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
 
+}
+
+void APlayerCharacter::SkillTree()
+{
+	CachedHUDComponent->ShowSkillTreeUI();
 }
 
 void APlayerCharacter::Tick(float DeltaTime)
@@ -251,7 +262,8 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
-		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::Skill);
+		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillStart);
+		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTree);
 	}
 }
 
@@ -266,7 +278,9 @@ void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 	CachedAnimInstance->PlayAnimMontage(2);
 	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
 	CachedAttributeComponent->ApplyDamage();
-	
+	CachedHUDComponent->UpdatePlayerHP(
+		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
+	);
 }
 
 

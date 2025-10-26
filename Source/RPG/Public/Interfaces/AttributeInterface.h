@@ -25,6 +25,7 @@ public:
 	virtual int32 GetATK() = 0;
 	virtual int32 GetDEF() = 0;
 	virtual int32 GetCurrentHP() = 0;
+	virtual int32 GetMaxHP() = 0;
 
 	virtual int32 CalcDamage() = 0;
 	virtual void ApplyDamage() = 0;

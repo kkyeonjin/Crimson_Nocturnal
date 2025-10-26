@@ -28,6 +28,7 @@ void UPlayerAttributeComponent::BeginPlay()
 		DEF = Row->DEF;
 		CurrentHP = Row->CurrentHP;
 		CurrentBP = Row->CurrentBp;
+		MaxHP = Row->MaxHP;
 		EXP = Row->EXP;
 		Level = Row->Level;
 		SkillPoint = Row->SkillPoint;
@@ -105,7 +106,7 @@ void UPlayerAttributeComponent::AddEXP(int32 EXPValue)
 		EXP -= GetRequiredEXPForNextLevel();
 		Level++;
 
-		// OnLevelUp(); // 레벨 상승 시 추가 이벤트 많이 필요하면 호출
+		// OnLevelUp(); // 레벨 상승 시 추가 이벤트 많이 필요할 경우 함수 생성 필
 		SkillPoint += 2;
 	}
 

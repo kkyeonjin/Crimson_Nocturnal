@@ -52,6 +52,9 @@ protected:
 	UPROPERTY(BlueprintReadOnly, Category = Movement)
 	float GroundSpeed;
 
+	UPROPERTY(BlueprintReadOnly)
+	bool IsAttacking;
+
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackA;
 

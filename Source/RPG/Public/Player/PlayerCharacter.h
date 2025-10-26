@@ -10,6 +10,7 @@
 #include "Player/Types/ComboInput.h"
 #include "PlayerCharacter.generated.h"
 
+class UHUDComponent;
 class UUltimateSkillComponent;
 class UPlayerAttributeComponent;
 class UKickComponent;
@@ -43,6 +44,9 @@ protected:
 	UInputMappingContext* PlayerContext;
 
 	UPROPERTY(EditAnywhere, Category = Input)
+	UInputMappingContext* SkillTreeContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MovementAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -57,11 +61,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillActivation;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* SkillTreeOn;
+
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
-	void Skill();
+	void SkillStart();
+	void SkillTree();
 
 	UFUNCTION()
 	void OnAttackMontageEnded();
@@ -117,6 +125,8 @@ private:
 	UPlayerAttributeComponent* CachedAttributeComponent;
 
 	UUltimateSkillComponent* CachedUltimateSkillComponent;
+
+	UHUDComponent* CachedHUDComponent;
 
 	bool IsSkillOn = false;
 
