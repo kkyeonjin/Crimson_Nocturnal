@@ -40,7 +40,7 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 		this,
 		Start,
 		End,
-		FVector(12.f, 12.f, 10.f),
+		FVector(30.f, 12.f, 15.f),
 		TraceStartPoint->GetComponentRotation(),
 		TraceChannel,
 		false,

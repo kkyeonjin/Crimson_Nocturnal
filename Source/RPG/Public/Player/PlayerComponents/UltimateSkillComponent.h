@@ -39,12 +39,13 @@ protected:
 	virtual void BeginPlay() override;
 
 
-
-
 private:
 	//Rain Particle (Niagara)
 
 	FTimerHandle SkillActiveTimer;
+	float SkillAActiveTime = 5.f; //Default
+	float SkillBActiveTime = 5.f; //Default
+	float SkillCActiveTime = 5.f; //Default
 
 	TArray<FComboPattern>* CachedComboPatterns;
 
@@ -53,5 +54,6 @@ private:
 public:
 	FORCEINLINE void SetCachedComboPatters(TArray<FComboPattern>* ComboPatterns) { CachedComboPatterns = ComboPatterns; }
 	FORCEINLINE bool IsSkillActivated() { return bIsSkillActivated; }
+	FORCEINLINE void IncreaseSkillTime() { SkillAActiveTime *= 1.2f; SkillBActiveTime *= 1.2f; SkillCActiveTime *= 1.2f; }
 		
 };

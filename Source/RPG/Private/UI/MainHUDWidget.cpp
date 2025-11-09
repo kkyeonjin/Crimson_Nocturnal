@@ -23,7 +23,16 @@ void UMainHUDWidget::UpdateHP(int32 Current, int32 Max)
 
 void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
 {
-	float Percent = Current / Max;
+	float Percent = (float)Current / (float)Max;
+	//UE_LOG(LogTemp, Error, TEXT("HP Percent: %f"), Percent);
 
-	BPBar->SetPercent(Percent);
+	if (BPBar)
+	{
+		BPBar->SetPercent(Percent);
+		UE_LOG(LogTemp, Error, TEXT("HPBarUpdate"));
+	}
+	else
+	{
+		UE_LOG(LogTemp, Error, TEXT("HPBarCANNOTFound"));
+	}
 }

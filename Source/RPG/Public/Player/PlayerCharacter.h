@@ -6,10 +6,12 @@
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
 #include "Interfaces/HitInterface.h"
+#include "GameFramework/PlayerController.h"
 #include "Player/Types/PlayerType.h" //for EPlayerState
 #include "Player/Types/ComboInput.h"
 #include "PlayerCharacter.generated.h"
 
+class UEnhancedInputLocalPlayerSubsystem;
 class UHUDComponent;
 class UUltimateSkillComponent;
 class UPlayerAttributeComponent;
@@ -64,12 +66,27 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillTreeOn;
 
+	//SkillTreeContext 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* SelectAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* SkillTreeOffAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* SkillEquipAction;
+
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 	void SkillStart();
 	void SkillTree();
+
+	//SkillTreeInputContext
+	void Select(const FInputActionValue& Value);
+	void SkillTreeOff();
+	void SetUlt();
 
 	UFUNCTION()
 	void OnAttackMontageEnded();
@@ -101,11 +118,17 @@ protected:
 	UFUNCTION()
 	void SetKickCollisionDisable();
 
+	UFUNCTION()
+	void UpdateBP();
+
 	//SkillA
 	UFUNCTION()
 	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);
 
 private:
+
+	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = nullptr;
+
 	//default state is unequipped
 	EPlayerCombatState PlayerCombatState = EPlayerCombatState::EPCS_NotAttacking;
 
@@ -141,6 +164,8 @@ public:
 
 	FORCEINLINE EPlayerMoveState GetPlayerMoveState() const { return PlayerMoveState; }
 	FORCEINLINE void SetPlayerMoveState(EPlayerMoveState State) { PlayerMoveState = State; }
+
+	FORCEINLINE void SetUltimateSkill(int32 SkillNum) { SelectedSkill = static_cast<EUltimateSkill>(SkillNum + 1); }
 
 	FORCEINLINE void SetIsSkillOn(bool bIsSkillOn) { IsSkillOn = bIsSkillOn; }
 };

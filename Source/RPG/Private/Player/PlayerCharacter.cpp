@@ -13,6 +13,7 @@
 #include "Player/PlayerComponents/KickComponent.h"
 #include "Player/PlayerComponents/PlayerAttributeComponent.h"
 #include "Player/PlayerComponents/UltimateSkillComponent.h"
+#include "UI/SkillTreeWidget.h"
 
 
 APlayerCharacter::APlayerCharacter()
@@ -32,9 +33,11 @@ void APlayerCharacter::BeginPlay()
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer()))
+		InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+
+		if (InputSubsystem)
 		{
-			Subsystem->AddMappingContext(PlayerContext, 0);
+			InputSubsystem->AddMappingContext(PlayerContext, 0);
 		}
 	}
 	//cast animInstance In here (for reuse)
@@ -65,9 +68,9 @@ void APlayerCharacter::BeginPlay()
 	CachedKickComponent = FindComponentByClass<UKickComponent>();
 
 	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
-	if (!CachedAttributeComponent)
+	if (CachedAttributeComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("PlayerAttributeComp Cannot Find"));
+		CachedAttributeComponent->OnBPChange.AddDynamic(this, &APlayerCharacter::UpdateBP);
 	}
 
 	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
@@ -77,8 +80,12 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
+	//Initialize HP&BP Bar
 	CachedHUDComponent->UpdatePlayerHP(
 		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
+	);
+	CachedHUDComponent->UpdatePlayerBP(
+		CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP()
 	);
 }
 
@@ -136,6 +143,12 @@ void APlayerCharacter::SetKickCollisionEnable()
 void APlayerCharacter::SetKickCollisionDisable()
 {
 	CachedKickComponent->OnAttackCollisionDisable(-1);
+}
+
+void APlayerCharacter::UpdateBP() //callback Func called by AttributeComp
+{
+	CachedHUDComponent->UpdatePlayerBP(
+		CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
 }
 
 void APlayerCharacter::OnSkill1Attack(int32 AnimNum, float AttackMultiplier)
@@ -235,15 +248,85 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 void APlayerCharacter::SkillStart()
 {
 	//SKill 1
-	CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
-	CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
-
+	if (SelectedSkill == EUltimateSkill::SkillA)
+	{
+		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+		CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
+	}
 }
 
-void APlayerCharacter::SkillTree()
+void APlayerCharacter::SkillTree() //press skillTree button
 {
 	CachedHUDComponent->ShowSkillTreeUI();
+	CachedHUDComponent->InitializeUI();
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (PC)
+	{
+		//PC->SetPause(true); // 게임 정지
+
+		// 게임 + UI 입력 모두 활성화 (게임패드 입력 포함)
+		//PC->SetInputMode(FInputModeGameAndUI());
+
+		//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
+	}
+
+	InputSubsystem->RemoveMappingContext(PlayerContext);
+	InputSubsystem->AddMappingContext(SkillTreeContext, 1);
+	//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
 }
+
+//SkillTreeInputContext
+void APlayerCharacter::Select(const FInputActionValue& Value)
+{
+	const FVector2D SelectVector = Value.Get<FVector2D>();
+
+	UE_LOG(LogTemp, Warning, TEXT("SelectVector X=%f, Y=%f"), SelectVector.X, SelectVector.Y);
+
+	if (SelectVector.X != 0.f) //Section Change
+	{
+		CachedHUDComponent->SwitchSection();
+	}
+
+	if (SelectVector.Y != 0.f) //Select Up&Down
+	{
+		CachedHUDComponent->ChangeSelection(static_cast<int32>(SelectVector.Y));
+	}
+}
+
+
+void APlayerCharacter::SkillTreeOff()
+{
+	UE_LOG(LogTemp, Display, TEXT("SkillTreeOffButton"));
+	CachedHUDComponent->HideSkillTreeUI();
+	GetWorld()->GetFirstPlayerController()->SetPause(false); //Start Game Play
+	InputSubsystem->RemoveMappingContext(SkillTreeContext);
+	InputSubsystem->AddMappingContext(PlayerContext, 0);
+}
+
+void APlayerCharacter::SetUlt()
+{
+	if (CachedHUDComponent->GetCurrentSection() == 0) //Ult
+	{
+		SetUltimateSkill(CachedHUDComponent->GetUltSelectCount());
+	}
+	else //Skill
+	{
+		int32 SkillCount = CachedHUDComponent->GetSkillSelectCount();
+
+		if (SkillCount == 4) //Skill Time Up Skill
+		{
+			CachedUltimateSkillComponent->IncreaseSkillTime();
+		}
+		else
+		{
+			CachedAttributeComponent->UpdateStatsBySkill(SkillCount);
+		}
+	}
+	
+	CachedHUDComponent->SetSkillTree(); //UI Change
+	
+}
+
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
@@ -258,12 +341,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 	if (UEnhancedInputComponent* EnhancedInputComponent = CastChecked<UEnhancedInputComponent>(PlayerInputComponent))
 	{
+		//MainInputContext
 		EnhancedInputComponent->BindAction(MovementAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Move);
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillStart);
 		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTree);
+
+		//SkillTreeInputContext
+		EnhancedInputComponent->BindAction(SkillTreeOffAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTreeOff);
+		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Select);
+		EnhancedInputComponent->BindAction(SkillEquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SetUlt);
 	}
 }
 

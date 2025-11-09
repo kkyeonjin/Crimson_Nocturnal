@@ -10,6 +10,8 @@
 
 class UEnemyAttributeComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPChange);
+
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_API UPlayerAttributeComponent : public UActorComponent, public IAttributeInterface
 {
@@ -24,6 +26,12 @@ public:
 
 	void SetEnemyAttributeComponent(AActor* Target);
 	void AddEXP(int32 EXPValue);
+
+	//For SkillTree
+	void UpdateStatsBySkill(int SkillNum);
+
+	UPROPERTY(BlueprintAssignable)
+	FOnBPChange OnBPChange;
 
 protected:
 	// Called when the game starts
@@ -49,6 +57,7 @@ private:
 	float AttackMultiplier;
 
 	int32 BPtoGet = 0;
+	float BPMultiplier; //for Skill4
 
 	//Leveling Variables
 	int32 BaseEXP;
@@ -61,6 +70,8 @@ public:
 	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
 	FORCEINLINE virtual int32 GetMaxHP() override { return MaxHP; }
+	FORCEINLINE virtual int32 GetCurrentBP() { return CurrentBP; }
+	FORCEINLINE virtual int32 GetMaxBP() { return MaxBP; }
 
 	FORCEINLINE int32 ADDCurrentHP(int32 HPtoAdd) { return CurrentHP += HPtoAdd; }
 

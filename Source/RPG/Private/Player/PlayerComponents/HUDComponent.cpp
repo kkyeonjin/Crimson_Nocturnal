@@ -52,11 +52,63 @@ void UHUDComponent::UpdatePlayerHP(int32 Current, int32 Max)
 	}
 }
 
+void UHUDComponent::UpdatePlayerBP(int32 Current, int32 Max)
+{
+	if (MainHUDWidget)
+	{
+		MainHUDWidget->UpdateBP(Current, Max);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MainHUDWidgetNotFound"));
+	}
+}
+
 void UHUDComponent::ShowSkillTreeUI()
 {
 	if (SkillTreeUIWidget)
 	{
 		SkillTreeUIWidget->AddToViewport();
+	}
+}
+
+void UHUDComponent::HideSkillTreeUI()
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->RemoveFromParent();
+	}
+}
+
+void UHUDComponent::ChangeSelection(int32 Input)
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->ChangeSelection(Input);
+	}
+}
+
+void UHUDComponent::SwitchSection()
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->SwitchSection();
+	}
+}
+
+void UHUDComponent::SetSkillTree()
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->SetSkillTree();
+	}
+}
+
+void UHUDComponent::InitializeUI()
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->InitializeUI();
 	}
 }
 

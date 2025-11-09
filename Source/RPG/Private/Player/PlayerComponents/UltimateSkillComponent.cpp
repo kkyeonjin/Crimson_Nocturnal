@@ -37,7 +37,6 @@ void UUltimateSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType
 void UUltimateSkillComponent::TimerStart(EUltimateSkill* SelectedSkill)
 {
 	bIsSkillActivated = true;
-	float SkillAActiveTime = 5.f;
 	if (*SelectedSkill == EUltimateSkill::SkillA)
 	{
 		GetWorld()->GetTimerManager().SetTimer(

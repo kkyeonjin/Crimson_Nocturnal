@@ -2,6 +2,7 @@
 
 
 #include "Player/PlayerComponents/PlayerAttributeComponent.h"
+#include "Player/PlayerCharacter.h"
 #include "Enemy/EnemyComponents/EnemyAttributeComponent.h"
 
 // Sets default values for this component's properties
@@ -29,6 +30,7 @@ void UPlayerAttributeComponent::BeginPlay()
 		CurrentHP = Row->CurrentHP;
 		CurrentBP = Row->CurrentBp;
 		MaxHP = Row->MaxHP;
+		MaxBP = Row->MaxBp;
 		EXP = Row->EXP;
 		Level = Row->Level;
 		SkillPoint = Row->SkillPoint;
@@ -52,6 +54,8 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		CurrentBP += BPtoGet;
 		//CurrentBP = FMath::Clamp(CurrentBP, 0.f, MaxBP);
 		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
+		OnBPChange.Broadcast();
+
 		BPtoGet = 0;
 	}
 
@@ -111,5 +115,26 @@ void UPlayerAttributeComponent::AddEXP(int32 EXPValue)
 	}
 
 	UE_LOG(LogTemp, Display, TEXT("EXP: %d"), EXP);
+}
+
+void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
+{
+	switch (SkillNum)
+	{
+		case 0: //공격력 증가
+			ATK *= 1.2f;
+			break;
+		case 1: //방어력 증가
+			DEF *= 1.2f;
+			break;
+		case 2: //최대HP증가(바를 늘려야할텐데 그게 귀찮은,,) or 낮은 확률로 공격받아도 대미지 입지 않음
+			MaxHP *= 1.2f;
+			break;
+		case 3: //BP획득량 증가
+			BPMultiplier = 1.2f;
+			break;
+		default:
+			break;
+	}
 }
 
