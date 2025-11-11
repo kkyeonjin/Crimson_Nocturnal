@@ -104,6 +104,14 @@ void UHUDComponent::SetSkillTree()
 	}
 }
 
+void UHUDComponent::SetSkillPointText(int32 SkillPoint)
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->SetSkillPointText(SkillPoint);
+	}
+}
+
 void UHUDComponent::InitializeUI()
 {
 	if (SkillTreeUIWidget)

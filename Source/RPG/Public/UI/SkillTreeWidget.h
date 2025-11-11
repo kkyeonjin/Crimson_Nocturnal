@@ -8,6 +8,7 @@
 #include "Blueprint/UserWidget.h"
 #include "SkillTreeWidget.generated.h"
 
+class UTextBlock;
 /**
  * 
  */
@@ -23,6 +24,7 @@ public:
 	void SwitchSection();
 	void InitializeUI();
 	void SetSkillTree();
+	void SetSkillPointText(int32 SkillPoint);
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Skill1Circle;
@@ -110,6 +112,35 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Ult3Equipped;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* SkillPointText;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X1;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X2;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X3;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X4;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y1;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y2;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y3;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y4;
+
+
 
 
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillSelectCount; }

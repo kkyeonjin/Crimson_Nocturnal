@@ -42,6 +42,8 @@ public:
 
 	void SetSkillTree();
 
+	void SetSkillPointText(int32 SkillPoint);
+
 	void InitializeUI();
 
 	FORCEINLINE int32 GetUltSelectCount() { return SkillTreeUIWidget->GetUltSelectCount(); }

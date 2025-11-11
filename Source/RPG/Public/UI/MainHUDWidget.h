@@ -6,6 +6,7 @@
 #include "Blueprint/UserWidget.h"
 #include "MainHUDWidget.generated.h"
 
+class UTextBlock;
 /**
  * 
  */
@@ -20,7 +21,13 @@ public:
 	class UProgressBar* HPBar;
 
 	UPROPERTY(meta = (BindWidget))
-	class UProgressBar* BPBar;
+	UProgressBar* BPBar;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* HPText;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* BPText;
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateHP(int32 Current, int32 Max);

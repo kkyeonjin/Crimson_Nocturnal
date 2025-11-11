@@ -29,6 +29,8 @@ public:
 	void SkillTimeOver();
 
 	void Skill1(float AttackValue);
+	void Skill2();
+	void Skill3();
 
 	UPROPERTY()
 	FOnSkill1Attack OnSkill1Attack;
@@ -47,6 +49,9 @@ private:
 	float SkillBActiveTime = 5.f; //Default
 	float SkillCActiveTime = 5.f; //Default
 
+	int32 XSettingForSkillA = 0; //Default
+	int32 YSettingForSkillA = 0; //Default
+
 	TArray<FComboPattern>* CachedComboPatterns;
 
 	bool bIsSkillActivated = false;
@@ -55,5 +60,6 @@ public:
 	FORCEINLINE void SetCachedComboPatters(TArray<FComboPattern>* ComboPatterns) { CachedComboPatterns = ComboPatterns; }
 	FORCEINLINE bool IsSkillActivated() { return bIsSkillActivated; }
 	FORCEINLINE void IncreaseSkillTime() { SkillAActiveTime *= 1.2f; SkillBActiveTime *= 1.2f; SkillCActiveTime *= 1.2f; }
+	FORCEINLINE void SetSkillAKeySetting();
 		
 };

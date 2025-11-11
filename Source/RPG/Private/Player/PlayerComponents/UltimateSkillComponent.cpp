@@ -44,6 +44,13 @@ void UUltimateSkillComponent::TimerStart(EUltimateSkill* SelectedSkill)
 		); //last parameter false-> call Timer just once
 		UE_LOG(LogTemp, Warning, TEXT("Skill A Activated"));
 	}
+	else if (*SelectedSkill == EUltimateSkill::SkillB) //ÇÇÈí
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			SkillActiveTimer, this, &UUltimateSkillComponent::SkillTimeOver, SkillBActiveTime, false
+		);
+
+	}
 }
 
 void UUltimateSkillComponent::SkillTimeOver()
@@ -53,6 +60,7 @@ void UUltimateSkillComponent::SkillTimeOver()
 	UE_LOG(LogTemp, Warning, TEXT("Skill Time Over"));
 }
 
+//take AttackValue(X/Y)
 void UUltimateSkillComponent::Skill1(float AttackValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Skill Action Pressed"));

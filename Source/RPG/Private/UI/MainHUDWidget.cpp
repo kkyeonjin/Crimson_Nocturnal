@@ -3,6 +3,7 @@
 
 #include "UI/MainHUDWidget.h"
 #include "Components/ProgressBar.h"
+#include "Components/TextBlock.h"
 
 void UMainHUDWidget::UpdateHP(int32 Current, int32 Max)
 {
@@ -18,7 +19,11 @@ void UMainHUDWidget::UpdateHP(int32 Current, int32 Max)
 	{
 		UE_LOG(LogTemp, Error, TEXT("HPBarCANNOTFound"));
 	}
-	
+
+	if (HPText)
+	{
+		HPText->SetText(FText::AsNumber(Current));
+	}
 }
 
 void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
@@ -34,5 +39,10 @@ void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("HPBarCANNOTFound"));
+	}
+
+	if (BPText)
+	{
+		BPText->SetText(FText::AsNumber(Current));
 	}
 }

@@ -11,6 +11,8 @@
 class UEnemyAttributeComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPChange);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUp, int32, SkillPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageDealt, int32, Damage);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_API UPlayerAttributeComponent : public UActorComponent, public IAttributeInterface
@@ -32,6 +34,12 @@ public:
 
 	UPROPERTY(BlueprintAssignable)
 	FOnBPChange OnBPChange;
+
+	UPROPERTY()
+	FOnLevelUp OnLevelUp;
+
+	UPROPERTY()
+	FOnDamageDealt OnDamageDealt;
 
 protected:
 	// Called when the game starts
@@ -78,5 +86,6 @@ public:
 	FORCEINLINE void SetAttackMultiplier(float CurrentAttackMultiplier) { AttackMultiplier = CurrentAttackMultiplier; }
 	FORCEINLINE void SetBPtoGet(int32 BPValue) { BPtoGet = BPValue; }
 	FORCEINLINE int32 GetRequiredEXPForNextLevel() { return FMath::FloorToInt32(BaseEXP * FMath::Pow(GrowthRate, Level - 1)); }
+	FORCEINLINE int32 GetSkillPoint() { return SkillPoint; }
 	//FORCEINLINE void AddEXP(int32 EXPValue) { EXP += EXPValue; }
 };

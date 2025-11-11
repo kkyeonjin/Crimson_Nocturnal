@@ -65,10 +65,11 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		return 0.f;
 	}
 	
-	float Damage = ATK - EnemyAttributeComponent->GetDEF();
+	int32 Damage = FMath::RoundToInt32(ATK - EnemyAttributeComponent->GetDEF());
 	if (Damage > 0)
 	{
-		return FMath::RoundToInt32(Damage);
+		OnDamageDealt.Broadcast(Damage); //for skillB
+		return Damage;
 	}
 	else
 	{
@@ -111,7 +112,8 @@ void UPlayerAttributeComponent::AddEXP(int32 EXPValue)
 		Level++;
 
 		// OnLevelUp(); // 레벨 상승 시 추가 이벤트 많이 필요할 경우 함수 생성 필
-		SkillPoint += 2;
+		SkillPoint += 1;
+		OnLevelUp.Broadcast(SkillPoint); 
 	}
 
 	UE_LOG(LogTemp, Display, TEXT("EXP: %d"), EXP);

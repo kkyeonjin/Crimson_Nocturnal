@@ -3,6 +3,7 @@
 
 #include "UI/SkillTreeWidget.h"
 #include "Components/Image.h"
+#include "Components/TextBlock.h"
 
 void USkillTreeWidget::ChangeSelection(int32 Input)
 {
@@ -127,6 +128,14 @@ void USkillTreeWidget::SetSkillTree()
 	else //Skill
 	{
 		SkillActivated[SkillSelectCount]->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void USkillTreeWidget::SetSkillPointText(int32 SkillPoint)
+{
+	if (SkillPointText)
+	{
+		SkillPointText->SetText(FText::AsNumber(SkillPoint));
 	}
 }
 

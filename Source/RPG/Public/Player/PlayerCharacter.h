@@ -121,6 +121,12 @@ protected:
 	UFUNCTION()
 	void UpdateBP();
 
+	UFUNCTION()
+	void OnLevelUp(int32 SkillPoint);
+
+	UFUNCTION()
+	void OnDamageDealt(int32 Damage);
+
 	//SkillA
 	UFUNCTION()
 	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);

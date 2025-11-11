@@ -71,6 +71,8 @@ void APlayerCharacter::BeginPlay()
 	if (CachedAttributeComponent)
 	{
 		CachedAttributeComponent->OnBPChange.AddDynamic(this, &APlayerCharacter::UpdateBP);
+		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
+		CachedAttributeComponent->OnDamageDealt.AddDynamic(this, &APlayerCharacter::OnDamageDealt);
 	}
 
 	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
@@ -151,6 +153,23 @@ void APlayerCharacter::UpdateBP() //callback Func called by AttributeComp
 		CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
 }
 
+void APlayerCharacter::OnLevelUp(int32 SkillPoint)
+{
+	CachedHUDComponent->SetSkillPointText(SkillPoint);
+}
+
+void APlayerCharacter::OnDamageDealt(int32 Damage) //for SkillB
+{
+	if (CachedUltimateSkillComponent->IsSkillActivated())
+	{
+		CachedAttributeComponent->ADDCurrentHP(Damage);
+		CachedHUDComponent->UpdatePlayerHP(
+			CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
+		);
+	}
+}
+
+//Callback Func (from delegate at UltSkillComp)
 void APlayerCharacter::OnSkill1Attack(int32 AnimNum, float AttackMultiplier)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Skill Broadcast Received"));
@@ -253,6 +272,10 @@ void APlayerCharacter::SkillStart()
 		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
 		CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
 	}
+	else if (SelectedSkill == EUltimateSkill::SkillB)
+	{
+		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+	}
 }
 
 void APlayerCharacter::SkillTree() //press skillTree button
@@ -311,20 +334,21 @@ void APlayerCharacter::SetUlt()
 	}
 	else //Skill
 	{
-		int32 SkillCount = CachedHUDComponent->GetSkillSelectCount();
+		if (CachedAttributeComponent->GetSkillPoint() > 0) //Get Skill Only when SkillPoint Remains
+		{
+			int32 SkillCount = CachedHUDComponent->GetSkillSelectCount();
 
-		if (SkillCount == 4) //Skill Time Up Skill
-		{
-			CachedUltimateSkillComponent->IncreaseSkillTime();
-		}
-		else
-		{
-			CachedAttributeComponent->UpdateStatsBySkill(SkillCount);
+			if (SkillCount == 4) //Skill Time Up Skill
+			{
+				CachedUltimateSkillComponent->IncreaseSkillTime();
+			}
+			else
+			{
+				CachedAttributeComponent->UpdateStatsBySkill(SkillCount);
+			}
 		}
 	}
-	
 	CachedHUDComponent->SetSkillTree(); //UI Change
-	
 }
 
 
