@@ -2,6 +2,7 @@
 
 
 #include "Enemy/EnemyComponents/EnemyAttributeComponent.h"
+#include "Enemy/Enemy.h"
 #include "Player/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Player/PlayerComponents/PlayerAttributeComponent.h"
@@ -78,6 +79,12 @@ void UEnemyAttributeComponent::ApplyDamage()
 	if (PlayerAttributeComponent)
 	{
 		int32 Damage = PlayerAttributeComponent->CalcDamage();
+
+		if (bIsInfected)
+		{
+			Damage *= 2;
+		}
+
 		CurrentHP -= Damage;
 		UE_LOG(LogTemp, Display, TEXT("EnemyHP: %d"), CurrentHP);
 	}
@@ -91,4 +98,24 @@ void UEnemyAttributeComponent::SendEXPValue()
 {
 	PlayerAttributeComponent->AddEXP(EXPValue);
 }
+
+void UEnemyAttributeComponent::StartInfectTimer()
+{
+	GetWorld()->GetTimerManager().SetTimer(
+		InfectTimer, this, &UEnemyAttributeComponent::InfectTimerFinished, 3.f, false
+	);
+
+	bIsInfected = true;
+}
+
+void UEnemyAttributeComponent::InfectTimerFinished()
+{
+	if (AEnemy* Enemy = Cast<AEnemy>(GetOwner()))
+	{
+		Enemy->RestoreMaterialToDefault();
+	}
+
+	bIsInfected = false;
+}
+
 

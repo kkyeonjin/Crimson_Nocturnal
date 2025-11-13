@@ -47,7 +47,7 @@ private:
 	FTimerHandle SkillActiveTimer;
 	float SkillAActiveTime = 5.f; //Default
 	float SkillBActiveTime = 5.f; //Default
-	float SkillCActiveTime = 5.f; //Default
+	float SkillCActiveTime = 10.f; //Default
 
 	int32 XSettingForSkillA = 0; //Default
 	int32 YSettingForSkillA = 0; //Default

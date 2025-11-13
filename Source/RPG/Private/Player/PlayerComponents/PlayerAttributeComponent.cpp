@@ -65,7 +65,7 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		return 0.f;
 	}
 	
-	int32 Damage = FMath::RoundToInt32(ATK - EnemyAttributeComponent->GetDEF());
+	int32 Damage = ATK - EnemyAttributeComponent->GetDEF();
 	if (Damage > 0)
 	{
 		OnDamageDealt.Broadcast(Damage); //for skillB

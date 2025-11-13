@@ -5,6 +5,7 @@
 #include "Enemy/Animation/EnemyAnimInstance.h"
 #include "Enemy/EnemyComponents/EnemyAttackComponent.h"
 #include "Enemy/EnemyComponents/EnemyAttributeComponent.h"
+#include "Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -20,6 +21,16 @@ AEnemy::AEnemy()
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
+
+	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
+	if (Player)
+	{
+		Player->OnSkillCReady.AddDynamic(this, &AEnemy::ReadyToInfect);
+	}
+
+	USkeletalMeshComponent* MeshComp = this->GetMesh();
+	OriginalMaterial = MeshComp->GetMaterial(0);
+
 	CachedEnemyAnimInstance = Cast<UEnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	if (!CachedEnemyAnimInstance)
 	{
@@ -92,7 +103,6 @@ void AEnemy::OnEnemyAttackMontageEnded()
 void AEnemy::SetEnemyGroundSpeed(float NewSpeed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
-
 }
 
 
@@ -103,8 +113,38 @@ void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 }
 
+void AEnemy::ReadyToInfect()
+{
+	bReadyToInfect = true;
+	UE_LOG(LogTemp, Warning, TEXT("ReadyToInfect"));
+}
+
+void AEnemy::RestoreMaterialToDefault()
+{
+	UE_LOG(LogTemp, Warning, TEXT("InfectTimerOver"));
+	USkeletalMeshComponent* MeshComp = this->GetMesh();
+	MeshComp->SetMaterial(0, OriginalMaterial);
+}
+
+
 void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 {
+	EnemyCombatState = EEnemyCombatState::EECS_GetAttacked;
+
+	if (bReadyToInfect && !CachedEnemyAttributeComponent->GetIsInfected())
+	{
+		USkeletalMeshComponent* MeshComp = this->GetMesh();
+		if (MeshComp && RedMaterial)
+		{
+			// 빨간 머티리얼로 교체
+			MeshComp->SetMaterial(0, RedMaterial);
+		}
+
+		CachedEnemyAttributeComponent->StartInfectTimer();
+
+		bReadyToInfect = false;
+	}
+
 	UE_LOG(LogTemp, Display, TEXT("EnemyHit!!!"));
 	if (CachedEnemyAttributeComponent)
 	{
@@ -133,4 +173,5 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 		);
 	}
 }
+
 

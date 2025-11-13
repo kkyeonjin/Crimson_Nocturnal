@@ -26,6 +26,10 @@ public:
 	//send EXPValue to Player when Enemy is dead
 	void SendEXPValue();
 
+	//Manage InfectTimer
+	void StartInfectTimer();
+	void InfectTimerFinished();
+
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
@@ -43,6 +47,9 @@ private:
 
 	UPlayerAttributeComponent* PlayerAttributeComponent;
 
+	FTimerHandle InfectTimer;
+	bool bIsInfected;
+
 	void InitializeEnemyStat();
 
 public:
@@ -50,6 +57,8 @@ public:
 	FORCEINLINE virtual int32 GetDEF() override { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() override { return CurrentHP; }
 	FORCEINLINE virtual int32 GetMaxHP() override { return MaxHP; }
+
+	FORCEINLINE bool GetIsInfected() { return bIsInfected; }
 
 		
 };

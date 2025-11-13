@@ -51,6 +51,13 @@ void UUltimateSkillComponent::TimerStart(EUltimateSkill* SelectedSkill)
 		);
 
 	}
+	else if (*SelectedSkill == EUltimateSkill::SkillC) //°¨¿°
+	{
+		GetWorld()->GetTimerManager().SetTimer(
+			SkillActiveTimer, this, &UUltimateSkillComponent::SkillTimeOver, SkillCActiveTime, false
+		);
+
+	}
 }
 
 void UUltimateSkillComponent::SkillTimeOver()

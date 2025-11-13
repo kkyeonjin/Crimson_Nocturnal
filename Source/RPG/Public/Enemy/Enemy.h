@@ -11,6 +11,7 @@
 class UEnemyAttackComponent;
 class UEnemyAnimInstance;
 class UEnemyAttributeComponent;
+class APlayerCharacter;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackEnd);
 
@@ -31,11 +32,16 @@ public:
 	// Sets default values for this character's properties
 	AEnemy();
 
+	void RestoreMaterialToDefault();
+
 	UFUNCTION()
 	void AttackStart();
 
 	UFUNCTION()
 	void OnEnemyAttackMontageEnded();
+
+	UFUNCTION()
+	void ReadyToInfect();
 
 	FOnEnemyAttackEnd OnEnemyAttackEnd;
 
@@ -63,8 +69,16 @@ private:
 	UEnemyAttributeComponent* CachedEnemyAttributeComponent;
 	UEnemyAttackComponent* CachedEnemyAttackComponent;
 
+	bool bReadyToInfect = false;
+
 	UPROPERTY(EditAnywhere, Category = "VFX")
 	UParticleSystem* HitParticles;
+
+	UPROPERTY(EditAnywhere, Category = "Material")
+	UMaterialInterface* RedMaterial;
+
+	UMaterialInterface* OriginalMaterial;
+
 
 	EEnemyCombatState EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
 

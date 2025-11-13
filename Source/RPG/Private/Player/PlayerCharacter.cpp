@@ -104,6 +104,11 @@ void APlayerCharacter::OnComboComplete(int32 ComboAnimNum, int32 BPValue)
 	CachedAnimInstance->PlayAnimMontage(ComboAnimNum); //Play Combo Animation
 	CachedAttributeComponent->SetBPtoGet(BPValue);//Set BPValue to get
 	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
+
+	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillC)
+	{
+		OnSkillCReady.Broadcast();
+	}
 }
 
 void APlayerCharacter::OnChainAttack(int32 AnimNum, FName SectionName)
@@ -276,6 +281,11 @@ void APlayerCharacter::SkillStart()
 	{
 		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
 	}
+	else if (SelectedSkill == EUltimateSkill::SkillC)
+	{
+		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+	}
+	
 }
 
 void APlayerCharacter::SkillTree() //press skillTree button

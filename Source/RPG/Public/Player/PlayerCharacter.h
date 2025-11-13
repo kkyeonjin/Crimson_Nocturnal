@@ -24,6 +24,8 @@ class UAnimMontage;
 class UPlayerAnimInstance;
 class UComboManageComponent;
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillCReady);
+
 UCLASS()
 class RPG_API APlayerCharacter : public ACharacter, public IHitInterface
 {
@@ -37,6 +39,8 @@ public:
 	void HandleAttack(AActor* Target);
 
 	void GetHit(const FVector& ImpactPoint, AActor* Target) override;
+
+	FOnSkillCReady OnSkillCReady;
 
 protected:
 	virtual void BeginPlay() override;
