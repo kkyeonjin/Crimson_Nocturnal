@@ -6,6 +6,7 @@
 #include "AIController.h"
 #include "EnemyAIController.generated.h"
 
+struct FAIStimulus;
 class AEnemy;
 
 //class UAIPerceptionComponent;
@@ -32,8 +33,11 @@ protected:
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
-private:
-	void CalcDistance();
+	/*
+	UFUNCTION()
+	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
+	*/
 
+private:
 	AEnemy* Owner;
 };

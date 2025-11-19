@@ -45,6 +45,8 @@ private:
 	int32 MaxHP;
 	int32 EXPValue;
 
+	FName EnemyTypeName;
+
 	UPlayerAttributeComponent* PlayerAttributeComponent;
 
 	FTimerHandle InfectTimer;

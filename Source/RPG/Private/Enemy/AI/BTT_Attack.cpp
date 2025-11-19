@@ -47,11 +47,13 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     }
 
     //UE_LOG(LogTemp, Display, TEXT("Calling AttackStart..."));
-    EnemyLocal->AttackStart();
+    EnemyLocal->AttackStart(&OwnerComp, this);
+
+    UE_LOG(LogTemp, Display, TEXT("[%s] Attack Task Started"), *EnemyLocal->GetName());
 
     //UE_LOG(LogTemp, Display, TEXT("AttackStart called"));
-    EnemyLocal->OnEnemyAttackEnd.RemoveDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
-    EnemyLocal->OnEnemyAttackEnd.AddDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
+   // EnemyLocal->OnEnemyAttackEnd.RemoveDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
+    //EnemyLocal->OnEnemyAttackEnd.AddDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);
 
     return EBTNodeResult::InProgress;
 }

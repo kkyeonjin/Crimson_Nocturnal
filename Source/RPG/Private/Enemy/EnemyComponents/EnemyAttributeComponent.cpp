@@ -33,7 +33,12 @@ void UEnemyAttributeComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("PlayerCharacter From EnemyComp Load Failed"));
 	}
 
-	FEnemyStat* Row = EnemyStatTable->FindRow<FEnemyStat>(FName(TEXT("Mutant")), TEXT("Load Enemy Stat Data"));
+	if (AEnemy* OwnerEnemy = Cast<AEnemy>(GetOwner()))
+	{
+		EnemyTypeName = OwnerEnemy->GetEnemyTypeName();  // Blueprint에서 설정된 이름 받기
+	}
+
+	FEnemyStat* Row = EnemyStatTable->FindRow<FEnemyStat>(FName(EnemyTypeName), TEXT("Load Enemy Stat Data"));
 	if (Row)
 	{
 		ATK = Row->ATK;

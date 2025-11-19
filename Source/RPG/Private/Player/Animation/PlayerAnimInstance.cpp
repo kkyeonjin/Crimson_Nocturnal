@@ -101,7 +101,12 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 Num)
 		case 11:
 			Montage_Play(ComboB);
 			break;
-
+		case 12:
+			Montage_Play(ComboC);
+			break;
+		case 13:
+			Montage_Play(ComboD);
+			break;
 		default:
 			break;
 	}

@@ -136,6 +136,24 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboB.ComboAttackMultiplier = 2.8;
 	ComboB.BPValue = 2;
 	ComboPatterns.Add(ComboB);
+
+	//ComboC
+	FComboPattern ComboC;
+	ComboC.ComboKeySequence = { EAttackKeyType::X, EAttackKeyType::Y, EAttackKeyType::Y,  EAttackKeyType::X };
+	ComboC.ComboNum = 2;
+	ComboC.AnimMontageNum = 12;
+	ComboC.ComboAttackMultiplier = 3.5;
+	ComboC.BPValue = 2;
+	ComboPatterns.Add(ComboC);
+
+	//ComboD
+	FComboPattern ComboD;
+	ComboD.ComboKeySequence = { EAttackKeyType::Y, EAttackKeyType::X, EAttackKeyType::Y, EAttackKeyType::Y };
+	ComboD.ComboNum = 3;
+	ComboD.AnimMontageNum = 13;
+	ComboD.ComboAttackMultiplier = 3.8;
+	ComboD.BPValue = 2;
+	ComboPatterns.Add(ComboD);
 }
 
 void UComboManageComponent::CheckComboTimeOut()

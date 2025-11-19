@@ -109,6 +109,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Combo")
 	UAnimMontage* ComboB;
 
+	UPROPERTY(EditAnywhere, Category = "Combo")
+	UAnimMontage* ComboC;
+
+	UPROPERTY(EditAnywhere, Category = "Combo")
+	UAnimMontage* ComboD;
+
 	UPROPERTY(EditAnywhere, Category = "Stun")
 	UAnimMontage* StunA;
 

@@ -75,28 +75,44 @@ void AEnemy::Tick(float DeltaTime)
 
 }
 
-void AEnemy::AttackStart()
+void AEnemy::AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode)
 {
 	if (CachedEnemyAnimInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackStart"));
+		UE_LOG(LogTemp, Warning, TEXT("[%s] EnemyAttackStart"), *GetName());
+
+		// BT Component 저픸E
+		CachedBTComponent = BTComp;
+		CachedBTTaskNode = TaskNode;
 
 		CachedEnemyAnimInstance->PlayAnimMontage(0);
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.RemoveDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
-		//IsAttacking = true;
+		EnemyCombatState = EEnemyCombatState::EECS_Attacking;
 	}
 }
 
 void AEnemy::OnEnemyAttackMontageEnded()
 {
+	UE_LOG(LogTemp, Warning, TEXT("[%s] OnEnemyAttackMontageEnded"), *GetName());
+
 	if (CachedEnemyAnimInstance)
 	{
-		OnEnemyAttackEnd.Broadcast();
+		//OnEnemyAttackEnd.Broadcast();
 	}
-	EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
 	CachedEnemyAttackComponent->InitializeActorsToIgnore();
-	//IsAttacking = false;
+	EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
+
+	// BT Task 직접 종톩E
+	if (CachedBTComponent && CachedBTTaskNode)
+	{
+		CachedBTTaskNode->FinishLatentTask(*CachedBTComponent, EBTNodeResult::Succeeded);
+		UE_LOG(LogTemp, Display, TEXT("[%s] BT Task Finished from Enemy"), *GetName());
+
+		// 캐시 초기화
+		CachedBTComponent = nullptr;
+		CachedBTTaskNode = nullptr;
+	}
 }
 
 

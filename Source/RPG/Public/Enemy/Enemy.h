@@ -6,8 +6,10 @@
 #include "GameFramework/Character.h"
 #include "Interfaces/HitInterface.h"
 #include "Enemy/Types/EnemyType.h"
+#include "BehaviorTree/BTTaskNode.h"
 #include "Enemy.generated.h"
 
+class UBehaviorTreeComponent;
 class UEnemyAttackComponent;
 class UEnemyAnimInstance;
 class UEnemyAttributeComponent;
@@ -35,7 +37,7 @@ public:
 	void RestoreMaterialToDefault();
 
 	UFUNCTION()
-	void AttackStart();
+	void AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode);
 
 	UFUNCTION()
 	void OnEnemyAttackMontageEnded();
@@ -58,6 +60,9 @@ protected:
 	UFUNCTION(BlueprintCallable)
 	void SetEnemyGroundSpeed(float NewSpeed);
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
+	FName EnemyTypeName = FName(TEXT("Mutant"));
+
 	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
 	float PatrolSpeed = 250.f;
 
@@ -79,6 +84,9 @@ private:
 
 	UMaterialInterface* OriginalMaterial;
 
+	// BTTask 관련 캐싱 변수 추가
+	UBehaviorTreeComponent* CachedBTComponent = nullptr;
+	UBTTaskNode* CachedBTTaskNode = nullptr;
 
 	EEnemyCombatState EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
 
@@ -86,6 +94,6 @@ public:
 	//FORCEINLINE bool IsDead() { return bIsDead; }
 	FORCEINLINE EEnemyCombatState GetEnemyCombatState() { return EnemyCombatState; }
 	FORCEINLINE void SetEnemyCombatState(EEnemyCombatState State) { EnemyCombatState = State; }
-	
-	
+	FORCEINLINE FName GetEnemyTypeName() { return EnemyTypeName; }
+
 };

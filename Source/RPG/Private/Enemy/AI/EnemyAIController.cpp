@@ -38,6 +38,7 @@ void AEnemyAIController::BeginPlay()
 	Owner = Cast<AEnemy>(GetPawn());
 
 	PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
+	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionUpdated);
 }
 
 //When Enemy detects player 
@@ -77,3 +78,35 @@ void AEnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActor
 		}
 	}
 }
+
+/*
+void AEnemyAIController::OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus)
+{
+	if (!Actor || !Actor->ActorHasTag("Player") || !Blackboard)
+		return;
+
+	// ¡EÃß°¡: ¾ûÐÀ EnemyÀÎÁEÈ®ÀÎ
+	if (Owner)
+	{
+		FString EnemyName = Owner->GetName();
+		FString DetectionState = Stimulus.WasSuccessfullySensed() ? TEXT("DETECTED") : TEXT("LOST");
+
+		UE_LOG(LogTemp, Warning,
+			TEXT("%s: Player %s (immediate)!"),
+			*EnemyName, *DetectionState);
+	}
+
+	if (Stimulus.WasSuccessfullySensed())
+	{
+		TargetActor = Actor;
+		Blackboard->SetValueAsObject("TargetActor", TargetActor);
+		Blackboard->SetValueAsBool("IsPlayerDetected", true);
+	}
+	else
+	{
+		Blackboard->ClearValue("TargetActor");
+		Blackboard->SetValueAsBool("IsPlayerDetected", false);
+		TargetActor = nullptr;
+	}
+}
+*/

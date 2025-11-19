@@ -54,7 +54,7 @@ void APlayerCharacter::BeginPlay()
 		CachedAnimInstance->OnBladeRCollisionDisable.AddDynamic(this, &APlayerCharacter::SetBladeRCollisionDisable);
 
 		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionEnable);
-		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionDisable);
+		CachedAnimInstance->OnKickCollisionDisable.AddDynamic(this, &APlayerCharacter::SetKickCollisionDisable);
 	}
 	
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
@@ -82,13 +82,16 @@ void APlayerCharacter::BeginPlay()
 	}
 
 	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
-	//Initialize HP&BP Bar
-	CachedHUDComponent->UpdatePlayerHP(
-		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
-	);
-	CachedHUDComponent->UpdatePlayerBP(
-		CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP()
-	);
+	if (CachedHUDComponent)
+	{
+		//Initialize HP&BP Bar
+		CachedHUDComponent->UpdatePlayerHP(
+			CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
+		);
+		CachedHUDComponent->UpdatePlayerBP(
+			CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP()
+		);
+	}
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
