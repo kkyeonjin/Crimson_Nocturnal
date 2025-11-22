@@ -4,6 +4,8 @@
 #include "Player/PlayerComponents/PlayerAttributeComponent.h"
 #include "Player/PlayerCharacter.h"
 #include "Enemy/EnemyComponents/EnemyAttributeComponent.h"
+#include "Kismet/GameplayStatics.h"
+
 
 // Sets default values for this component's properties
 UPlayerAttributeComponent::UPlayerAttributeComponent()
@@ -21,28 +23,117 @@ void UPlayerAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	//get Stats from DataTable to variables
-	FPlayerStat* Row = PlayerStatTable->FindRow<FPlayerStat>(FName(TEXT("MainPlayer")), TEXT("Load Player Stat Data"));
-	if (Row)
+	if (DoesSaveGameExist())
 	{
-		ATK = Row->ATK;
-		DEF = Row->DEF;
-		CurrentHP = Row->CurrentHP;
-		CurrentBP = Row->CurrentBp;
-		MaxHP = Row->MaxHP;
-		MaxBP = Row->MaxBp;
-		EXP = Row->EXP;
-		Level = Row->Level;
-		SkillPoint = Row->SkillPoint;
-
+		LoadPlayerData();
 	}
-	// ...
+	else
+	{
+		//Initialize player stat
+		InitializePlayerStat();
+	}
+
+	OnBPUpdate.Broadcast();
+
+	GrowthRate = 1.f;
 	
 }
 
 void UPlayerAttributeComponent::InitializePlayerStat()
 {
-	//PlayerStat.
+	CurrentLevel = 1;
+	CurrentBP = 0;
+	CurrentEXP = 0;
+	FLevelData* Data = GetLevelData(CurrentLevel);
+	CurrentHP = Data->MaxHP;
+	ATK = Data->DefaultATK;
+	DEF = Data->DefaultDEF;
+}
+
+FLevelData* UPlayerAttributeComponent::GetLevelData(int32 Level)
+{
+	if (!PlayerLevelTable)
+	{
+		return nullptr;
+	}
+	FName Row = FName(*FString::Printf(TEXT("Level%d"), Level));
+	return PlayerLevelTable->FindRow<FLevelData>(Row, TEXT("Load Player Level Data"));
+}
+
+void UPlayerAttributeComponent::CheckLevelUp()
+{
+	FLevelData* Data = GetLevelData(CurrentLevel + 1);
+
+	if (CurrentEXP >= Data->RequiredEXP)
+	{
+		LevelUp();
+	}
+}
+
+void UPlayerAttributeComponent::LevelUp()
+{
+	CurrentLevel += 1;
+
+	FLevelData* Data = GetLevelData(CurrentLevel);
+
+	MaxHP = Data->MaxHP;
+	CurrentHP = Data->MaxHP; //restore HP when LevelUP
+	ATK = Data->DefaultATK;
+	DEF = Data->DefaultDEF;
+	SkillPoint += 1;
+
+	OnLevelUp.Broadcast(SkillPoint);
+}
+
+void UPlayerAttributeComponent::LoadPlayerData()
+{
+	auto PlayerGameData = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(TEXT("PlayerSaveSlot"), 0));
+
+	if (PlayerGameData)
+	{
+		CurrentEXP = PlayerGameData->SavedCurrentExp;
+		CurrentLevel = PlayerGameData->SavedCurrentLevel;
+		CurrentBP = PlayerGameData->SavedCurrentBP;
+		CurrentHP = PlayerGameData->SavedCurrentHP;
+		MaxBP = PlayerGameData->SavedMaxBP;
+		MaxHP = PlayerGameData->SavedMaxHP;
+		ATK = PlayerGameData->SavedATK;
+		DEF = PlayerGameData->SavedDEF;
+		SkillPoint = PlayerGameData->SavedSkillPoint;
+		ActivatedSkills = PlayerGameData->ActivatedSkills;
+		EquippedUlt = PlayerGameData->EquippedUlt;
+	}
+
+	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills);
+}
+
+void UPlayerAttributeComponent::SavePlayerData()
+{
+	USaveGameData* NewPlayerData = Cast<USaveGameData>(UGameplayStatics::CreateSaveGameObject(USaveGameData::StaticClass()));
+
+	if (!NewPlayerData)
+	{
+		UE_LOG(LogTemp, Error, TEXT("Failed to Create SaveGame Obj"));
+	}
+
+	NewPlayerData->SavedCurrentExp = CurrentEXP;
+	NewPlayerData->ActivatedSkills = ActivatedSkills;
+	NewPlayerData->SavedCurrentBP = CurrentBP;
+	NewPlayerData->SavedCurrentHP = CurrentHP;
+	NewPlayerData->SavedMaxBP = MaxBP;
+	NewPlayerData->SavedMaxHP = MaxHP;
+	NewPlayerData->SavedATK = ATK;
+	NewPlayerData->SavedDEF = DEF;
+	NewPlayerData->SavedSkillPoint = SkillPoint;
+	NewPlayerData->SavedCurrentLevel = CurrentLevel;
+	NewPlayerData->EquippedUlt = EquippedUlt;
+
+	UGameplayStatics::SaveGameToSlot(NewPlayerData, NewPlayerData->SaveSlotName, NewPlayerData->UserIndex);
+}
+
+bool UPlayerAttributeComponent::DoesSaveGameExist() const
+{
+	return UGameplayStatics::DoesSaveGameExist(TEXT("PlayerSaveSlot"), 0);
 }
 
 //Calculation Damage Value to Enemy when Player hits Enemy
@@ -52,9 +143,8 @@ int32 UPlayerAttributeComponent::CalcDamage()
 	{
 		UE_LOG(LogTemp, Display, TEXT("BPtoGet: %d"), BPtoGet);
 		CurrentBP += BPtoGet;
-		//CurrentBP = FMath::Clamp(CurrentBP, 0.f, MaxBP);
 		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
-		OnBPChange.Broadcast();
+		OnBPUpdate.Broadcast();
 
 		BPtoGet = 0;
 	}
@@ -68,7 +158,7 @@ int32 UPlayerAttributeComponent::CalcDamage()
 	int32 Damage = ATK - EnemyAttributeComponent->GetDEF();
 	if (Damage > 0)
 	{
-		OnDamageDealt.Broadcast(Damage); //for skillB
+		OnDamageCalculated.Broadcast(Damage); //for skillB
 		return Damage;
 	}
 	else
@@ -84,11 +174,12 @@ void UPlayerAttributeComponent::ApplyDamage()
 	{
 		int32 Damage = EnemyAttributeComponent->CalcDamage();
 		CurrentHP -= Damage;
+		OnHPUpdate.Broadcast();
 		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
 	}
 	else
 	{
-		//UE_LOG(LogTemp, Error, TEXT("EnemyAttributeComponent CANNOT FIND"));
+		UE_LOG(LogTemp, Error, TEXT("EnemyAttributeComponent CANNOT FIND"));
 	}
 }
 
@@ -97,26 +188,23 @@ void UPlayerAttributeComponent::SetEnemyAttributeComponent(AActor* Target)
 	EnemyAttributeComponent = Target->FindComponentByClass<UEnemyAttributeComponent>();
 	if (!EnemyAttributeComponent)
 	{
-		//UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Cannot Find"));
+		UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Cannot Find"));
 	}
 }
 
 //take Enemy's EXP value who player just killed 
 void UPlayerAttributeComponent::AddEXP(int32 EXPValue)
 {
-	EXP += EXPValue;
-
-	while (EXP >= GetRequiredEXPForNextLevel())
+	if (CurrentLevel >= MaxLevel)
 	{
-		EXP -= GetRequiredEXPForNextLevel();
-		Level++;
-
-		// OnLevelUp(); // 레벨 상승 시 추가 이벤트 많이 필요할 경우 함수 생성 필
-		SkillPoint += 1;
-		OnLevelUp.Broadcast(SkillPoint); 
+		return;
 	}
 
-	UE_LOG(LogTemp, Display, TEXT("EXP: %d"), EXP);
+	CurrentEXP += EXPValue;
+
+	CheckLevelUp();
+
+	UE_LOG(LogTemp, Display, TEXT("EXP: %d"), CurrentEXP);
 }
 
 void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
@@ -138,5 +226,7 @@ void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
 		default:
 			break;
 	}
+
+	ActivatedSkills[SkillNum] = 1;
 }
 

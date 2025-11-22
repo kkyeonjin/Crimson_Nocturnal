@@ -28,8 +28,38 @@ void AEnemy::BeginPlay()
 		Player->OnSkillCReady.AddDynamic(this, &AEnemy::ReadyToInfect);
 	}
 
+	
 	USkeletalMeshComponent* MeshComp = this->GetMesh();
-	OriginalMaterial = MeshComp->GetMaterial(0);
+	if (!MeshComp) return;
+
+	//Set OriginalMaterials
+	if (OriginalMaterials.Num() == 0)
+	{
+		int32 NumMaterials = MeshComp->GetNumMaterials();
+		for (int32 i = 0; i < NumMaterials; i++)
+		{
+			OriginalMaterials.Add(MeshComp->GetMaterial(i));
+		}
+	}
+
+	//Create & Set DynamicMaterials
+	for (int32 i = 0; i < OriginalMaterials.Num(); i++)
+	{
+		if (OriginalMaterials[i])
+		{
+			UMaterialInstanceDynamic* DynMat = UMaterialInstanceDynamic::Create(OriginalMaterials[i], this);
+			DynamicMaterials.Add(DynMat);
+
+			MeshComp->SetMaterial(i, DynMat);
+
+			UE_LOG(LogTemp, Display, TEXT("[%s] Dynamic Material created"), *GetName());
+		}
+	}
+
+	CurrentAppliedMaterials = DynamicMaterials;
+
+	//create Dynamic Red Material
+	DynRedMaterial = UMaterialInstanceDynamic::Create(RedMaterial, this);
 
 	CachedEnemyAnimInstance = Cast<UEnemyAnimInstance>(GetMesh()->GetAnimInstance());
 	if (!CachedEnemyAnimInstance)
@@ -81,7 +111,7 @@ void AEnemy::AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("[%s] EnemyAttackStart"), *GetName());
 
-		// BT Component 저픸E
+		// Store BT Component 
 		CachedBTComponent = BTComp;
 		CachedBTTaskNode = TaskNode;
 
@@ -103,7 +133,7 @@ void AEnemy::OnEnemyAttackMontageEnded()
 	CachedEnemyAttackComponent->InitializeActorsToIgnore();
 	EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
 
-	// BT Task 직접 종톩E
+	// BT Task 직접 종료
 	if (CachedBTComponent && CachedBTTaskNode)
 	{
 		CachedBTTaskNode->FinishLatentTask(*CachedBTComponent, EBTNodeResult::Succeeded);
@@ -120,7 +150,6 @@ void AEnemy::SetEnemyGroundSpeed(float NewSpeed)
 {
 	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
-
 
 // Called to bind functionality to input
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -139,7 +168,23 @@ void AEnemy::RestoreMaterialToDefault()
 {
 	UE_LOG(LogTemp, Warning, TEXT("InfectTimerOver"));
 	USkeletalMeshComponent* MeshComp = this->GetMesh();
-	MeshComp->SetMaterial(0, OriginalMaterial);
+	if (!MeshComp) return;
+
+	CurrentAppliedMaterials.Empty();
+
+	for (int32 i = 0; i < DynamicMaterials.Num(); i++)
+	{
+		if (DynamicMaterials[i])
+		{
+			MeshComp->SetMaterial(i, DynamicMaterials[i]);
+			CurrentAppliedMaterials.Add(DynamicMaterials[i]);
+		}
+	}
+
+	if (DynamicMaterials.Num() != 0)
+	{
+		
+	}
 }
 
 
@@ -152,10 +197,16 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 		USkeletalMeshComponent* MeshComp = this->GetMesh();
 		if (MeshComp && RedMaterial)
 		{
-			// 빨간 머티리얼로 교체
-			MeshComp->SetMaterial(0, RedMaterial);
-		}
+			//Initialize CurrentMaterials Array
+			CurrentAppliedMaterials.Empty();
 
+			//Set Infect Material 
+			for (int i = 0; i < DynamicMaterials.Num(); i++)
+			{
+				MeshComp->SetMaterial(i, DynRedMaterial);
+				CurrentAppliedMaterials.Add(DynRedMaterial);
+			}
+		}
 		CachedEnemyAttributeComponent->StartInfectTimer();
 
 		bReadyToInfect = false;
@@ -174,10 +225,18 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 			CachedEnemyAttributeComponent->SendEXPValue(); //Send EXP to Player that should gain
 			EnemyCombatState = EEnemyCombatState::EECS_Dead;
 			//bIsDead = true;
+
+			//Stop BT
+			CachedBTComponent->StopLogic(TEXT("EnemyDead"));
+			//Stop Movement
+			GetCharacterMovement()->StopMovementImmediately();
+			GetCharacterMovement()->DisableMovement();
+
+			StartDeathSequence();
 		}
 		else
 		{
-			CachedEnemyAnimInstance->PlayAnimMontage(1);
+			CachedEnemyAnimInstance->PlayAnimMontage(1); //HitReact AnimMontage 
 		}
 	}
 	if (HitParticles && GetWorld())
@@ -189,5 +248,46 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 		);
 	}
 }
+
+void AEnemy::StartDeathSequence()
+{
+	// 페이드아웃 타이머 시작 (0.05초마다 업데이트)
+	GetWorldTimerManager().SetTimer(
+		DeathTimer,
+		this,
+		&AEnemy::FadeOutAndDestroy,
+		0.05f,  // 업데이트 간격
+		true    // 반복
+	);
+
+	UE_LOG(LogTemp, Display, TEXT("[%s] Fade out started"), *GetName());
+
+}
+
+void AEnemy::FadeOutAndDestroy()
+{
+	// Alpha 감소 (1.0 → 0.0)
+	FadeOutAlpha -= (0.05f / FadeOutDuration);  // Delta = 업데이트 간격 / 전체 시간
+
+	if (FadeOutAlpha <= 0.0f)
+	{
+		FadeOutAlpha = 0.0f;
+		GetWorldTimerManager().ClearTimer(DeathTimer);
+
+		UE_LOG(LogTemp, Display, TEXT("[%s] Fade out complete, destroying"), *GetName());
+		Destroy();
+		return;
+	}
+
+	for (UMaterialInstanceDynamic* DynMat : CurrentAppliedMaterials)
+	{
+		if (DynMat)
+		{
+			DynMat->SetScalarParameterValue(FName("FadeAlpha"), FadeOutAlpha);
+		}
+	}
+}
+
+
 
 

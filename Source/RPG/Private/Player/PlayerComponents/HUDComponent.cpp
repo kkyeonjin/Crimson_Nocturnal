@@ -112,11 +112,19 @@ void UHUDComponent::SetSkillPointText(int32 SkillPoint)
 	}
 }
 
-void UHUDComponent::InitializeUI()
+void UHUDComponent::InitializeSkillTreeSelection()
 {
 	if (SkillTreeUIWidget)
 	{
-		SkillTreeUIWidget->InitializeUI();
+		SkillTreeUIWidget->InitializeSelection();
+	}
+}
+
+void UHUDComponent::InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills)
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->InitializeUIFromSave(UltNum, ActivatedSkills);
 	}
 }
 

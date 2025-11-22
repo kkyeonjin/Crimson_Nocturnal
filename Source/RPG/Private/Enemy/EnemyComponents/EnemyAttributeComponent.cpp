@@ -35,7 +35,7 @@ void UEnemyAttributeComponent::BeginPlay()
 
 	if (AEnemy* OwnerEnemy = Cast<AEnemy>(GetOwner()))
 	{
-		EnemyTypeName = OwnerEnemy->GetEnemyTypeName();  // Blueprint에서 설정된 이름 받기
+		EnemyTypeName = OwnerEnemy->GetEnemyTypeName();  // Blueprint에서 설정된 이름 받콅E
 	}
 
 	FEnemyStat* Row = EnemyStatTable->FindRow<FEnemyStat>(FName(EnemyTypeName), TEXT("Load Enemy Stat Data"));

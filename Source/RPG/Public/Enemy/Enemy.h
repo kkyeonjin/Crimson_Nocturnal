@@ -82,7 +82,36 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Material")
 	UMaterialInterface* RedMaterial;
 
-	UMaterialInterface* OriginalMaterial;
+	UFUNCTION()
+	void StartDeathSequence();
+
+	UFUNCTION()
+	void FadeOutAndDestroy();
+
+	UPROPERTY()
+	UMaterialInstanceDynamic* DynRedMaterial;
+
+	UPROPERTY()
+	TArray<UMaterialInstanceDynamic*> DynamicMaterials;
+
+	//tracking Current Materials for Material change/restore,,,,etc
+	UPROPERTY()
+	TArray<UMaterialInstanceDynamic*> CurrentAppliedMaterials;
+
+	FTimerHandle DeathTimer;
+
+	UPROPERTY(EditAnywhere, Category = "Death")
+	float DeathAnimationDuration = 2.5f; // 죽음 애니메이션 길이
+
+	UPROPERTY(EditDefaultsOnly, Category = "Death")
+	float FadeOutDuration = 2.5f; // 페이드아웃 시간
+
+	float FadeOutAlpha = 1.0f;
+
+	//UMaterialInterface* OriginalMaterial;
+
+	UPROPERTY(EditAnywhere)
+	TArray<UMaterialInterface*> OriginalMaterials;
 
 	// BTTask 관련 캐싱 변수 추가
 	UBehaviorTreeComponent* CachedBTComponent = nullptr;

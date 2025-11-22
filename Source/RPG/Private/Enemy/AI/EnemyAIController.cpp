@@ -9,6 +9,7 @@
 void AEnemyAIController::Tick(float DeltaSeconds)
 {
 	Super::Tick(DeltaSeconds);
+	/*
 	if (Owner && Owner->GetEnemyCombatState() == EEnemyCombatState::EECS_Dead)
 	{
 		StopMovement();
@@ -20,6 +21,7 @@ void AEnemyAIController::Tick(float DeltaSeconds)
 		}
 		return;
 	}
+	*/
 }
 
 void AEnemyAIController::BeginPlay()
@@ -38,7 +40,7 @@ void AEnemyAIController::BeginPlay()
 	Owner = Cast<AEnemy>(GetPawn());
 
 	PerceptionComponent->OnPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnPerceptionUpdated);
-	PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionUpdated);
+	//PerceptionComponent->OnTargetPerceptionUpdated.AddDynamic(this, &AEnemyAIController::OnTargetPerceptionUpdated);
 }
 
 //When Enemy detects player 

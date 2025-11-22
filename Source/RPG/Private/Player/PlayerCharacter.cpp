@@ -70,9 +70,9 @@ void APlayerCharacter::BeginPlay()
 	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
 	if (CachedAttributeComponent)
 	{
-		CachedAttributeComponent->OnBPChange.AddDynamic(this, &APlayerCharacter::UpdateBP);
+		CachedAttributeComponent->OnBPUpdate.AddDynamic(this, &APlayerCharacter::UpdateBP);
 		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
-		CachedAttributeComponent->OnDamageDealt.AddDynamic(this, &APlayerCharacter::OnDamageDealt);
+		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
 	}
 
 	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
@@ -85,12 +85,14 @@ void APlayerCharacter::BeginPlay()
 	if (CachedHUDComponent)
 	{
 		//Initialize HP&BP Bar
+		/*
 		CachedHUDComponent->UpdatePlayerHP(
 			CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
 		);
 		CachedHUDComponent->UpdatePlayerBP(
 			CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP()
 		);
+		*/
 	}
 }
 
@@ -161,19 +163,31 @@ void APlayerCharacter::UpdateBP() //callback Func called by AttributeComp
 		CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
 }
 
+void APlayerCharacter::UpdateHP()
+{
+	CachedHUDComponent->UpdatePlayerHP(
+		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
+}
+
+//SetSkillTreeUI When Load Game (=Restart)
+void APlayerCharacter::OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills)
+{
+	CachedHUDComponent->SetSkillPointText(SkillPoint);
+	CachedHUDComponent->InitializeSkillTreeUIFromSave(UltNum, ActivatedSkills);
+}
+
 void APlayerCharacter::OnLevelUp(int32 SkillPoint)
 {
+	UpdateHP();
 	CachedHUDComponent->SetSkillPointText(SkillPoint);
 }
 
-void APlayerCharacter::OnDamageDealt(int32 Damage) //for SkillB
+void APlayerCharacter::OnDamageCalculated(int32 Damage) //for SkillB(HP Drain)
 {
-	if (CachedUltimateSkillComponent->IsSkillActivated())
+	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillB)
 	{
 		CachedAttributeComponent->ADDCurrentHP(Damage);
-		CachedHUDComponent->UpdatePlayerHP(
-			CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
-		);
+		UpdateHP();
 	}
 }
 
@@ -294,13 +308,13 @@ void APlayerCharacter::SkillStart()
 void APlayerCharacter::SkillTree() //press skillTree button
 {
 	CachedHUDComponent->ShowSkillTreeUI();
-	CachedHUDComponent->InitializeUI();
+	CachedHUDComponent->InitializeSkillTreeSelection();
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (PC)
 	{
-		//PC->SetPause(true); // 게임 정지
+		//PC->SetPause(true); // 게임 정햨E
 
-		// 게임 + UI 입력 모두 활성화 (게임패드 입력 포함)
+		// 게임 + UI 입력 모두 활성화 (게임패탛E입력 포함)
 		//PC->SetInputMode(FInputModeGameAndUI());
 
 		//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
@@ -404,9 +418,6 @@ void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 	CachedAnimInstance->PlayAnimMontage(2);
 	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
 	CachedAttributeComponent->ApplyDamage();
-	CachedHUDComponent->UpdatePlayerHP(
-		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
-	);
 }
 
 

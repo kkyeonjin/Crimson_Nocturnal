@@ -22,9 +22,10 @@ public:
 	virtual void NativeConstruct() override;
 	void ChangeSelection(int32 Input);
 	void SwitchSection();
-	void InitializeUI();
+	void InitializeSelection();
 	void SetSkillTree();
 	void SetSkillPointText(int32 SkillPoint);
+	void InitializeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Skill1Circle;

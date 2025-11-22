@@ -126,10 +126,16 @@ protected:
 	void UpdateBP();
 
 	UFUNCTION()
+	void UpdateHP();
+
+	UFUNCTION()
+	void OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills);
+
+	UFUNCTION()
 	void OnLevelUp(int32 SkillPoint);
 
 	UFUNCTION()
-	void OnDamageDealt(int32 Damage);
+	void OnDamageCalculated(int32 Damage);
 
 	//SkillA
 	UFUNCTION()

@@ -40,9 +40,7 @@ protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
 
-
 private:
-	//Rain Particle (Niagara)
 
 	FTimerHandle SkillActiveTimer;
 	float SkillAActiveTime = 5.f; //Default

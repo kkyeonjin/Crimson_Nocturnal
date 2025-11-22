@@ -88,7 +88,7 @@ void USkillTreeWidget::SwitchSection()
 	}
 }
 
-void USkillTreeWidget::InitializeUI()
+void USkillTreeWidget::InitializeSelection() //Renaming Required 
 {
 	UltSelectCount = 0;
 	UltCircles[0]->SetVisibility(ESlateVisibility::Visible);
@@ -137,6 +137,26 @@ void USkillTreeWidget::SetSkillPointText(int32 SkillPoint)
 	{
 		SkillPointText->SetText(FText::AsNumber(SkillPoint));
 	}
+}
+
+void USkillTreeWidget::InitializeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills)
+{
+	//Update Ult UI
+	SkillTree->SetVisibility(ESlateVisibility::Visible);
+	SkillTreeGrey->SetVisibility(ESlateVisibility::Hidden);
+	UltActivated[UltNum]->SetVisibility(ESlateVisibility::Visible);
+	UltEquipped[UltNum]->SetVisibility(ESlateVisibility::Visible);
+
+	//Update Skill UI
+
+	for (int i = 0; i < ActivatedSkills.Num(); i++)
+	{
+		if (i == 1)
+		{
+			SkillActivated[SkillSelectCount]->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
 }
 
 void USkillTreeWidget::NativeConstruct()
