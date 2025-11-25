@@ -7,7 +7,6 @@
 UBTT_Attack::UBTT_Attack()
 {
 	NodeName = TEXT("Attack");
-
 }
 
 EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory)
@@ -49,7 +48,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     //UE_LOG(LogTemp, Display, TEXT("Calling AttackStart..."));
     EnemyLocal->AttackStart(&OwnerComp, this);
 
-    UE_LOG(LogTemp, Display, TEXT("[%s] Attack Task Started"), *EnemyLocal->GetName());
+    //UE_LOG(LogTemp, Display, TEXT("[%s] Attack Task Started"), *EnemyLocal->GetName());
 
     //UE_LOG(LogTemp, Display, TEXT("AttackStart called"));
    // EnemyLocal->OnEnemyAttackEnd.RemoveDynamic(this, &UBTT_Attack::OnEnemyAttackEnd);

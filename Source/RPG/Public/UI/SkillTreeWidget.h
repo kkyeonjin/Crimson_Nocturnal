@@ -6,7 +6,10 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
+#include "SkillTypes.h"
 #include "SkillTreeWidget.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkillConfirmed, ESkillConfirmType, ConfirmType, int32, Index);
 
 class UTextBlock;
 /**
@@ -26,6 +29,14 @@ public:
 	void SetSkillTree();
 	void SetSkillPointText(int32 SkillPoint);
 	void InitializeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
+
+	void ReadyToSkillASetting(int32 Input);
+	void ChangeSkillASettingSelection(int32 Input);
+
+	void OnDirectionalInput(int32 Input);
+
+	UPROPERTY()
+	FOnSkillConfirmed OnSkillConfirmed;
 
 	UPROPERTY(meta = (BindWidget))
 	class UImage* Skill1Circle;
@@ -118,6 +129,12 @@ public:
 	UTextBlock* SkillPointText;
 
 	UPROPERTY(meta = (BindWidget))
+	UImage* XSettingCircle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* YSettingCircle;
+
+	UPROPERTY(meta = (BindWidget))
 	UImage* X1;
 
 	UPROPERTY(meta = (BindWidget))
@@ -141,17 +158,40 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Y4;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y1Circle;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y2Circle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y3Circle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Y4Circle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X1Circle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X2Circle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X3Circle;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* X4Circle;
 
 
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillSelectCount; }
 	FORCEINLINE int32 GetUltSelectCount() { return UltSelectCount; }
 	FORCEINLINE int32 GetCurrentSection() { return CurrentSection; }
+	int32 GetXorYSettingCount();
 
 
 private:
 	int32 UltSelectCount = 0;
-	int32 CurrentSection = 0; //default 0:Ult, 1:Skill
+	int32 CurrentSection = 0; //default 0:Ult, 1:Skill, 2:SkillA Setting 
 	TArray<UImage*> UltCircles;
 	TArray<UImage*> UltActivated;
 	TArray<UImage*> UltDescriptions;
@@ -161,4 +201,11 @@ private:
 	TArray<UImage*> SkillCircles;
 	TArray<UImage*> SkillDescriptions;
 	TArray<UImage*> SkillActivated;
+
+	int32 XSettingCount = 0;
+	int32 YSettingCount = 0;
+	TArray<UImage*> XSettingNums;
+	TArray<UImage*> YSettingNums;
+	TArray<UImage*> XSettingCircles;
+	TArray<UImage*> YSettingCircles;
 };

@@ -31,12 +31,11 @@ void UPlayerAttributeComponent::BeginPlay()
 	{
 		//Initialize player stat
 		InitializePlayerStat();
+		UE_LOG(LogTemp, Warning, TEXT("Initialize Player Stat"));
 	}
 
-	OnBPUpdate.Broadcast();
-
-	GrowthRate = 1.f;
-	
+	//OnBPUpdate.Broadcast(CurrentBP, MaxBP);
+	//OnHPUpdate.Broadcast(CurrentHP, MaxHP);
 }
 
 void UPlayerAttributeComponent::InitializePlayerStat()
@@ -46,8 +45,11 @@ void UPlayerAttributeComponent::InitializePlayerStat()
 	CurrentEXP = 0;
 	FLevelData* Data = GetLevelData(CurrentLevel);
 	CurrentHP = Data->MaxHP;
+	MaxHP = Data->MaxHP;
 	ATK = Data->DefaultATK;
 	DEF = Data->DefaultDEF;
+
+	UE_LOG(LogTemp, Warning, TEXT("CurrentBP: %d MaxBP: %d CurrentHP: %d MaxHP: %d"), CurrentBP, MaxBP, CurrentHP, MaxHP);
 }
 
 FLevelData* UPlayerAttributeComponent::GetLevelData(int32 Level)
@@ -144,7 +146,7 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		UE_LOG(LogTemp, Display, TEXT("BPtoGet: %d"), BPtoGet);
 		CurrentBP += BPtoGet;
 		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
-		OnBPUpdate.Broadcast();
+		OnBPUpdate.Broadcast(CurrentBP, MaxBP);
 
 		BPtoGet = 0;
 	}
@@ -174,7 +176,7 @@ void UPlayerAttributeComponent::ApplyDamage()
 	{
 		int32 Damage = EnemyAttributeComponent->CalcDamage();
 		CurrentHP -= Damage;
-		OnHPUpdate.Broadcast();
+		OnHPUpdate.Broadcast(CurrentHP, MaxHP);
 		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
 	}
 	else
@@ -226,6 +228,9 @@ void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
 		default:
 			break;
 	}
+
+	SkillPoint -= 1;
+	OnSkillPointUpdate.Broadcast(SkillPoint);
 
 	ActivatedSkills[SkillNum] = 1;
 }

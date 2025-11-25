@@ -12,10 +12,11 @@
 
 class UEnemyAttributeComponent;
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPUpdate);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnHPUpdate);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBPUpdate, int32, CurrentBP, int32, MaxBP);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHPUpdate, int32, CurrentHP, int32, MaxHP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSkillTreeUISet, int32, SkillPoint, int32, UltNum, TArray<int32>, ActivatedSkills);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUp, int32, SkillPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillPointUpdate, int32, SkillPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageCalculated, int32, Damage);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
@@ -36,10 +37,10 @@ public:
 	//For SkillTree
 	void UpdateStatsBySkill(int SkillNum);
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FOnBPUpdate OnBPUpdate;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FOnHPUpdate OnHPUpdate;
 
 	UPROPERTY(BlueprintAssignable)
@@ -50,6 +51,9 @@ public:
 
 	UPROPERTY()
 	FOnDamageCalculated OnDamageCalculated;
+
+	UPROPERTY()
+	FOnSkillPointUpdate OnSkillPointUpdate;
 
 protected:
 	// Called when the game starts
@@ -72,7 +76,7 @@ private:
 	int32 CurrentHP;
 	int32 CurrentBP;
 	int32 MaxHP;
-	int32 MaxBP;
+	int32 MaxBP = 100;
 	int32 CurrentEXP;
 	int32 CurrentLevel;
 	int32 MaxLevel = 5;

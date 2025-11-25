@@ -52,7 +52,7 @@ void AEnemy::BeginPlay()
 
 			MeshComp->SetMaterial(i, DynMat);
 
-			UE_LOG(LogTemp, Display, TEXT("[%s] Dynamic Material created"), *GetName());
+			//UE_LOG(LogTemp, Display, TEXT("[%s] Dynamic Material created"), *GetName());
 		}
 	}
 
@@ -124,7 +124,7 @@ void AEnemy::AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode)
 
 void AEnemy::OnEnemyAttackMontageEnded()
 {
-	UE_LOG(LogTemp, Warning, TEXT("[%s] OnEnemyAttackMontageEnded"), *GetName());
+	//UE_LOG(LogTemp, Warning, TEXT("[%s] OnEnemyAttackMontageEnded"), *GetName());
 
 	if (CachedEnemyAnimInstance)
 	{
@@ -137,7 +137,7 @@ void AEnemy::OnEnemyAttackMontageEnded()
 	if (CachedBTComponent && CachedBTTaskNode)
 	{
 		CachedBTTaskNode->FinishLatentTask(*CachedBTComponent, EBTNodeResult::Succeeded);
-		UE_LOG(LogTemp, Display, TEXT("[%s] BT Task Finished from Enemy"), *GetName());
+		//UE_LOG(LogTemp, Display, TEXT("[%s] BT Task Finished from Enemy"), *GetName());
 
 		// 캐시 초기화
 		CachedBTComponent = nullptr;

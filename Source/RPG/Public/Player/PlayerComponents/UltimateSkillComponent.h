@@ -58,6 +58,9 @@ public:
 	FORCEINLINE void SetCachedComboPatters(TArray<FComboPattern>* ComboPatterns) { CachedComboPatterns = ComboPatterns; }
 	FORCEINLINE bool IsSkillActivated() { return bIsSkillActivated; }
 	FORCEINLINE void IncreaseSkillTime() { SkillAActiveTime *= 1.2f; SkillBActiveTime *= 1.2f; SkillCActiveTime *= 1.2f; }
-	FORCEINLINE void SetSkillAKeySetting();
+
+	//For SkillA
+	FORCEINLINE void SetKeyBindingXInSkillA(int32 ComboNum) { XSettingForSkillA = ComboNum; }
+	FORCEINLINE void SetKeyBindingYInSkillA(int32 ComboNum) { YSettingForSkillA = ComboNum; }
 		
 };

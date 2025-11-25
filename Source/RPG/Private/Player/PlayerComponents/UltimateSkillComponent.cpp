@@ -71,17 +71,21 @@ void UUltimateSkillComponent::SkillTimeOver()
 void UUltimateSkillComponent::Skill1(float AttackValue)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Skill Action Pressed"));
+
+	//X Button
 	if (AttackValue == 1.f)
 	{
 		//포인터라서 이렇게 접근해야함
 		UE_LOG(LogTemp, Warning, TEXT("Attack Value: %f"), AttackValue);
-		UE_LOG(LogTemp, Warning, TEXT("Combo AnimNum: %d"), (*CachedComboPatterns)[0].AnimMontageNum);
-		OnSkill1Attack.Broadcast((*CachedComboPatterns)[0].AnimMontageNum, (*CachedComboPatterns)[0].ComboAttackMultiplier);
+		//UE_LOG(LogTemp, Warning, TEXT("Combo AnimNum: %d"), (*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum);
+		OnSkill1Attack.Broadcast((*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum, (*CachedComboPatterns)[XSettingForSkillA].ComboAttackMultiplier);
 	}
+	//Y Button
 	else if (AttackValue == -1.f)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("Attack Value: %f"), AttackValue);
-		OnSkill1Attack.Broadcast((*CachedComboPatterns)[1].AnimMontageNum, (*CachedComboPatterns)[1].ComboAttackMultiplier);
+		OnSkill1Attack.Broadcast((*CachedComboPatterns)[YSettingForSkillA].AnimMontageNum, (*CachedComboPatterns)[YSettingForSkillA].ComboAttackMultiplier);
 	}
 }
+
 

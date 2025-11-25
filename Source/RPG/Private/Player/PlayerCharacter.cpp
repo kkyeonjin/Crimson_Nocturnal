@@ -71,6 +71,7 @@ void APlayerCharacter::BeginPlay()
 	if (CachedAttributeComponent)
 	{
 		CachedAttributeComponent->OnBPUpdate.AddDynamic(this, &APlayerCharacter::UpdateBP);
+		CachedAttributeComponent->OnHPUpdate.AddDynamic(this, &APlayerCharacter::UpdateHP);
 		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
 		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
 	}
@@ -85,14 +86,10 @@ void APlayerCharacter::BeginPlay()
 	if (CachedHUDComponent)
 	{
 		//Initialize HP&BP Bar
-		/*
-		CachedHUDComponent->UpdatePlayerHP(
-			CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP()
-		);
-		CachedHUDComponent->UpdatePlayerBP(
-			CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP()
-		);
-		*/
+		UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
+		UpdateBP(CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
+
+		CachedHUDComponent->OnPlayerSkillConfirmed.AddDynamic(this, &APlayerCharacter::OnSkillConfirmed);
 	}
 }
 
@@ -157,16 +154,16 @@ void APlayerCharacter::SetKickCollisionDisable()
 	CachedKickComponent->OnAttackCollisionDisable(-1);
 }
 
-void APlayerCharacter::UpdateBP() //callback Func called by AttributeComp
+void APlayerCharacter::UpdateBP(int32 CurrentBP, int32 MaxBP) //callback Func called by AttributeComp
 {
-	CachedHUDComponent->UpdatePlayerBP(
-		CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
+	UE_LOG(LogTemp, Warning, TEXT("UpdateBP Callback in PC"));
+	CachedHUDComponent->UpdatePlayerBP(CurrentBP, MaxBP);
 }
 
-void APlayerCharacter::UpdateHP()
+void APlayerCharacter::UpdateHP(int32 CurrentHP, int32 MaxHP)
 {
-	CachedHUDComponent->UpdatePlayerHP(
-		CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
+	UE_LOG(LogTemp, Warning, TEXT("UpdateHP Callback in PC"));
+	CachedHUDComponent->UpdatePlayerHP(CurrentHP, MaxHP);
 }
 
 //SetSkillTreeUI When Load Game (=Restart)
@@ -178,7 +175,7 @@ void APlayerCharacter::OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<i
 
 void APlayerCharacter::OnLevelUp(int32 SkillPoint)
 {
-	UpdateHP();
+	UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
 	CachedHUDComponent->SetSkillPointText(SkillPoint);
 }
 
@@ -187,8 +184,13 @@ void APlayerCharacter::OnDamageCalculated(int32 Damage) //for SkillB(HP Drain)
 	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillB)
 	{
 		CachedAttributeComponent->ADDCurrentHP(Damage);
-		UpdateHP();
+		UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
 	}
+}
+
+void APlayerCharacter::OnSkillPointUpdate(int32 SkillPoint)
+{
+	CachedHUDComponent->SetSkillPointText(SkillPoint);
 }
 
 //Callback Func (from delegate at UltSkillComp)
@@ -198,7 +200,6 @@ void APlayerCharacter::OnSkill1Attack(int32 AnimNum, float AttackMultiplier)
 	CachedAttributeComponent->SetAttackMultiplier(AttackMultiplier);
 	CachedAnimInstance->PlayAnimMontage(AnimNum);
 }
-
 
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
@@ -220,6 +221,7 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 	}
 }
 
+
 void APlayerCharacter::Jump()
 {
 	Super::Jump();
@@ -235,53 +237,75 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 
 }
 
+//X / Y Button
 void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
 	const float AttackValue = Value.Get<float>();
 
-	if(CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill==EUltimateSkill::SkillA)
+	if (IsSkillTreeUIOn) //InSkillTreeUI (Set SkillA Combo Key Setting)
 	{
-		CachedUltimateSkillComponent->Skill1(AttackValue);
+		//X -> 1 / Y -> -1
+		CachedHUDComponent->ReadyToSkillASetting(static_cast<int32>(AttackValue));
+		/*
+		//X Button
+		if (AttackValue == 1.f)
+		{
+			CachedHUDComponent->ReadyToSkillASetting(static_cast<int32>(AttackValue));
+			UE_LOG(LogTemp, Display, TEXT("X Setting"));
+		}
+		//Y Button
+		else if (AttackValue == -1.f)
+		{
+			UE_LOG(LogTemp, Display, TEXT("Y Setting"));
+		}*/
 	}
 
 	else
 	{
-		EAttackKeyType InputType;
-
-		if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
+		if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillA)
 		{
-			SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
-			//disable move input when player is attacking
-			SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+			CachedUltimateSkillComponent->Skill1(AttackValue);
+		}
 
-			//X Button
-			if (AttackValue == 1.f)
-			{
-				InputType = EAttackKeyType::X;
-				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-			}
-			//Y Button
-			else if (AttackValue == -1.f)
-			{
-				InputType = EAttackKeyType::Y;
-				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-			}
+		else
+		{
+			EAttackKeyType InputType;
 
-			//send ENUM to InputSequence array (for Combo check)
-			if (!CachedComboManageComponent->IsComboMatch(InputType))
+			if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
 			{
+				SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
+				//disable move input when player is attacking
+				SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+
 				//X Button
 				if (AttackValue == 1.f)
 				{
-					CachedComboManageComponent->ChainAttackCount(InputType);
+					InputType = EAttackKeyType::X;
+					UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
 				}
 				//Y Button
 				else if (AttackValue == -1.f)
 				{
-					CachedComboManageComponent->ChainAttackCount(InputType);
+					InputType = EAttackKeyType::Y;
+					UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
 				}
+
+				//send ENUM to InputSequence array (for Combo check)
+				if (!CachedComboManageComponent->IsComboMatch(InputType))
+				{
+					//X Button
+					if (AttackValue == 1.f)
+					{
+						CachedComboManageComponent->ChainAttackCount(InputType);
+					}
+					//Y Button
+					else if (AttackValue == -1.f)
+					{
+						CachedComboManageComponent->ChainAttackCount(InputType);
+					}
+				}
+				CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
 			}
-			CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
 		}
 	}
 }
@@ -305,7 +329,8 @@ void APlayerCharacter::SkillStart()
 	
 }
 
-void APlayerCharacter::SkillTree() //press skillTree button
+//press skillTree button
+void APlayerCharacter::SkillTree() 
 {
 	CachedHUDComponent->ShowSkillTreeUI();
 	CachedHUDComponent->InitializeSkillTreeSelection();
@@ -322,19 +347,23 @@ void APlayerCharacter::SkillTree() //press skillTree button
 
 	InputSubsystem->RemoveMappingContext(PlayerContext);
 	InputSubsystem->AddMappingContext(SkillTreeContext, 1);
+	IsSkillTreeUIOn = true;
 	//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
 }
 
 //SkillTreeInputContext
+//Cross Button in GamePad
 void APlayerCharacter::Select(const FInputActionValue& Value)
 {
 	const FVector2D SelectVector = Value.Get<FVector2D>();
 
 	UE_LOG(LogTemp, Warning, TEXT("SelectVector X=%f, Y=%f"), SelectVector.X, SelectVector.Y);
 
-	if (SelectVector.X != 0.f) //Section Change
+	if (SelectVector.X != 0.f) //Left&Right
 	{
-		CachedHUDComponent->SwitchSection();
+		//Section Change or SkillA Option Navigate
+		CachedHUDComponent->HandleSkillTreeNavigation(static_cast<int32>(SelectVector.X));
+		
 	}
 
 	if (SelectVector.Y != 0.f) //Select Up&Down
@@ -351,38 +380,51 @@ void APlayerCharacter::SkillTreeOff()
 	GetWorld()->GetFirstPlayerController()->SetPause(false); //Start Game Play
 	InputSubsystem->RemoveMappingContext(SkillTreeContext);
 	InputSubsystem->AddMappingContext(PlayerContext, 0);
+
+	IsSkillTreeUIOn = false;
 }
 
-void APlayerCharacter::SetUlt()
+//Callback Func for Skill Set (A Button in SkillTreeUI)
+void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index)
 {
-	if (CachedHUDComponent->GetCurrentSection() == 0) //Ult
+	switch (ConfirmType)
 	{
-		SetUltimateSkill(CachedHUDComponent->GetUltSelectCount());
-	}
-	else //Skill
-	{
-		if (CachedAttributeComponent->GetSkillPoint() > 0) //Get Skill Only when SkillPoint Remains
-		{
-			int32 SkillCount = CachedHUDComponent->GetSkillSelectCount();
+		case ESkillConfirmType::UltimateSkill:
+			SetUltimateSkill(Index);
+			break;
 
-			if (SkillCount == 4) //Skill Time Up Skill
+		case ESkillConfirmType::NormalSkill:
+			if (CachedAttributeComponent->GetSkillPoint() > 0) //Get Skill Only when SkillPoint Remains
 			{
-				CachedUltimateSkillComponent->IncreaseSkillTime();
+				CachedAttributeComponent->UpdateStatsBySkill(Index);
 			}
-			else
-			{
-				CachedAttributeComponent->UpdateStatsBySkill(SkillCount);
-			}
-		}
+			break;
+
+		case ESkillConfirmType::SkillTimeUp:
+			CachedUltimateSkillComponent->IncreaseSkillTime();
+			break;
+
+		case ESkillConfirmType::KeyBindingX:
+			CachedUltimateSkillComponent->SetKeyBindingXInSkillA(Index);
+			break;
+
+		case ESkillConfirmType::KeyBindingY:
+			CachedUltimateSkillComponent->SetKeyBindingYInSkillA(Index);
+			break;
 	}
-	CachedHUDComponent->SetSkillTree(); //UI Change
+}
+
+//SkillTreeInputContext
+//A Button
+void APlayerCharacter::SetSkillTree() //Renaming Required
+{
+	CachedHUDComponent->SetSkillTree(); 
 }
 
 
 void APlayerCharacter::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
-	
 }
 
 //automatically called by UnrealEngine 
@@ -403,7 +445,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		//SkillTreeInputContext
 		EnhancedInputComponent->BindAction(SkillTreeOffAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTreeOff);
 		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Select);
-		EnhancedInputComponent->BindAction(SkillEquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SetUlt);
+		EnhancedInputComponent->BindAction(SkillEquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SetSkillTree);
 	}
 }
 

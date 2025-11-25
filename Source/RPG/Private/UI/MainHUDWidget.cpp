@@ -34,11 +34,11 @@ void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
 	if (BPBar)
 	{
 		BPBar->SetPercent(Percent);
-		UE_LOG(LogTemp, Error, TEXT("HPBarUpdate"));
+		UE_LOG(LogTemp, Error, TEXT("BPBarUpdate"));
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("HPBarCANNOTFound"));
+		UE_LOG(LogTemp, Error, TEXT("BPBarCANNOTFound"));
 	}
 
 	if (BPText)

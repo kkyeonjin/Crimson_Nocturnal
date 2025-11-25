@@ -19,16 +19,16 @@ struct FComboPattern
     TArray<EAttackKeyType> ComboKeySequence;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-    int32 ComboNum;
+    int32 ComboNum = 0;
 
     //designate their own number 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-    int32 AnimMontageNum;
+    int32 AnimMontageNum = 0;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-    float ComboAttackMultiplier;
+    float ComboAttackMultiplier = 0.f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-    int32 BPValue;
+    int32 BPValue = 0;
 
 };

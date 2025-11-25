@@ -5,10 +5,13 @@
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "UI/SkillTreeWidget.h"
+#include "SkillTypes.h"
 #include "HUDComponent.generated.h"
 
 class USkillTreeWidget;
 class UMainHUDWidget;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnPlayerSkillConfirmed, ESkillConfirmType, ConfirmType, int32, Index);
 
 UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
 class RPG_API UHUDComponent : public UActorComponent
@@ -21,6 +24,9 @@ public:
 
 	// Called every frame
 	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
+
+	UPROPERTY()
+	FOnPlayerSkillConfirmed OnPlayerSkillConfirmed;
 
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UMainHUDWidget> MainHUDClass;  // 블루프린트 클래스를 지정
@@ -40,6 +46,8 @@ public:
 
 	void SwitchSection();
 
+	void HandleSkillTreeNavigation(int32 Input);
+
 	void SetSkillTree();
 
 	void SetSkillPointText(int32 SkillPoint);
@@ -48,9 +56,14 @@ public:
 
 	void InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
+	void ReadyToSkillASetting(int32 Input);
+
+	void ChangeSkillASettingSelection(int32 Input);
+
 	FORCEINLINE int32 GetUltSelectCount() { return SkillTreeUIWidget->GetUltSelectCount(); }
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillTreeUIWidget->GetSkillSelectCount(); }
 	FORCEINLINE int32 GetCurrentSection() { return SkillTreeUIWidget->GetCurrentSection(); }
+	FORCEINLINE int32 GetXorYSettingCount() { return SkillTreeUIWidget->GetXorYSettingCount(); }
 
 	FORCEINLINE USkillTreeWidget* GetSkillTreeUI() { return SkillTreeUIWidget; };
 
@@ -63,5 +76,9 @@ protected:
 
 	UPROPERTY()
 	USkillTreeWidget* SkillTreeUIWidget;
+
+private:
+	UFUNCTION()
+	void HandleSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index); //Callback Func
 		
 };

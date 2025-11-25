@@ -5,7 +5,7 @@
 #include "Components/Image.h"
 #include "Components/TextBlock.h"
 
-void USkillTreeWidget::ChangeSelection(int32 Input)
+void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 {
 	if (CurrentSection == 0)
 	{
@@ -62,7 +62,37 @@ void USkillTreeWidget::ChangeSelection(int32 Input)
 	
 }
 
-void USkillTreeWidget::SwitchSection()
+//L&R Button when SkillA Key Setting
+void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
+{
+	//X Setting
+	if (XSettingCircle->GetVisibility() == ESlateVisibility::Visible)
+	{
+		XSettingCircles[XSettingCount]->SetVisibility(ESlateVisibility::Hidden);
+		XSettingCount += Input;
+		XSettingCircles[XSettingCount]->SetVisibility(ESlateVisibility::Visible);
+	}
+	else if (YSettingCircle->GetVisibility() == ESlateVisibility::Visible)
+	{
+		YSettingCircles[YSettingCount]->SetVisibility(ESlateVisibility::Hidden);
+		YSettingCount += Input;
+		YSettingCircles[YSettingCount]->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void USkillTreeWidget::OnDirectionalInput(int32 Input)
+{
+	if (CurrentSection == 0 || CurrentSection == 1)
+	{
+		SwitchSection();
+	}
+	else
+	{
+		ChangeSkillASettingSelection(Input);
+	}
+}
+
+void USkillTreeWidget::SwitchSection() // L&R Button
 {
 	if (CurrentSection == 0)
 	{
@@ -75,7 +105,7 @@ void USkillTreeWidget::SwitchSection()
 		SkillCircles[0]->SetVisibility(ESlateVisibility::Visible);
 		SkillDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
 	}
-	else
+	else if (CurrentSection == 1)
 	{
 		CurrentSection = 0;
 		UltSelectCount = 0;
@@ -86,6 +116,7 @@ void USkillTreeWidget::SwitchSection()
 		UltCircles[0]->SetVisibility(ESlateVisibility::Visible);
 		UltDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
 	}
+	
 }
 
 void USkillTreeWidget::InitializeSelection() //Renaming Required 
@@ -107,7 +138,8 @@ void USkillTreeWidget::InitializeSelection() //Renaming Required
 
 }
 
-void USkillTreeWidget::SetSkillTree()
+// A Button
+void USkillTreeWidget::SetSkillTree() 
 {
 	if (CurrentSection == 0) //Ult
 	{
@@ -121,13 +153,56 @@ void USkillTreeWidget::SetSkillTree()
 				UltEquipped[i]->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
-
 		SkillTree->SetVisibility(ESlateVisibility::Visible);
 		SkillTreeGrey->SetVisibility(ESlateVisibility::Hidden);
+
+		//Broadcast Delegate to PlayerCharacter 
+		OnSkillConfirmed.Broadcast(ESkillConfirmType::UltimateSkill, UltSelectCount);
 	}
-	else //Skill
+	else if (CurrentSection == 1) //Skill
 	{
 		SkillActivated[SkillSelectCount]->SetVisibility(ESlateVisibility::Visible);
+
+		//Ult TimeUP Skill
+		if (SkillSelectCount == 4)
+		{
+			OnSkillConfirmed.Broadcast(ESkillConfirmType::SkillTimeUp, SkillSelectCount);
+		}
+		else
+		{
+			OnSkillConfirmed.Broadcast(ESkillConfirmType::NormalSkill, SkillSelectCount);
+		}
+	}
+	else if (CurrentSection == 2) //SkillA Setting
+	{
+		if (XSettingCircle->GetVisibility() == ESlateVisibility::Visible)
+		{
+			XSettingNums[XSettingCount]->SetVisibility(ESlateVisibility::Visible);
+
+			for (int i = 0; i < XSettingNums.Num(); i++)
+			{
+				if (i != XSettingCount)
+				{
+					XSettingNums[i]->SetVisibility(ESlateVisibility::Hidden);
+				}
+			}
+
+			OnSkillConfirmed.Broadcast(ESkillConfirmType::KeyBindingX, XSettingCount);
+		}
+		else if (YSettingCircle->GetVisibility() == ESlateVisibility::Visible)
+		{
+			YSettingNums[YSettingCount]->SetVisibility(ESlateVisibility::Visible);
+
+			for (int i = 0; i < YSettingNums.Num(); i++)
+			{
+				if (i != YSettingCount)
+				{
+					YSettingNums[i]->SetVisibility(ESlateVisibility::Hidden);
+				}
+			}
+
+			OnSkillConfirmed.Broadcast(ESkillConfirmType::KeyBindingY, YSettingCount);
+		}
 	}
 }
 
@@ -159,6 +234,38 @@ void USkillTreeWidget::InitializeUIFromSave(int32 UltNum, TArray<int32> Activate
 
 }
 
+void USkillTreeWidget::ReadyToSkillASetting(int32 Input)
+{
+	//Only When Ult 1 is Selected
+	if (Ult1Circle->GetVisibility() == ESlateVisibility::Visible)
+	{
+		if (Input == 1)
+		{
+			XSettingCircle->SetVisibility(ESlateVisibility::Visible);
+			YSettingCircle->SetVisibility(ESlateVisibility::Hidden);
+		}
+		else if (Input == -1)
+		{
+			YSettingCircle->SetVisibility(ESlateVisibility::Visible);
+			XSettingCircle->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+		CurrentSection = 2;
+	}
+}
+
+
+
+int32 USkillTreeWidget::GetXorYSettingCount()
+{
+	if (XSettingCircle->GetVisibility() == ESlateVisibility::Visible)
+	{
+		return XSettingCount;
+	}
+
+	return YSettingCount;
+}
+
 void USkillTreeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
@@ -172,6 +279,9 @@ void USkillTreeWidget::NativeConstruct()
 	SkillDescriptions = { Skill1Description, Skill2Description, Skill3Description, Skill4Description, Skill5Description };
 	SkillActivated = { Skill1Activated, Skill2Activated, Skill3Activated, Skill4Activated, Skill5Activated };
 
-
+	XSettingNums = { X1, X2, X3, X4 };
+	YSettingNums = { Y1, Y2, Y3, Y4 };
+	XSettingCircles = { X1Circle, X2Circle, X3Circle, X4Circle };
+	YSettingCircles = { Y1Circle, Y2Circle, Y3Circle, Y4Circle };
 }
 

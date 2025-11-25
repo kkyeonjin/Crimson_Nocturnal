@@ -33,11 +33,6 @@ protected:
 	UFUNCTION()
 	void OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors);
 
-	/*
-	UFUNCTION()
-	void OnTargetPerceptionUpdated(AActor* Actor, FAIStimulus Stimulus);
-	*/
-
 private:
 	AEnemy* Owner;
 };

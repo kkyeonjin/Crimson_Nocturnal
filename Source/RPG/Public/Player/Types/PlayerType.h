@@ -27,9 +27,11 @@ enum class EPlayerMoveState : uint8
 
 };
 
+/*
 UENUM(BlueprintType)
 enum class EPlayerMode : uint8
 {
 	EPM_TravelMode UMETA(DisplayName = "TravelMode"),
 	EPM_BattleMode UMETA(DisplayName = "BattleMode")
 };
+*/

@@ -37,7 +37,14 @@ void UHUDComponent::BeginPlay()
 	if (SkillTreeUIClass)
 	{
 		SkillTreeUIWidget = CreateWidget<USkillTreeWidget>(GetWorld(), SkillTreeUIClass);
+
+		SkillTreeUIWidget->OnSkillConfirmed.AddDynamic(this, &UHUDComponent::HandleSkillConfirmed);
 	}
+}
+
+void UHUDComponent::HandleSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index)
+{
+	OnPlayerSkillConfirmed.Broadcast(ConfirmType, Index);
 }
 
 void UHUDComponent::UpdatePlayerHP(int32 Current, int32 Max)
@@ -96,6 +103,14 @@ void UHUDComponent::SwitchSection()
 	}
 }
 
+void UHUDComponent::HandleSkillTreeNavigation(int32 Input)
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->OnDirectionalInput(Input);
+	}
+}
+
 void UHUDComponent::SetSkillTree()
 {
 	if (SkillTreeUIWidget)
@@ -125,6 +140,22 @@ void UHUDComponent::InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> Ac
 	if (SkillTreeUIWidget)
 	{
 		SkillTreeUIWidget->InitializeUIFromSave(UltNum, ActivatedSkills);
+	}
+}
+
+void UHUDComponent::ReadyToSkillASetting(int32 Input)
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->ReadyToSkillASetting(Input);
+	}
+}
+
+void UHUDComponent::ChangeSkillASettingSelection(int32 Input)
+{
+	if (SkillTreeUIWidget)
+	{
+		SkillTreeUIWidget->ChangeSkillASettingSelection(Input);
 	}
 }
 

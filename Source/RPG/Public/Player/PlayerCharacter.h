@@ -5,6 +5,7 @@
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
 #include "InputActionValue.h"
+#include "SkillTypes.h"
 #include "Interfaces/HitInterface.h"
 #include "GameFramework/PlayerController.h"
 #include "Player/Types/PlayerType.h" //for EPlayerState
@@ -90,7 +91,7 @@ protected:
 	//SkillTreeInputContext
 	void Select(const FInputActionValue& Value);
 	void SkillTreeOff();
-	void SetUlt();
+	void SetSkillTree();
 
 	UFUNCTION()
 	void OnAttackMontageEnded();
@@ -123,10 +124,10 @@ protected:
 	void SetKickCollisionDisable();
 
 	UFUNCTION()
-	void UpdateBP();
+	void UpdateBP(int32 CurrentBP, int32 MaxBP);
 
 	UFUNCTION()
-	void UpdateHP();
+	void UpdateHP(int32 CurrentHP, int32 MaxHP);
 
 	UFUNCTION()
 	void OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills);
@@ -136,6 +137,9 @@ protected:
 
 	UFUNCTION()
 	void OnDamageCalculated(int32 Damage);
+
+	UFUNCTION()
+	void OnSkillPointUpdate(int32 SkillPoint);
 
 	//SkillA
 	UFUNCTION()
@@ -169,9 +173,14 @@ private:
 
 	bool IsSkillOn = false;
 
+	bool IsSkillTreeUIOn = false;
+
 	//only visible in Detail Panel
 	UPROPERTY(VisibleInstanceOnly)
 	AItem* OverlappingItem;
+
+	UFUNCTION()
+	void OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index);
 
 public:
 	FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
