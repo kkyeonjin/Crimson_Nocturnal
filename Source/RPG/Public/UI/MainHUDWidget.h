@@ -6,9 +6,10 @@
 #include "Blueprint/UserWidget.h"
 #include "MainHUDWidget.generated.h"
 
+class UImage;
 class UTextBlock;
 /**
- * 
+ *
  */
 UCLASS()
 class RPG_API UMainHUDWidget : public UUserWidget
@@ -17,6 +18,9 @@ class RPG_API UMainHUDWidget : public UUserWidget
 
 public:
 
+	virtual void NativeConstruct() override;
+
+	//MainHUDPanel
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HPBar;
 
@@ -34,4 +38,28 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateBP(int32 Current, int32 Max);
+
+	//EventUIPanel
+	UPROPERTY(meta = (BindWidget))
+	UImage* ComboA;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* ComboB;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* ComboC;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* ComboD;
+
+	UFUNCTION()
+	void ShowQTEUI(int32 ComboNum);
+
+	UFUNCTION()
+	void HideQTEUI(int32 ComboNum);
+
+
+private:
+	TArray<UImage*> ComboQTEImages;
+
 };

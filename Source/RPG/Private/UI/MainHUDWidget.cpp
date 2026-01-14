@@ -2,8 +2,11 @@
 
 
 #include "UI/MainHUDWidget.h"
+
+#include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+
 
 void UMainHUDWidget::UpdateHP(int32 Current, int32 Max)
 {
@@ -46,3 +49,28 @@ void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
 		BPText->SetText(FText::AsNumber(Current));
 	}
 }
+
+void UMainHUDWidget::ShowQTEUI(int32 ComboNum)
+{
+	if (ComboQTEImages.Num() != 0)
+	{
+		ComboQTEImages[ComboNum]->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UMainHUDWidget::HideQTEUI(int32 ComboNum)
+{
+	if (ComboQTEImages.Num() != 0)
+	{
+		ComboQTEImages[ComboNum]->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
+void UMainHUDWidget::NativeConstruct()
+{
+	Super::NativeConstruct();
+
+	ComboQTEImages = { ComboA, ComboB, ComboC, ComboD };
+
+}
+

@@ -6,14 +6,14 @@
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "SkillTypes.h"
+#include "Character/Player/Types/SkillTypes.h"
 #include "SkillTreeWidget.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkillConfirmed, ESkillConfirmType, ConfirmType, int32, Index);
 
 class UTextBlock;
 /**
- * 
+ *
  */
 UCLASS()
 class RPG_API USkillTreeWidget : public UUserWidget

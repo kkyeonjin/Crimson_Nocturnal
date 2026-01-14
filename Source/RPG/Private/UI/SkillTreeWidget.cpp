@@ -7,10 +7,10 @@
 
 void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 {
-	if (CurrentSection == 0)
+	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill))
 	{
 		UltSelectCount -= Input;
-		if (UltSelectCount  == -1)
+		if (UltSelectCount == -1)
 		{
 			UltSelectCount = 2;
 		}
@@ -33,7 +33,7 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 			}
 		}
 	}
-	else if (CurrentSection == 1)
+	else if (CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
 	{
 		SkillSelectCount -= Input;
 		if (SkillSelectCount == -1)
@@ -59,7 +59,7 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 			}
 		}
 	}
-	
+
 }
 
 //L&R Button when SkillA Key Setting
@@ -82,7 +82,7 @@ void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
 
 void USkillTreeWidget::OnDirectionalInput(int32 Input)
 {
-	if (CurrentSection == 0 || CurrentSection == 1)
+	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill) || CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
 	{
 		SwitchSection();
 	}
@@ -94,7 +94,7 @@ void USkillTreeWidget::OnDirectionalInput(int32 Input)
 
 void USkillTreeWidget::SwitchSection() // L&R Button
 {
-	if (CurrentSection == 0)
+	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill))
 	{
 		CurrentSection = 1;
 		SkillSelectCount = 0;
@@ -105,7 +105,7 @@ void USkillTreeWidget::SwitchSection() // L&R Button
 		SkillCircles[0]->SetVisibility(ESlateVisibility::Visible);
 		SkillDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
 	}
-	else if (CurrentSection == 1)
+	else if (CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
 	{
 		CurrentSection = 0;
 		UltSelectCount = 0;
@@ -116,7 +116,7 @@ void USkillTreeWidget::SwitchSection() // L&R Button
 		UltCircles[0]->SetVisibility(ESlateVisibility::Visible);
 		UltDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
 	}
-	
+
 }
 
 void USkillTreeWidget::InitializeSelection() //Renaming Required 
@@ -139,9 +139,9 @@ void USkillTreeWidget::InitializeSelection() //Renaming Required
 }
 
 // A Button
-void USkillTreeWidget::SetSkillTree() 
+void USkillTreeWidget::SetSkillTree()
 {
-	if (CurrentSection == 0) //Ult
+	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill)) //Ult
 	{
 		UltActivated[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
 		UltEquipped[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
@@ -159,7 +159,7 @@ void USkillTreeWidget::SetSkillTree()
 		//Broadcast Delegate to PlayerCharacter 
 		OnSkillConfirmed.Broadcast(ESkillConfirmType::UltimateSkill, UltSelectCount);
 	}
-	else if (CurrentSection == 1) //Skill
+	else if (CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill)) //Skill
 	{
 		SkillActivated[SkillSelectCount]->SetVisibility(ESlateVisibility::Visible);
 
@@ -173,7 +173,7 @@ void USkillTreeWidget::SetSkillTree()
 			OnSkillConfirmed.Broadcast(ESkillConfirmType::NormalSkill, SkillSelectCount);
 		}
 	}
-	else if (CurrentSection == 2) //SkillA Setting
+	else if (CurrentSection == static_cast<int32>(ESkillTreeSection::SkillASetting)) //SkillA Setting
 	{
 		if (XSettingCircle->GetVisibility() == ESlateVisibility::Visible)
 		{
@@ -250,7 +250,7 @@ void USkillTreeWidget::ReadyToSkillASetting(int32 Input)
 			XSettingCircle->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		CurrentSection = 2;
+		CurrentSection = static_cast<int32>(ESkillTreeSection::SkillASetting);
 	}
 }
 
@@ -270,7 +270,7 @@ void USkillTreeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
-	UltCircles = { Ult1Circle, Ult2Circle, Ult3Circle }; 
+	UltCircles = { Ult1Circle, Ult2Circle, Ult3Circle };
 	UltActivated = { Ult1Activated, Ult2Activated, Ult3Activated };
 	UltDescriptions = { Ult1Description, Ult2Description, Ult3Description };
 	UltEquipped = { Ult1Equipped, Ult2Equipped, Ult3Equipped };

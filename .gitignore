@@ -1,10 +1,16 @@
-# Generated folders
-/Binaries/
-/DerivedDataCache/
-/Intermediate/
-/Saved/
-/.vscode/
-/.vs/
+Binaries
+DerivedDataCache
+Intermediate
+Saved
+
+/Content/MarketAssets
+/Content/__ExternalActors__
+/Content/Collections
+/Content/Developers
+/Content/Mixamo
+
+.vscode
+.vs
 *.VC.db
 *.opensdf
 *.opendb
@@ -13,6 +19,3 @@
 *.suo
 *.xcodeproj
 *.xcworkspace
-
-/Content/__ExternalActors__
-/Content/MarketAssets/
