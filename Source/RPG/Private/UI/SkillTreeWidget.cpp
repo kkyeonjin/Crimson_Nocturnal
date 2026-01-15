@@ -80,6 +80,7 @@ void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
 	}
 }
 
+//cross button
 void USkillTreeWidget::OnDirectionalInput(int32 Input)
 {
 	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill) || CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
