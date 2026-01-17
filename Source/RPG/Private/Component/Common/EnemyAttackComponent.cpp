@@ -1,7 +1,7 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 
-#include "Component/Enemy/EnemyAttackComponent.h"
+#include "Component/Common/EnemyAttackComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Interface/HitInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
@@ -48,7 +48,7 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 		this,
 		Start,
 		End,
-		TraceVector,
+		AttackTraceSize,
 		TraceStartPoint->GetComponentRotation(),
 		TraceChannel,
 		false,
@@ -99,13 +99,5 @@ void UEnemyAttackComponent::BeginPlay()
 
 	InitializeActorsToIgnore();
 
-}
-
-// Called every frame
-void UEnemyAttackComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 

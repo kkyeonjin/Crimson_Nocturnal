@@ -56,4 +56,7 @@ public:
 	UPROPERTY()
 	int32 EquippedUlt;
 
+	UPROPERTY()
+	int32 CurrentMap;
+
 };

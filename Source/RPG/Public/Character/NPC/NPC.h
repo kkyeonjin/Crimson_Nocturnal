@@ -4,26 +4,26 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Character.h"
+#include "Interface/InteractableInterface.h"
 #include "NPC.generated.h"
 
 UCLASS()
-class RPG_API ANPC : public ACharacter
+class RPG_API ANPC : public ACharacter, public IInteractable
 {
-	GENERATED_BODY()
+    GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
-	ANPC();
+    ANPC();
 
-protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
+    UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
+    class UBoxComponent* CollisionBox;
 
-public:	
-	// Called every frame
-	virtual void Tick(float DeltaTime) override;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
+    FString NPCName;
 
-	// Called to bind functionality to input
-	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
+    // IInteractable ±¸Çö
+    virtual void OnInteract() override;
+
+private:
 
 };

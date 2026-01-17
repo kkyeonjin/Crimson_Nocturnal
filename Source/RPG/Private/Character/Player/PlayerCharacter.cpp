@@ -13,6 +13,7 @@
 #include "Component/Player/KickComponent.h"
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Component/Player/UltimateSkillComponent.h"
+#include "Component/Player/RaycastComponent.h"
 #include "UI/SkillTreeWidget.h"
 
 
@@ -90,6 +91,12 @@ void APlayerCharacter::BeginPlay()
 		UpdateBP(CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
 
 		CachedHUDComponent->OnPlayerSkillConfirmed.AddDynamic(this, &APlayerCharacter::OnSkillConfirmed);
+	}
+
+	CachedRaycastComponent = FindComponentByClass<URaycastComponent>();
+	if (CachedRaycastComponent)
+	{
+		
 	}
 }
 
@@ -514,6 +521,5 @@ void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 	//CachedAttributeComponent->SetEnemyAttributeComponent(Target);
 	//CachedAttributeComponent->ApplyDamage();
 }
-
 
 

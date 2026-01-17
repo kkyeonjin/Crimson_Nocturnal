@@ -16,7 +16,6 @@ class RPG_API UWeaponComponent : public UActorComponent, public IAttackCollision
 public:
 	// Sets default values for this component's properties
 	UWeaponComponent();
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
@@ -65,5 +64,11 @@ protected:
 
 private:
 	TArray<AActor*> ActorsToIgnore;
+
+	UPROPERTY(EditAnywhere, Category = "WeaponL")
+	FVector BladeTraceSizeL;
+
+	UPROPERTY(EditAnywhere, Category = "WeaponR")
+	FVector BladeTraceSizeR;
 
 };

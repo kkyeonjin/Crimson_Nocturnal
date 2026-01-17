@@ -10,6 +10,7 @@
 #include "GameFramework/PlayerController.h"
 #include "Character/Player/Types/PlayerTypes.h" //for EPlayerState
 #include "Character/Player/Types/ComboInput.h"
+#include "Interface/InteractableInterface.h"
 #include "PlayerCharacter.generated.h"
 
 class UEnhancedInputLocalPlayerSubsystem;
@@ -24,6 +25,7 @@ class AItem;
 class UAnimMontage;
 class UPlayerAnimInstance;
 class UComboManageComponent;
+class URaycastComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillCReady);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQTESuccess);
@@ -40,6 +42,7 @@ public:
 
 	void HandleAttack(AActor* Target);
 
+	//HitInterface
 	void GetHit(const FVector& ImpactPoint, AActor* Target) override;
 
 	void StartBossQTEMode();
@@ -175,6 +178,8 @@ private:
 	UUltimateSkillComponent* CachedUltimateSkillComponent;
 
 	UHUDComponent* CachedHUDComponent;
+
+	URaycastComponent* CachedRaycastComponent;
 
 	bool IsSkillOn = false;
 

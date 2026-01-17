@@ -3,7 +3,7 @@
 
 #include "Character/Enemy/Enemy.h"
 #include "Character/Enemy/EnemyAnimInstance.h"
-#include "Component/Enemy/EnemyAttackComponent.h"
+#include "Component/Common/EnemyAttackComponent.h"
 #include "Component/Enemy/EnemyAttributeComponent.h"
 #include "Component/Common/InfectionComponent.h"
 #include "Character/Player/PlayerCharacter.h"

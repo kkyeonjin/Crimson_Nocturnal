@@ -7,7 +7,7 @@
 #include "Component/Boss/BossAttributeComponent.h"
 #include "Character/Boss/BossAnimInstance.h"
 #include "Component/Boss/PhaseManageComponent.h"
-#include "Component/Boss/BossAttackComponent.h"
+#include "Component/Common/EnemyAttackComponent.h"
 #include "Component/Common/InfectionComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
@@ -66,7 +66,7 @@ bool ABoss::InitializeComponents()
 		UE_LOG(LogTemp, Warning, TEXT("PhaseManageComp Finding Failed in BeginPlay"));
 		return false;
 	}
-	CachedAttackComponent = FindComponentByClass<UBossAttackComponent>();
+	CachedAttackComponent = FindComponentByClass<UEnemyAttackComponent>();
 	if (!CachedAttackComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("BossAttackComp Finding Failed in BeginPlay"));

@@ -17,9 +17,6 @@ public:
 	// Sets default values for this component's properties
 	UEnemyAttackComponent();
 
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
-
 	UFUNCTION()
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
@@ -46,9 +43,6 @@ protected:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
 	UShapeComponent* AttackCollision;
 
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
-	FVector TraceVector;
-
 	UFUNCTION(BlueprintCallable)
 	void InitializeEnemyAttackComponents(USceneComponent* NewTraceStartPoint, USceneComponent* NewTraceEndPoint, UShapeComponent* NewAttackCollision);
 
@@ -57,6 +51,9 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	bool IsCollisionEnableAtStart;
+
+	UPROPERTY(EditAnywhere, Category="Attack")
+	FVector AttackTraceSize;
 
 
 };

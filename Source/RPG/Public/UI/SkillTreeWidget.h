@@ -39,19 +39,19 @@ public:
 	FOnSkillConfirmed OnSkillConfirmed;
 
 	UPROPERTY(meta = (BindWidget))
-	class UImage* Skill1Circle;
+	class UImage* Skill1Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Skill2Circle;
+	UImage* Skill2Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Skill3Circle;
+	UImage* Skill3Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Skill4Circle;
+	UImage* Skill4Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Skill5Circle;
+	UImage* Skill5Highlight;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Skill1Description;
@@ -84,13 +84,13 @@ public:
 	UImage* Skill5Activated;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Ult1Circle;
+	UImage* Ult1Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Ult2Circle;
+	UImage* Ult2Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Ult3Circle;
+	UImage* Ult3Highlight;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Ult1Activated;
@@ -117,22 +117,22 @@ public:
 	UImage* Ult3Description;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Ult1Equipped;
+	UImage* Ult1Symbol;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Ult2Equipped;
+	UImage* Ult2Symbol;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Ult3Equipped;
+	UImage* Ult3Symbol;
 
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* SkillPointText;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* XSettingCircle;
+	UImage* XSettingHighlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* YSettingCircle;
+	UImage* YSettingHighlight;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* X1;
@@ -159,28 +159,28 @@ public:
 	UImage* Y4;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Y1Circle;
+	UImage* Y1Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Y2Circle;
+	UImage* Y2Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Y3Circle;
+	UImage* Y3Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* Y4Circle;
+	UImage* Y4Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* X1Circle;
+	UImage* X1Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* X2Circle;
+	UImage* X2Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* X3Circle;
+	UImage* X3Highlight;
 
 	UPROPERTY(meta = (BindWidget))
-	UImage* X4Circle;
+	UImage* X4Highlight;
 
 
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillSelectCount; }
@@ -192,13 +192,13 @@ public:
 private:
 	int32 UltSelectCount = 0;
 	int32 CurrentSection = 0; //default 0:Ult, 1:Skill, 2:SkillA Setting 
-	TArray<UImage*> UltCircles;
+	TArray<UImage*> UltHighlights;
 	TArray<UImage*> UltActivated;
 	TArray<UImage*> UltDescriptions;
-	TArray<UImage*> UltEquipped;
+	TArray<UImage*> UltSymbols;
 
 	int32 SkillSelectCount = 0;
-	TArray<UImage*> SkillCircles;
+	TArray<UImage*> SkillHighlights;
 	TArray<UImage*> SkillDescriptions;
 	TArray<UImage*> SkillActivated;
 
@@ -206,6 +206,6 @@ private:
 	int32 YSettingCount = 0;
 	TArray<UImage*> XSettingNums;
 	TArray<UImage*> YSettingNums;
-	TArray<UImage*> XSettingCircles;
-	TArray<UImage*> YSettingCircles;
+	TArray<UImage*> XSettingHighlights;
+	TArray<UImage*> YSettingHighlights;
 };

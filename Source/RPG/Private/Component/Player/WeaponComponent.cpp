@@ -71,7 +71,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 			this,
 			StartL,
 			EndL,
-			FVector(5.f, 5.f, 5.f),
+			BladeTraceSizeL,
 			TraceStartPointL->GetComponentRotation(),
 			TraceChannel,
 			false,
@@ -117,7 +117,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 			this,
 			StartR,
 			EndR,
-			FVector(5.f, 5.f, 5.f),
+			BladeTraceSizeR,
 			TraceStartPointR->GetComponentRotation(),
 			TraceChannel,
 			false,
@@ -135,6 +135,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 				APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 				if (PlayerCharacter)
 				{
+					//대미지 적용 위해서 플레이어가 공격한 적의 정보 Comp에 보내주기 위함 
 					PlayerCharacter->HandleAttack(HitResultR.GetActor());
 				}
 			}
@@ -171,13 +172,5 @@ void UWeaponComponent::OnAttackCollisionDisable(int32 BladeSide)
 	{
 		BladeBoxR->SetCollisionEnabled(ECollisionEnabled::NoCollision);
 	}
-}
-
-// Called every frame
-void UWeaponComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
 }
 

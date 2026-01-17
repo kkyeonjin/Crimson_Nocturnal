@@ -1,34 +1,35 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+﻿// Fill out your copyright notice in the Description page of Project Settings.
 
 
 #include "Character/NPC/NPC.h"
 
-// Sets default values
 ANPC::ANPC()
 {
- 	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
+    PrimaryActorTick.bCanEverTick = false;
 
+    /*
+    // Collision Box
+    CollisionBox = CreateDefaultSubobject<UBoxComponent>(TEXT("CollisionBox"));
+    RootComponent = CollisionBox;
+    CollisionBox->SetBoxExtent(FVector(100, 100, 150));
+    CollisionBox->SetCollisionObjectType(ECC_WorldDynamic);
+    CollisionBox->SetCollisionResponseToAllChannels(ECR_Ignore);
+    CollisionBox->SetCollisionResponseToChannel(ECC_Pawn, ECR_Overlap);
+
+    // ⭐ 태그 설정
+    Tags.Add(FName("NPC"));
+
+    CollisionBox->OnComponentBeginOverlap.AddDynamic(this, &ANPC::OnCollisionBeginOverlap);
+    CollisionBox->OnComponentEndOverlap.AddDynamic(this, &ANPC::OnCollisionEndOverlap);
+
+    // 기본 NPC 설정
+    NPCName = TEXT("NPC");
+	*/
 }
 
-// Called when the game starts or when spawned
-void ANPC::BeginPlay()
+void ANPC::OnInteract()
 {
-	Super::BeginPlay();
-	
-}
-
-// Called every frame
-void ANPC::Tick(float DeltaTime)
-{
-	Super::Tick(DeltaTime);
-
-}
-
-// Called to bind functionality to input
-void ANPC::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
-{
-	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
+	//대화
+    UE_LOG(LogTemp, Display, TEXT("LOLOLOLOLOL"));
 }
 

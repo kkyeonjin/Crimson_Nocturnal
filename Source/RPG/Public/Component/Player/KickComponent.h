@@ -16,8 +16,6 @@ class RPG_API UKickComponent : public UActorComponent, public IAttackCollisionIn
 public:
 	// Sets default values for this component's properties
 	UKickComponent();
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	UFUNCTION()
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
@@ -56,5 +54,6 @@ protected:
 private:
 	TArray<AActor*> ActorsToIgnore;
 
-
+	UPROPERTY(EditAnywhere, Category="Kick")
+	FVector LegTraceSize;
 };

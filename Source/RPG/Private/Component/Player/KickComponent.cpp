@@ -38,7 +38,7 @@ void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedCom
 		this,
 		Start,
 		End,
-		FVector(5.f, 5.f, 5.f),
+		LegTraceSize,
 		TraceStartPoint->GetComponentRotation(),
 		TraceChannel,
 		false,
@@ -94,12 +94,4 @@ void UKickComponent::InitializeKickComponents(USceneComponent* NewTraceStartPoin
 	BindingOverlapDelegate();
 }
 
-
-// Called every frame
-void UKickComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
-
-	// ...
-}
 

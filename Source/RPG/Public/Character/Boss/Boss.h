@@ -9,6 +9,7 @@
 #include "Interface/InfectableInterface.h"
 #include "Boss.generated.h"
 
+class UEnemyAttackComponent;
 class UBossAttackComponent;
 class UInfectionComponent;
 class ACrystal;
@@ -90,7 +91,7 @@ private:
 	UBossAnimInstance* CachedBossAnimInstance;
 	UPhaseManageComponent* CachedPhaseManageComponent;
 	UBossAttributeComponent* CachedBossAttributeComponent;
-	UBossAttackComponent* CachedAttackComponent;
+	UEnemyAttackComponent* CachedAttackComponent;
 	UInfectionComponent* CachedInfectionComponent;
 
 	EBossPhase CurrentPhase;
