@@ -13,9 +13,10 @@
 class UEnemyAttributeComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBPUpdate, int32, CurrentBP, int32, MaxBP);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHPUpdate, int32, CurrentHP, int32, MaxHP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSkillTreeUISet, int32, SkillPoint, int32, UltNum, TArray<int32>, ActivatedSkills);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUp, int32, SkillPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLevelUp, int32, CurrentLevel, int32, SkillPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillPointUpdate, int32, SkillPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageCalculated, int32, Damage);
 
@@ -54,6 +55,10 @@ public:
 
 	UPROPERTY()
 	FOnSkillPointUpdate OnSkillPointUpdate;
+
+	UPROPERTY()
+	FOnBPMax OnBPMax;
+
 
 protected:
 	// Called when the game starts

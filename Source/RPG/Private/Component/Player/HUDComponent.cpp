@@ -159,6 +159,70 @@ void UHUDComponent::ChangeSkillASettingSelection(int32 Input)
 	}
 }
 
+
+void UHUDComponent::ShowLevelUpPopUp(int32 CurrentLevel)
+{
+	MainHUDWidget->ShowLevelUpPopUp(CurrentLevel);
+
+	//ComboTimerOutTimer Starts
+	GetWorld()->GetTimerManager().SetTimer(
+		LevelUpPopUpTimer,
+		this,
+		&UHUDComponent::HideLevelUpPopUp,
+		3.f,
+		false
+	); //last parameter false-> call Timer just once 
+
+}
+
+void UHUDComponent::HideLevelUpPopUp()
+{
+	MainHUDWidget->HideLevelUpPopUp();
+}
+
+void UHUDComponent::ShowComboPopUp(int32 ComboNum)
+{
+	MainHUDWidget->ShowComboPopUp(ComboNum);
+
+	//ComboTimerOutTimer Starts
+	GetWorld()->GetTimerManager().SetTimer(
+		ComboPopUpTimer,
+		this,
+		&UHUDComponent::HideComboPopUp,
+		1.5f,
+		false
+	); //last parameter false-> call Timer just once 
+
+}
+
+void UHUDComponent::HideComboPopUp()
+{
+	MainHUDWidget->HideComboPopUp();
+}
+
+void UHUDComponent::ShowSkillEffect(int32 SkillNum)
+{
+	MainHUDWidget->OnSkillStarted(SkillNum);
+
+	//ComboTimerOutTimer Starts
+	GetWorld()->GetTimerManager().SetTimer(
+		SkillEffectTimer,
+		this,
+		&UHUDComponent::HideSkillEffect,
+		4.f,
+		false
+	); //last parameter false-> call Timer just once 
+
+	UE_LOG(LogTemp, Display, TEXT("HUDCOMP->SkillEffect"));
+	UE_LOG(LogTemp, Display, TEXT("SkillNum: %d"), SkillNum);
+	
+}
+
+void UHUDComponent::HideSkillEffect()
+{
+	MainHUDWidget->OnSkillFinished();
+}
+
 void UHUDComponent::ShowQTEUI(int32 ComboNum)
 {
 	if (MainHUDWidget)
@@ -174,4 +238,6 @@ void UHUDComponent::HideQTEUI(int32 ComboNum)
 		MainHUDWidget->HideQTEUI(ComboNum);
 	}
 }
+
+
 

@@ -102,6 +102,9 @@ protected:
 	void SetSkillTree();
 
 	UFUNCTION()
+	void SetIsSkillEnable();
+
+	UFUNCTION()
 	void OnAttackMontageEnded();
 
 	UFUNCTION()
@@ -141,7 +144,7 @@ protected:
 	void OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills);
 
 	UFUNCTION()
-	void OnLevelUp(int32 SkillPoint);
+	void OnLevelUp(int32 CurrentLevel, int32 SkillPoint);
 
 	UFUNCTION()
 	void OnDamageCalculated(int32 Damage);
@@ -186,6 +189,9 @@ private:
 	bool IsSkillTreeUIOn = false;
 
 	bool IsTrapped = false;
+
+	//turn true when BP is full
+	bool IsSkillEnable = false;
 
 	//only visible in Detail Panel
 	//UPROPERTY(VisibleInstanceOnly)

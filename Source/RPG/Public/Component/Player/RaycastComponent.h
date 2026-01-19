@@ -6,8 +6,6 @@
 #include "Components/ActorComponent.h"
 #include "RaycastComponent.generated.h"
 
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOn)
-
 class APlayerCharacter;
 
 UCLASS(ClassGroup = (Raycast), meta = (BlueprintSpawnableComponent))

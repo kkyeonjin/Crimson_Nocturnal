@@ -71,7 +71,7 @@ bool UComboManageComponent::IsComboMatch(EAttackKeyType Key)
 				CurrentAttackMultiplier = ComboPatterns[i].ComboAttackMultiplier;
 
 				//start broadcast when combo matches
-				OnComboMatch.Broadcast(ComboPatterns[i].AnimMontageNum, ComboPatterns[i].BPValue);
+				OnComboMatch.Broadcast(ComboPatterns[i].ComboNum, ComboPatterns[i].BPValue);
 				UE_LOG(LogTemp, Warning, TEXT("ComboMatch!!"));
 
 				//reset key sequence array for new combo

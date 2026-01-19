@@ -14,6 +14,7 @@
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Component/Player/UltimateSkillComponent.h"
 #include "Component/Player/RaycastComponent.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/SkillTreeWidget.h"
 
 
@@ -75,6 +76,7 @@ void APlayerCharacter::BeginPlay()
 		CachedAttributeComponent->OnHPUpdate.AddDynamic(this, &APlayerCharacter::UpdateHP);
 		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
 		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
+		CachedAttributeComponent->OnBPMax.AddDynamic(this, &APlayerCharacter::SetIsSkillEnable);
 	}
 
 	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
@@ -98,6 +100,9 @@ void APlayerCharacter::BeginPlay()
 	{
 		
 	}
+
+	//for Test
+	OnLevelUp(2, 3);
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
@@ -108,11 +113,19 @@ void APlayerCharacter::OnAttackMontageEnded()
 }
 
 //delegate callback function (when combo matches)
-void APlayerCharacter::OnComboComplete(int32 ComboAnimNum, int32 BPValue)
+void APlayerCharacter::OnComboComplete(int32 ComboNum, int32 BPValue)
 {
-	CachedAnimInstance->PlayAnimMontage(ComboAnimNum); //Play Combo Animation
+
+	//play Combo Anim
+	const EAnimMontageType ComboMontage = static_cast<EAnimMontageType>(ComboNum);
+	CachedAnimInstance->PlayComboAttackMontage(ComboMontage);
+	
+	//PlayAnimMontage(ComboAnimNum); //Play Combo Animation
 	CachedAttributeComponent->SetBPtoGet(BPValue);//Set BPValue to get
 	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
+
+	//Combo PopUp
+	CachedHUDComponent->ShowComboPopUp(ComboNum);
 
 	//감염 스킬 On 상태에서 콤보 Match 시 적으로 Broadcast
 	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillC)
@@ -181,10 +194,11 @@ void APlayerCharacter::OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<i
 	CachedHUDComponent->InitializeSkillTreeUIFromSave(UltNum, ActivatedSkills);
 }
 
-void APlayerCharacter::OnLevelUp(int32 SkillPoint)
+void APlayerCharacter::OnLevelUp(int32 CurrentLevel, int32 SkillPoint)
 {
 	UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
 	CachedHUDComponent->SetSkillPointText(SkillPoint);
+	CachedHUDComponent->ShowLevelUpPopUp(CurrentLevel);
 }
 
 void APlayerCharacter::OnDamageCalculated(int32 Damage) //for SkillB(HP Drain)
@@ -264,6 +278,7 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 //X / Y Button
 void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
+
 	//For Debug
 	if (IsTrapped)
 	{
@@ -375,23 +390,36 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 
 void APlayerCharacter::SkillStart()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SkillStart!!!"));
+	if (IsSkillEnable)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("SkillStart!!!"));
 
-	//SKill 1
-	if (SelectedSkill == EUltimateSkill::SkillA)
-	{
-		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
-		CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
-	}
-	else if (SelectedSkill == EUltimateSkill::SkillB)
-	{
-		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
-	}
-	else if (SelectedSkill == EUltimateSkill::SkillC)
-	{
-		CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+		//SKill 1
+		if (SelectedSkill == EUltimateSkill::SkillA)
+		{
+			CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+			CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
+			UE_LOG(LogTemp, Display, TEXT("SkillA"));
+		}
+		else if (SelectedSkill == EUltimateSkill::SkillB)
+		{
+			CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+			UE_LOG(LogTemp, Display, TEXT("SkillB"));
+		}
+		else if (SelectedSkill == EUltimateSkill::SkillC)
+		{
+			CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+			UE_LOG(LogTemp, Display, TEXT("SkillC"));
+		}
+
+		const int32 SkillNum = static_cast<int32>(SelectedSkill);
+
+		CachedHUDComponent->ShowSkillEffect(SkillNum);
+
+		IsSkillEnable = false;
 	}
 
+	//BP 0으로 만드는 코드도 추가!!!
 }
 
 //press skillTree button
@@ -484,6 +512,11 @@ void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Ind
 void APlayerCharacter::SetSkillTree() //Renaming Required
 {
 	CachedHUDComponent->SetSkillTree();
+}
+
+void APlayerCharacter::SetIsSkillEnable()
+{
+	IsSkillEnable = true;
 }
 
 //automatically called by UnrealEngine 

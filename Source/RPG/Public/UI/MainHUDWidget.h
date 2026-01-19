@@ -20,6 +20,18 @@ public:
 
 	virtual void NativeConstruct() override;
 
+	//Sub Widget
+	UPROPERTY(EditAnywhere)
+	class USkillScreenOverlayWidget* SkillScreenOverlayWidget;
+
+
+
+	UFUNCTION()
+	void OnSkillStarted(int32 SkillNum);
+
+	UFUNCTION()
+	void OnSkillFinished();
+
 	//MainHUDPanel
 	UPROPERTY(meta = (BindWidget))
 	class UProgressBar* HPBar;
@@ -52,14 +64,42 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* ComboD;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* LevelUp;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Level2PopUp;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* Level5PopUp;
+
 	UFUNCTION()
 	void ShowQTEUI(int32 ComboNum);
 
 	UFUNCTION()
 	void HideQTEUI(int32 ComboNum);
 
+	UFUNCTION()
+	void ShowLevelUpPopUp(int32 CurrentLevel);
+
+	UFUNCTION()
+	void HideLevelUpPopUp();
+
+	UFUNCTION()
+	void ShowComboPopUp(int32 ComboNum);
+
+	UFUNCTION()
+	void HideComboPopUp();
+
+	UFUNCTION(BlueprintCallable)
+	void SetSubWidgets(USkillScreenOverlayWidget* Widget);
+
 
 private:
 	TArray<UImage*> ComboQTEImages;
+
+	TArray<UImage*> ComboPopUpImages;
+
+	UImage* SpecialLevelUp;
 
 };

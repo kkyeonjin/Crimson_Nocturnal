@@ -25,16 +25,15 @@ enum class EComboType : uint8
     MAX_COMBOS
 };
 
-
 // 애니메이션 몬타주 인덱스를 Enum으로
 UENUM(BlueprintType)
 enum class EAnimMontageType : uint8
 {
-    ComboA = 10 UMETA(DisplayName = "Combo A Animation"),
-    ComboB = 11 UMETA(DisplayName = "Combo B Animation"),
-    ComboC = 12 UMETA(DisplayName = "Combo C Animation"),
-    ComboD = 13 UMETA(DisplayName = "Combo D Animation"),
-    Default = 0
+    ComboA = 0 UMETA(DisplayName = "Combo A Animation"),
+    ComboB = 1 UMETA(DisplayName = "Combo B Animation"),
+    ComboC = 2 UMETA(DisplayName = "Combo C Animation"),
+    ComboD = 3 UMETA(DisplayName = "Combo D Animation"),
+    //Default = 0
 };
 
 UENUM(BlueprintType)

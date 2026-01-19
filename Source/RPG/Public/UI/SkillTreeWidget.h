@@ -28,6 +28,10 @@ public:
 	void InitializeSelection();
 	void SetSkillTree();
 	void SetSkillPointText(int32 SkillPoint);
+
+	//OnLevelUp
+	void ShowLevelUpPopUp();
+
 	void InitializeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
 	void ReadyToSkillASetting(int32 Input);

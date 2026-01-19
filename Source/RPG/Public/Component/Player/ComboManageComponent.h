@@ -9,7 +9,7 @@
 
 
 //delegate rings(broadcast) when combo matches
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComboMatch, int32, ComboAnimNum, int32, BPValue);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComboMatch, int32, ComboNum, int32, BPValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChainAttack, int32, AttackAnimNum, FName, SectionName);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))

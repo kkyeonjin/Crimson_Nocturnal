@@ -13,10 +13,10 @@ enum class EPlayerCombatState : uint8
 UENUM(BlueprintType)
 enum class EUltimateSkill : uint8
 {
-	None,
-	SkillA,
-	SkillB,
-	SkillC
+	SkillA = 0,
+	SkillB = 1,
+	SkillC = 2,
+	None = 10
 };
 
 UENUM(BlueprintType)

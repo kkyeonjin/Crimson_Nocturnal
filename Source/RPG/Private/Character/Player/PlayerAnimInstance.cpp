@@ -138,3 +138,24 @@ void UPlayerAnimInstance::PlayChainAttackMontage(int32 AnimNum, FName Section)
 	}
 }
 
+void UPlayerAnimInstance::PlayComboAttackMontage(EAnimMontageType MontageType)
+{
+	switch (MontageType)
+	{
+		case EAnimMontageType::ComboA:
+			Montage_Play(ComboA);
+			break;
+		case EAnimMontageType::ComboB:
+			Montage_Play(ComboB);
+			break;
+		case EAnimMontageType::ComboC:
+			Montage_Play(ComboC);
+			break;
+		case EAnimMontageType::ComboD:
+			Montage_Play(ComboD);
+			break;
+		default:
+			break;
+	}
+}
+

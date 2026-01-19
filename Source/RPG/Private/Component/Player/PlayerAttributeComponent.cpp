@@ -84,7 +84,7 @@ void UPlayerAttributeComponent::LevelUp()
 	DEF = Data->DefaultDEF;
 	SkillPoint += 1;
 
-	OnLevelUp.Broadcast(SkillPoint);
+	OnLevelUp.Broadcast(CurrentLevel, SkillPoint);
 }
 
 void UPlayerAttributeComponent::LoadPlayerData()
@@ -147,6 +147,11 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		CurrentBP += BPtoGet;
 		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
 		OnBPUpdate.Broadcast(CurrentBP, MaxBP);
+
+		if (CurrentBP == MaxBP)
+		{
+			OnBPMax.Broadcast();
+		}
 
 		BPtoGet = 0;
 	}

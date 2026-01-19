@@ -57,11 +57,27 @@ public:
 
 	void ChangeSkillASettingSelection(int32 Input);
 
+	// UI Ç¥½Ã + ÀÚµ¿ ¼û±è Ã³¸®
+
+	void ShowLevelUpPopUp(int32 CurrentLevel);
+
+	void HideLevelUpPopUp();
+
+	//Combo UI
+	void ShowComboPopUp(int32 ComboNum);
+
+	void HideComboPopUp();
+
 	//EventUI
 
 	void ShowQTEUI(int32 ComboNum);
 
 	void HideQTEUI(int32 ComboNum);
+
+	//Skill Screen Effect
+	void ShowSkillEffect(int32 SkillNum);
+
+	void HideSkillEffect();
 
 	FORCEINLINE int32 GetUltSelectCount() { return SkillTreeUIWidget->GetUltSelectCount(); }
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillTreeUIWidget->GetSkillSelectCount(); }
@@ -83,5 +99,11 @@ protected:
 private:
 	UFUNCTION()
 	void HandleSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index); //Callback Func
+
+	FTimerHandle ComboPopUpTimer;
+
+	FTimerHandle LevelUpPopUpTimer;
+
+	FTimerHandle SkillEffectTimer;
 
 };

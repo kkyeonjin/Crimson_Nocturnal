@@ -6,6 +6,7 @@
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
+#include "UI/SkillScreenOverlayWidget.h"
 
 
 void UMainHUDWidget::UpdateHP(int32 Current, int32 Max)
@@ -66,11 +67,71 @@ void UMainHUDWidget::HideQTEUI(int32 ComboNum)
 	}
 }
 
+void UMainHUDWidget::ShowLevelUpPopUp(int32 CurrentLevel)
+{
+	if (CurrentLevel == 2)
+	{
+		Level2PopUp->SetVisibility(ESlateVisibility::Visible);
+		SpecialLevelUp = Level2PopUp;
+	}
+	else if (CurrentLevel == 5)
+	{
+		Level5PopUp->SetVisibility(ESlateVisibility::Visible);
+		SpecialLevelUp = Level5PopUp;
+	}
+
+	LevelUp->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainHUDWidget::HideLevelUpPopUp()
+{
+	SpecialLevelUp->SetVisibility(ESlateVisibility::Hidden);
+
+	LevelUp->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UMainHUDWidget::ShowComboPopUp(int32 ComboNum)
+{
+	ComboPopUpImages[ComboNum]->SetVisibility(ESlateVisibility::Visible);
+	
+}
+
+void UMainHUDWidget::HideComboPopUp()
+{
+	for (int i = 0; i < ComboPopUpImages.Num(); i++)
+	{
+		if (ComboPopUpImages[i]->GetVisibility() == ESlateVisibility::Visible)
+		{
+			ComboPopUpImages[i]->SetVisibility(ESlateVisibility::Hidden);
+			break;
+		}
+	}
+}
+
+void UMainHUDWidget::SetSubWidgets(USkillScreenOverlayWidget* Widget)
+{
+	SkillScreenOverlayWidget = Widget;
+}
+
 void UMainHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
 	ComboQTEImages = { ComboA, ComboB, ComboC, ComboD };
 
+	ComboPopUpImages = { ComboA, ComboB, ComboC, ComboD };
+
+}
+
+void UMainHUDWidget::OnSkillStarted(int32 SkillNum)
+{
+	SkillScreenOverlayWidget->ShowSkillEffect(SkillNum);
+
+	UE_LOG(LogTemp, Error, TEXT("Is Valid: %s"), SkillScreenOverlayWidget ? TEXT("Yes") : TEXT("No"));
+}
+
+void UMainHUDWidget::OnSkillFinished()
+{
+	SkillScreenOverlayWidget->HideSkillEffect();
 }
 

@@ -32,6 +32,8 @@ public:
 
 	void PlayChainAttackMontage(int32 AnimNum, FName Section);
 
+	void PlayComboAttackMontage(EAnimMontageType MontageType);
+
 	UPROPERTY(BlueprintAssignable)
 	FOnAttackMontageEnd OnAttackMontageEnd;
 
