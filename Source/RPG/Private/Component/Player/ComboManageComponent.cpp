@@ -141,7 +141,7 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboA.ComboNum = 0;
 	ComboA.AnimMontageNum = static_cast<int32>(EAnimMontageType::ComboA);
 	ComboA.ComboAttackMultiplier = 3.5;
-	ComboA.BPValue = 3;
+	ComboA.BPValue = 20;
 	ComboPatterns.Add(ComboA);
 
 	//ComboB
@@ -151,7 +151,7 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboB.ComboNum = 1;
 	ComboB.AnimMontageNum = static_cast<int32>(EAnimMontageType::ComboB);
 	ComboB.ComboAttackMultiplier = 2.8;
-	ComboB.BPValue = 2;
+	ComboB.BPValue = 25;
 	ComboPatterns.Add(ComboB);
 
 	//ComboC
@@ -161,7 +161,7 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboC.ComboNum = 2;
 	ComboC.AnimMontageNum = static_cast<int32>(EAnimMontageType::ComboC);
 	ComboC.ComboAttackMultiplier = 3.5;
-	ComboC.BPValue = 2;
+	ComboC.BPValue = 30;
 	ComboPatterns.Add(ComboC);
 
 	//ComboD
@@ -171,7 +171,7 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboD.ComboNum = 3;
 	ComboD.AnimMontageNum = static_cast<int32>(EAnimMontageType::ComboD);
 	ComboD.ComboAttackMultiplier = 3.8;
-	ComboD.BPValue = 2;
+	ComboD.BPValue = 35;
 	ComboPatterns.Add(ComboD);
 }
 

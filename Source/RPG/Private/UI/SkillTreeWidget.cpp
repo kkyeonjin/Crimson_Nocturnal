@@ -240,12 +240,12 @@ void USkillTreeWidget::ReadyToSkillASetting(int32 Input)
 	//Only When Ult 1 is Selected
 	if (Ult1Highlight->GetVisibility() == ESlateVisibility::Visible)
 	{
-		if (Input == 1)
+		if (Input == 1) //Y button
 		{
 			XSettingHighlight->SetVisibility(ESlateVisibility::Visible);
 			YSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
 		}
-		else if (Input == -1)
+		else if (Input == -1) //Y button
 		{
 			YSettingHighlight->SetVisibility(ESlateVisibility::Visible);
 			XSettingHighlight->SetVisibility(ESlateVisibility::Hidden);

@@ -219,16 +219,16 @@ void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
 	switch (SkillNum)
 	{
 	case 0: //공격력 증가
-		ATK *= 1.2f;
+		ATK += 3;
 		break;
 	case 1: //방어력 증가
-		DEF *= 1.2f;
+		DEF += 4;
 		break;
-	case 2: //최대HP증가(바를 늘려야할텐데 그게 귀찮은,,) or 낮은 확률로 공격받아도 대미지 입지 않음
-		MaxHP *= 1.2f;
+	case 2: //최대HP증가
+		MaxHP += 30;
 		break;
 	case 3: //BP획득량 증가
-		BPMultiplier = 1.2f;
+		BPMultiplier = 1.3f;
 		break;
 	default:
 		break;
@@ -236,6 +236,7 @@ void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
 
 	SkillPoint -= 1;
 	OnSkillPointUpdate.Broadcast(SkillPoint);
+	//HP 표시량(숫자) 변화하도록 델리게이트 브로드캐스팅 해주기
 
 	ActivatedSkills[SkillNum] = 1;
 }

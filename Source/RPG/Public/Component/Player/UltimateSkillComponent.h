@@ -43,9 +43,9 @@ protected:
 private:
 
 	FTimerHandle SkillActiveTimer;
-	float SkillAActiveTime = 5.f; //Default
+	float SkillAActiveTime = 6.f; //Default
 	float SkillBActiveTime = 5.f; //Default
-	float SkillCActiveTime = 10.f; //Default
+	float SkillCActiveTime = 7.f; //Default
 
 	int32 XSettingForSkillA = 0; //Default
 	int32 YSettingForSkillA = 0; //Default
@@ -57,7 +57,7 @@ private:
 public:
 	FORCEINLINE void SetCachedComboPatters(TArray<FComboPattern>* ComboPatterns) { CachedComboPatterns = ComboPatterns; }
 	FORCEINLINE bool IsSkillActivated() { return bIsSkillActivated; }
-	FORCEINLINE void IncreaseSkillTime() { SkillAActiveTime *= 1.2f; SkillBActiveTime *= 1.2f; SkillCActiveTime *= 1.2f; }
+	FORCEINLINE void IncreaseSkillTime() { SkillAActiveTime *= 1.5f; SkillBActiveTime *= 1.5f; SkillCActiveTime *= 1.5f; }
 
 	//For SkillA
 	FORCEINLINE void SetKeyBindingXInSkillA(int32 ComboNum) { XSettingForSkillA = ComboNum; }
