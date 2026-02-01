@@ -18,6 +18,11 @@ void UBossAnimInstance::AnimNotify_CollisionDisable()
 	OnBossCollisionDisable.Broadcast();
 }
 
+void UBossAnimInstance::AnimNotify_BossDead()
+{
+	OnBossDead.Broadcast();
+}
+
 
 void UBossAnimInstance::PlayBossAnimMontage(int32 AnimNum)
 {

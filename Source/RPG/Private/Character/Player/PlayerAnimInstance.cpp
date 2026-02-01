@@ -77,6 +77,11 @@ void UPlayerAnimInstance::AnimNotify_KickCollisionDisable()
 	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
+void UPlayerAnimInstance::AnimNotify_GameOver()
+{
+	OnGameOver.Broadcast();
+}
+
 void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)
 {
 	//EAnimMontageType MontageType = static_cast<EAnimMontageType>(AnimNum);
@@ -95,6 +100,11 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)
 		case 2:
 			Montage_Play(StunA);
 			break;
+
+		case 3:
+			Montage_Play(Death);
+			break;
+
 
 		//Combo Animations
 		/*

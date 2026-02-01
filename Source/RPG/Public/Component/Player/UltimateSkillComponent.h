@@ -8,6 +8,7 @@
 #include "UltimateSkillComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkill1Attack, int32, AnimNum, float, AttackMultiplier);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUltTimeOver);
 
 //struct FComboPattern;
 enum class EUltimateSkill : uint8;
@@ -34,6 +35,9 @@ public:
 
 	UPROPERTY()
 	FOnSkill1Attack OnSkill1Attack;
+
+	UPROPERTY()
+	FOnUltTimeOver OnUltTimeOver;
 
 
 protected:

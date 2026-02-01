@@ -1,6 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
+#define HP_THRESHOLD_1 145
+#define HP_THRESHOLD_2 65
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"

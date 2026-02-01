@@ -15,6 +15,7 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnAttackMontageEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionDisable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameOver);
 
 /**
  *
@@ -58,6 +59,9 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnCollisionDisable OnKickCollisionDisable;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnGameOver OnGameOver;
+
 
 protected:
 
@@ -84,6 +88,9 @@ protected:
 
 	UFUNCTION()
 	void AnimNotify_KickCollisionDisable();
+
+	UFUNCTION()
+	void AnimNotify_GameOver();
 
 	UPROPERTY(BlueprintReadOnly)
 	APlayerCharacter* PlayerCharacter;
@@ -120,6 +127,9 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Stun")
 	UAnimMontage* StunA;
+
+	UPROPERTY(EditAnywhere, Category = "Death")
+	UAnimMontage* Death;
 
 
 public:

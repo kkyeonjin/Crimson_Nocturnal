@@ -89,6 +89,9 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillEquipAction;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* MenuOn;
+
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -100,6 +103,9 @@ protected:
 	void Select(const FInputActionValue& Value);
 	void SkillTreeOff();
 	void SetSkillTree();
+
+	//Menu
+	void MenuScreen();
 
 	UFUNCTION()
 	void SetIsSkillEnable();
@@ -152,9 +158,20 @@ protected:
 	UFUNCTION()
 	void OnSkillPointUpdate(int32 SkillPoint);
 
-	//SkillA
+	UFUNCTION()
+	void UltTimeOver();
+
+	//UltA
 	UFUNCTION()
 	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);
+
+	//Portal / NPC Detected (Raycast)
+	UFUNCTION()
+	void InteractPopUp();
+
+	//Move to GameOver Level
+	UFUNCTION()
+	void OpenGameOverLevel();
 
 private:
 

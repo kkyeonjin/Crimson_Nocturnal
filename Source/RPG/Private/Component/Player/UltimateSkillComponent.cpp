@@ -63,6 +63,7 @@ void UUltimateSkillComponent::TimerStart(EUltimateSkill* SelectedSkill)
 void UUltimateSkillComponent::SkillTimeOver()
 {
 	//VFX«ÿ¡¶
+	OnUltTimeOver.Broadcast();
 	bIsSkillActivated = false;
 	UE_LOG(LogTemp, Warning, TEXT("Skill Time Over"));
 }

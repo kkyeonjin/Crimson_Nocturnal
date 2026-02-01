@@ -6,6 +6,8 @@
 #include "Components/ActorComponent.h"
 #include "RaycastComponent.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRaycastDetected);
+
 class APlayerCharacter;
 
 UCLASS(ClassGroup = (Raycast), meta = (BlueprintSpawnableComponent))
@@ -21,6 +23,9 @@ public:
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raycast")
     float TraceDistance = 500.0f;
+
+    UPROPERTY()
+    FOnRaycastDetected OnRaycastDetected;
 
 protected:
     virtual void BeginPlay() override;

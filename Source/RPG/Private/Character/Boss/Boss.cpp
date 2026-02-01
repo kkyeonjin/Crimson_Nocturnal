@@ -93,6 +93,9 @@ void ABoss::BindDelegates()
 	CachedPhaseManageComponent->OnPhaseChange.AddDynamic(this, &ABoss::OnPhaseChange);
 
 	CachedBossAnimInstance->OnBattleStart.AddDynamic(this, &ABoss::StartBattle);
+	CachedBossAnimInstance->OnBossCollisionEnable.AddDynamic(this, &ABoss::OnCollisionEnable);
+	CachedBossAnimInstance->OnBossCollisionDisable.AddDynamic(this, &ABoss::OnCollisionDisable);
+	CachedBossAnimInstance->OnBossDead.AddDynamic(this, &ABoss::StartEnding);
 
 	CachedInfectionComponent->OnInfectionStarted.AddDynamic(this, &ABoss::OnInfectionStarted);
 	CachedInfectionComponent->OnInfectionEnded.AddDynamic(this, &ABoss::OnInfectionEnded);
@@ -181,6 +184,11 @@ void ABoss::OnPlayerQTESuccess()
 void ABoss::OnCrystalDestroyed()
 {
 	//죽음 애니메이션 재생 / 연출
+}
+
+void ABoss::StartEnding()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("Ending")));
 }
 
 void ABoss::StartBattle()

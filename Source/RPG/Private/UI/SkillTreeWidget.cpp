@@ -65,17 +65,42 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 //L&R Button when SkillA Key Setting
 void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
 {
+	UE_LOG(LogTemp, Display, TEXT("Current Section: %d"), CurrentSection);
+	UE_LOG(LogTemp, Warning, TEXT("Current Input: %d"), Input);
+
 	//X Setting
 	if (XSettingHighlight->GetVisibility() == ESlateVisibility::Visible)
 	{
 		XSettingHighlights[XSettingCount]->SetVisibility(ESlateVisibility::Hidden);
 		XSettingCount += Input;
+
+		//enable circular selection when count is over option's number
+		if (XSettingCount == -1)
+		{
+			XSettingCount = 3;
+		}
+		else if (XSettingCount == 4)
+		{
+			XSettingCount = 0;
+		}
+
 		XSettingHighlights[XSettingCount]->SetVisibility(ESlateVisibility::Visible);
 	}
 	else if (YSettingHighlight->GetVisibility() == ESlateVisibility::Visible)
 	{
 		YSettingHighlights[YSettingCount]->SetVisibility(ESlateVisibility::Hidden);
 		YSettingCount += Input;
+
+		//enable circular selection when count is over option's number
+		if (YSettingCount == -1)
+		{
+			YSettingCount = 3;
+		}
+		else if (YSettingCount == 4)
+		{
+			YSettingCount = 0;
+		}
+
 		YSettingHighlights[YSettingCount]->SetVisibility(ESlateVisibility::Visible);
 	}
 }
@@ -179,6 +204,7 @@ void USkillTreeWidget::SetSkillTree()
 		if (XSettingHighlight->GetVisibility() == ESlateVisibility::Visible)
 		{
 			XSettingNums[XSettingCount]->SetVisibility(ESlateVisibility::Visible);
+			XSettingHighlights[XSettingCount]->SetVisibility(ESlateVisibility::Hidden);
 
 			for (int i = 0; i < XSettingNums.Num(); i++)
 			{
@@ -188,11 +214,14 @@ void USkillTreeWidget::SetSkillTree()
 				}
 			}
 
+			XSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
+
 			OnSkillConfirmed.Broadcast(ESkillConfirmType::KeyBindingX, XSettingCount);
 		}
 		else if (YSettingHighlight->GetVisibility() == ESlateVisibility::Visible)
 		{
 			YSettingNums[YSettingCount]->SetVisibility(ESlateVisibility::Visible);
+			YSettingHighlights[YSettingCount]->SetVisibility(ESlateVisibility::Hidden);
 
 			for (int i = 0; i < YSettingNums.Num(); i++)
 			{
@@ -202,8 +231,14 @@ void USkillTreeWidget::SetSkillTree()
 				}
 			}
 
+			YSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
+
 			OnSkillConfirmed.Broadcast(ESkillConfirmType::KeyBindingY, YSettingCount);
 		}
+
+		//back to Ult 1's Main Selection Screen
+		CurrentSection = static_cast<int32>(ESkillTreeSection::UltimateSkill);
+
 	}
 }
 

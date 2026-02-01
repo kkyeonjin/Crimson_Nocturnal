@@ -113,10 +113,17 @@ void UBossAttributeComponent::ApplyDamage()
 		CurrentHP -= Damage;
 		UE_LOG(LogTemp, Display, TEXT("EnemyHP: %d"), CurrentHP);
 
-		if (CurrentHP < MaxHP/3)
+		if (CurrentHP < HP_THRESHOLD_2 )
+		{
+			
+		}
+
+		if (CurrentHP < HP_THRESHOLD_1 )
 		{
 			//Å©¸®½ºÅ» µ¨¸®°ÔÀÌÆ®
 		}
+
+
 	}
 	else
 	{

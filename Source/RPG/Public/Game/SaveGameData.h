@@ -59,4 +59,10 @@ public:
 	UPROPERTY()
 	int32 CurrentMap;
 
+	UPROPERTY()
+	int32 Ult1XSetting;
+
+	UPROPERTY()
+	int32 Ult1YSetting;
+
 };

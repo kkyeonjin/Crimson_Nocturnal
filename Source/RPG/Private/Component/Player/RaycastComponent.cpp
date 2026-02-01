@@ -57,6 +57,9 @@ void URaycastComponent::OnCollisionOverlap(UPrimitiveComponent* OverlappedCompon
             {
                 UE_LOG(LogTemp, Warning, TEXT("Portal / NPC Detected"));
 
+                //for interact pop up
+                OnRaycastDetected.Broadcast();
+
                 //InteractableInterface->OnInteract();
             }
         }

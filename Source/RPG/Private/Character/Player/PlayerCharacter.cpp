@@ -57,6 +57,8 @@ void APlayerCharacter::BeginPlay()
 
 		CachedAnimInstance->OnKickCollisionEnable.AddDynamic(this, &APlayerCharacter::SetKickCollisionEnable);
 		CachedAnimInstance->OnKickCollisionDisable.AddDynamic(this, &APlayerCharacter::SetKickCollisionDisable);
+
+		CachedAnimInstance->OnGameOver.AddDynamic(this, &APlayerCharacter::OpenGameOverLevel);
 	}
 
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
@@ -83,6 +85,7 @@ void APlayerCharacter::BeginPlay()
 	if (CachedUltimateSkillComponent)
 	{
 		CachedUltimateSkillComponent->OnSkill1Attack.AddDynamic(this, &APlayerCharacter::OnSkill1Attack);
+		CachedUltimateSkillComponent->OnUltTimeOver.AddDynamic(this, &APlayerCharacter::UltTimeOver);
 	}
 
 	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
@@ -98,7 +101,7 @@ void APlayerCharacter::BeginPlay()
 	CachedRaycastComponent = FindComponentByClass<URaycastComponent>();
 	if (CachedRaycastComponent)
 	{
-		
+		CachedRaycastComponent->OnRaycastDetected.AddDynamic(this, &APlayerCharacter::InteractPopUp);
 	}
 
 	//for Test
@@ -213,6 +216,11 @@ void APlayerCharacter::OnDamageCalculated(int32 Damage) //for SkillB(HP Drain)
 void APlayerCharacter::OnSkillPointUpdate(int32 SkillPoint)
 {
 	CachedHUDComponent->SetSkillPointText(SkillPoint);
+}
+
+void APlayerCharacter::UltTimeOver()
+{
+	CachedHUDComponent->HideSkillEffect();
 }
 
 //Callback Func (from delegate at UltSkillComp)
@@ -514,6 +522,24 @@ void APlayerCharacter::SetSkillTree() //Renaming Required
 	CachedHUDComponent->SetSkillTree();
 }
 
+void APlayerCharacter::MenuScreen()
+{
+	//MainHUD¼û±â±â
+	//Menu Widget ¶ç¿ì±â 
+
+}
+
+void APlayerCharacter::InteractPopUp()
+{
+	//Press A PopUp ,,,, 
+	//CachedHUDComponent->
+}
+
+void APlayerCharacter::OpenGameOverLevel()
+{
+	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("GameOver")));
+}
+
 void APlayerCharacter::SetIsSkillEnable()
 {
 	IsSkillEnable = true;
@@ -549,10 +575,21 @@ void APlayerCharacter::HandleAttack(AActor* Target)
 void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 {
 	UE_LOG(LogTemp, Error, TEXT("Player Hit!!!"));
-	CachedAnimInstance->PlayAnimMontage(2);
+	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
+	CachedAttributeComponent->ApplyDamage();
+
+	if (CachedAttributeComponent->GetCurrentHP() <= 0.f)
+	{
+		CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
+
+	}
+	else
+	{
+		CachedAnimInstance->PlayAnimMontage(2); //play Stun Anim
+	}
+
 	PlayerMoveState = EPlayerMoveState::EPMS_MoveDisabled;
-	//CachedAttributeComponent->SetEnemyAttributeComponent(Target);
-	//CachedAttributeComponent->ApplyDamage();
+
 }
 
 

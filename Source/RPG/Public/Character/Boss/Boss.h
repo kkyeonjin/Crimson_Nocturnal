@@ -67,6 +67,9 @@ public:
 	UFUNCTION()
 	void OnCrystalDestroyed();
 
+	UFUNCTION()
+	void StartEnding();
+
 	UPROPERTY()
 	FOnBossBattleStarted OnBossBattleStarted;
 

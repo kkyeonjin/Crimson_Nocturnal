@@ -9,6 +9,7 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBattleStart);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossCollisionDisable);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDead);
 
 /**
  *
@@ -30,6 +31,9 @@ public:
 	UPROPERTY()
 	FOnBossCollisionDisable OnBossCollisionDisable;
 
+	UPROPERTY()
+	FOnBossDead OnBossDead;
+
 protected:
 	UFUNCTION()
 	void AnimNotify_BattleStart();
@@ -39,6 +43,9 @@ protected:
 
 	UFUNCTION()
 	void AnimNotify_CollisionDisable();
+
+	UFUNCTION()
+	void AnimNotify_BossDead();
 
 
 private:
