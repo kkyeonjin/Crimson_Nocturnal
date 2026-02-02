@@ -62,10 +62,13 @@ public:
 	void OnCollisionDisable();
 
 	UFUNCTION()
+	void OnHpThreshold(int32 ThresholdStep);
+
+	UFUNCTION()
 	void OnPlayerQTESuccess();
 
 	UFUNCTION()
-	void OnCrystalDestroyed();
+	void OnLastCrystalDestroyed();
 
 	UFUNCTION()
 	void StartEnding();
@@ -134,8 +137,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	FVector UltSpawnPoint;
 
-	//UPROPERTY(EditAnywhere)
-	//ACrystal* Crystal;
+	UPROPERTY(EditAnywhere)
+	ACrystal* Crystal;
 
 	//IInfectable
 	virtual USkeletalMeshComponent* GetMeshComponent_Implementation() override;

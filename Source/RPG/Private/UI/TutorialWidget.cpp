@@ -4,6 +4,17 @@
 #include "UI/TutorialWidget.h"
 #include "Components/Image.h"
 
+
+void UTutorialWidget::TurnPages(int32 Input)
+{
+
+}
+
+void UTutorialWidget::CloseTutorial()
+{
+
+}
+
 void UTutorialWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

@@ -11,10 +11,41 @@ ACrystal::ACrystal()
 
 }
 
+void ACrystal::GetHit(const FVector& ImpactPoint, AActor* Target)
+{
+	if (bIsBreakable)
+	{
+		DestroyLastCrystal();
+	}
+}
+
+void ACrystal::DestroyCrystal(int32 CrystalToBreak)
+{
+	if (CrystalNum == CrystalToBreak)
+	{
+		//PlayVFX;
+		//PlaySound();
+
+		Destroy();
+	}
+}
+
+void ACrystal::DestroyLastCrystal()
+{
+	//PlayVFX();
+	//PlaySound();
+
+	//ownerBoss->PlayAnimation
+	OnLastCrystalDestroyed.Broadcast();
+	
+}
+
 // Called when the game starts or when spawned
 void ACrystal::BeginPlay()
 {
 	Super::BeginPlay();
 	
 }
+
+
 

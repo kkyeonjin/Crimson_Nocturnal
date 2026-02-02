@@ -2,7 +2,7 @@
 
 
 #include "Character/Boss/Boss.h"
-//#include "Crystal.h"
+#include "Actor/Crystal.h"
 //#include "Enemy/Boss/BossUltimateSkillActor.h"
 #include "Component/Boss/BossAttributeComponent.h"
 #include "Character/Boss/BossAnimInstance.h"
@@ -89,6 +89,8 @@ void ABoss::BindDelegates()
 	check(CachedInfectionComponent);
 	check(CachedAttackComponent);
 	check(CachedBossAttributeComponent);
+	
+	check(Crystal);
 
 	CachedPhaseManageComponent->OnPhaseChange.AddDynamic(this, &ABoss::OnPhaseChange);
 
@@ -99,6 +101,10 @@ void ABoss::BindDelegates()
 
 	CachedInfectionComponent->OnInfectionStarted.AddDynamic(this, &ABoss::OnInfectionStarted);
 	CachedInfectionComponent->OnInfectionEnded.AddDynamic(this, &ABoss::OnInfectionEnded);
+
+	CachedBossAttributeComponent->OnHpThreshold.AddDynamic(this, &ABoss::OnHpThreshold);
+
+	Crystal->OnLastCrystalDestroyed.AddDynamic(this, &ABoss::OnLastCrystalDestroyed);
 }
 
 void ABoss::InitializeMaterials()
@@ -172,6 +178,11 @@ void ABoss::OnCollisionDisable()
 	CachedAttackComponent->OnAttackCollisionDisable(-1);
 }
 
+void ABoss::OnHpThreshold(int32 ThresholdStep)
+{
+	Crystal->DestroyCrystal(ThresholdStep);
+}
+
 void ABoss::OnPlayerQTESuccess()
 {
 	//Destroy Ult Skill Actor
@@ -181,9 +192,10 @@ void ABoss::OnPlayerQTESuccess()
 }
 
 //callback func when crystal destroyed by player
-void ABoss::OnCrystalDestroyed()
+void ABoss::OnLastCrystalDestroyed()
 {
 	//죽음 애니메이션 재생 / 연출
+	CachedBossAnimInstance->PlayBossAnimMontage(6);
 }
 
 void ABoss::StartEnding()

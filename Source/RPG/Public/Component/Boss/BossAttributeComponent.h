@@ -6,12 +6,15 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "Engine/DataTable.h"
 #include "Interface/AttributeInterface.h"
 #include "BossAttributeComponent.generated.h"
 
 class ABoss;
 class UPlayerAttributeComponent;
 class APlayerCharacter;
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnHpThreshold, int32, ThresholdStep);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_API UBossAttributeComponent : public UActorComponent, public IAttributeInterface
@@ -27,6 +30,8 @@ public:
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	UDataTable* BossStatTable;
+
+	FOnHpThreshold OnHpThreshold;
 
 protected:
 	// Called when the game starts

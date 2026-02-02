@@ -12,6 +12,8 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkillConfirmed, ESkillConfirmType, ConfirmType, int32, Index);
 
 class UTextBlock;
+class UImage;
+
 /**
  *
  */
@@ -43,7 +45,7 @@ public:
 	FOnSkillConfirmed OnSkillConfirmed;
 
 	UPROPERTY(meta = (BindWidget))
-	class UImage* Skill1Highlight;
+	UImage* Skill1Highlight;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Skill2Highlight;

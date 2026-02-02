@@ -38,6 +38,10 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Page6;
 
+	void TurnPages(int32 Input);
+
+	void CloseTutorial();
+
 private:
 	TArray<UImage*> TutorialImages;
 

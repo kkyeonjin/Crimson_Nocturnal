@@ -4,10 +4,13 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/Actor.h"
+#include "Interface/HitInterface.h"
 #include "Crystal.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLastCrystalDestroyed);
+
 UCLASS()
-class RPG_API ACrystal : public AActor
+class RPG_API ACrystal : public AActor, public IHitInterface
 {
 	GENERATED_BODY()
 	
@@ -15,9 +18,26 @@ public:
 	// Sets default values for this actor's properties
 	ACrystal();
 
+	virtual void GetHit(const FVector& ImpactPoint, AActor* Target) override;
+
+	void DestroyCrystal(int32 CrystalToBreak);
+
+	FOnLastCrystalDestroyed OnLastCrystalDestroyed;
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
+
+	void DestroyLastCrystal();
+
+private:
+
+	//Set in Engine Editor 
+	UPROPERTY(EditAnywhere)
+	bool bIsBreakable;
+
+	UPROPERTY(EditAnywhere)
+	int32 CrystalNum;
 
 
 };

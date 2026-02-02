@@ -2,7 +2,6 @@
 
 
 #include "UI/MainHUDWidget.h"
-
 #include "Components/Image.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"

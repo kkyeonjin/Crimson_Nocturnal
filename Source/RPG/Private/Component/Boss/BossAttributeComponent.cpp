@@ -115,12 +115,13 @@ void UBossAttributeComponent::ApplyDamage()
 
 		if (CurrentHP < HP_THRESHOLD_2 )
 		{
-			
+			OnHpThreshold.Broadcast(2);
 		}
 
 		if (CurrentHP < HP_THRESHOLD_1 )
 		{
 			//Å©¸®½ºÅ» µ¨¸®°ÔÀÌÆ®
+			OnHpThreshold.Broadcast(1);
 		}
 
 

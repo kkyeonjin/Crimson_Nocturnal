@@ -104,8 +104,6 @@ void APlayerCharacter::BeginPlay()
 		CachedRaycastComponent->OnRaycastDetected.AddDynamic(this, &APlayerCharacter::InteractPopUp);
 	}
 
-	//for Test
-	OnLevelUp(2, 3);
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
@@ -249,7 +247,7 @@ void APlayerCharacter::Move(const FInputActionValue& Value)
 		return;
 	}
 
-	//if (GetPlayerMoveState() == EPlayerMoveState::EPMS_MoveEnabled)
+	if (GetPlayerMoveState() == EPlayerMoveState::EPMS_MoveEnabled)
 	{
 		const FVector2D MovementVector = Value.Get<FVector2D>();
 
@@ -360,11 +358,11 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 
 					UE_LOG(LogTemp, Warning, TEXT("QTE Failed!!!"));
 
+					//Player Die
+					CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
 				}
 				else
 				{
-
-
 					//Broadcast to Boss
 					OnQTESuccess.Broadcast();
 					//Trapped 상태 풀림
@@ -372,7 +370,6 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 
 					CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
 
-					//Player Die
 				}
 				return;
 			}
@@ -427,7 +424,8 @@ void APlayerCharacter::SkillStart()
 		IsSkillEnable = false;
 	}
 
-	//BP 0으로 만드는 코드도 추가!!!
+	//Make BP to Zero (0) 
+	UpdateBP(0, CachedAttributeComponent->GetMaxBP());
 }
 
 //press skillTree button
@@ -448,7 +446,12 @@ void APlayerCharacter::SkillTree()
 
 	InputSubsystem->RemoveMappingContext(PlayerContext);
 	InputSubsystem->AddMappingContext(SkillTreeContext, 1);
+
 	IsSkillTreeUIOn = true;
+
+	//To Stop Game Play
+	PlayerMoveState = EPlayerMoveState::EPMS_MoveDisabled;
+
 	//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
 }
 
@@ -529,9 +532,14 @@ void APlayerCharacter::MenuScreen()
 
 }
 
+void APlayerCharacter::OnInteract()
+{
+
+}
+
 void APlayerCharacter::InteractPopUp()
 {
-	//Press A PopUp ,,,, 
+	//Press RT PopUp ,,,, 
 	//CachedHUDComponent->
 }
 
@@ -564,6 +572,9 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(SkillTreeOffAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTreeOff);
 		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Select);
 		EnhancedInputComponent->BindAction(SkillEquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SetSkillTree);
+
+		//Interact
+		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::OnInteract);
 	}
 }
 

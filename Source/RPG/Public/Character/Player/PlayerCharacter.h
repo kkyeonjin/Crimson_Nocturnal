@@ -92,6 +92,12 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MenuOn;
 
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* MenuOff;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Interact;
+
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
@@ -106,6 +112,9 @@ protected:
 
 	//Menu
 	void MenuScreen();
+
+	//Interact (Portal / NPC)
+	void OnInteract();
 
 	UFUNCTION()
 	void SetIsSkillEnable();

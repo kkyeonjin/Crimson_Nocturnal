@@ -24,8 +24,6 @@ public:
 	UPROPERTY(EditAnywhere)
 	class USkillScreenOverlayWidget* SkillScreenOverlayWidget;
 
-
-
 	UFUNCTION()
 	void OnSkillStarted(int32 SkillNum);
 
@@ -73,6 +71,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* Level5PopUp;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* InteractPopUp;
+
 	UFUNCTION()
 	void ShowQTEUI(int32 ComboNum);
 
@@ -91,8 +92,15 @@ public:
 	UFUNCTION()
 	void HideComboPopUp();
 
+	UFUNCTION()
+
+
 	UFUNCTION(BlueprintCallable)
 	void SetSubWidgets(USkillScreenOverlayWidget* Widget);
+
+	//Show / Hide Widget
+	UFUNCTION()
+	void ToggleWidget();
 
 
 private:

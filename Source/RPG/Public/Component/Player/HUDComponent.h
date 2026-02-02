@@ -31,6 +31,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<USkillTreeWidget> SkillTreeUIClass;  // 블루프린트 클래스를 지정
 
+	//Show / Hide MainHUDWidget
+	void 
+
+	//Show / Hide MenuWidget
+
+
 	void UpdatePlayerHP(int32 Current, int32 Max);
 
 	void UpdatePlayerBP(int32 Current, int32 Max);
