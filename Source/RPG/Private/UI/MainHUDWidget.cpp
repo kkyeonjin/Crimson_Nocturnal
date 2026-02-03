@@ -112,6 +112,11 @@ void UMainHUDWidget::SetSubWidgets(USkillScreenOverlayWidget* Widget)
 	SkillScreenOverlayWidget = Widget;
 }
 
+void UMainHUDWidget::ToggleWidget()
+{
+
+}
+
 void UMainHUDWidget::NativeConstruct()
 {
 	Super::NativeConstruct();

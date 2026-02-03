@@ -62,6 +62,51 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 
 }
 
+//cross button
+void USkillTreeWidget::OnDirectionalInput(int32 Input)
+{
+	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill) || CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
+	{
+		SwitchSection();
+	}
+	else
+	{
+		ChangeSkillASettingSelection(Input);
+	}
+}
+
+void USkillTreeWidget::OnCloseSkillTree()
+{
+	OnSkillTreeClose.Broadcast();
+}
+
+void USkillTreeWidget::SwitchSection() // L&R Button
+{
+	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill))
+	{
+		CurrentSection = 1;
+		SkillSelectCount = 0;
+
+		UltHighlights[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
+		UltDescriptions[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
+
+		SkillHighlights[0]->SetVisibility(ESlateVisibility::Visible);
+		SkillDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
+	}
+	else if (CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
+	{
+		CurrentSection = 0;
+		UltSelectCount = 0;
+
+		SkillHighlights[SkillSelectCount]->SetVisibility(ESlateVisibility::Hidden);
+		SkillDescriptions[SkillSelectCount]->SetVisibility(ESlateVisibility::Hidden);
+
+		UltHighlights[0]->SetVisibility(ESlateVisibility::Visible);
+		UltDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
+	}
+
+}
+
 //L&R Button when SkillA Key Setting
 void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
 {
@@ -103,46 +148,6 @@ void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
 
 		YSettingHighlights[YSettingCount]->SetVisibility(ESlateVisibility::Visible);
 	}
-}
-
-//cross button
-void USkillTreeWidget::OnDirectionalInput(int32 Input)
-{
-	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill) || CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
-	{
-		SwitchSection();
-	}
-	else
-	{
-		ChangeSkillASettingSelection(Input);
-	}
-}
-
-void USkillTreeWidget::SwitchSection() // L&R Button
-{
-	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill))
-	{
-		CurrentSection = 1;
-		SkillSelectCount = 0;
-
-		UltHighlights[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
-		UltDescriptions[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
-
-		SkillHighlights[0]->SetVisibility(ESlateVisibility::Visible);
-		SkillDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
-	}
-	else if (CurrentSection == static_cast<int32>(ESkillTreeSection::NormalSkill))
-	{
-		CurrentSection = 0;
-		UltSelectCount = 0;
-
-		SkillHighlights[SkillSelectCount]->SetVisibility(ESlateVisibility::Hidden);
-		SkillDescriptions[SkillSelectCount]->SetVisibility(ESlateVisibility::Hidden);
-
-		UltHighlights[0]->SetVisibility(ESlateVisibility::Visible);
-		UltDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
-	}
-
 }
 
 void USkillTreeWidget::InitializeSelection() //Renaming Required 
@@ -270,12 +275,13 @@ void USkillTreeWidget::InitializeUIFromSave(int32 UltNum, TArray<int32> Activate
 
 }
 
+// X / Y Button
 void USkillTreeWidget::ReadyToSkillASetting(int32 Input)
 {
 	//Only When Ult 1 is Selected
 	if (Ult1Highlight->GetVisibility() == ESlateVisibility::Visible)
 	{
-		if (Input == 1) //Y button
+		if (Input == 1) //X button
 		{
 			XSettingHighlight->SetVisibility(ESlateVisibility::Visible);
 			YSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
@@ -290,15 +296,12 @@ void USkillTreeWidget::ReadyToSkillASetting(int32 Input)
 	}
 }
 
-
-
 int32 USkillTreeWidget::GetXorYSettingCount()
 {
 	if (XSettingHighlight->GetVisibility() == ESlateVisibility::Visible)
 	{
 		return XSettingCount;
 	}
-
 	return YSettingCount;
 }
 
@@ -319,5 +322,9 @@ void USkillTreeWidget::NativeConstruct()
 	YSettingNums = { Y1, Y2, Y3, Y4 };
 	XSettingHighlights = { X1Highlight, X2Highlight, X3Highlight, X4Highlight };
 	YSettingHighlights = { Y1Highlight, Y2Highlight, Y3Highlight, Y4Highlight };
+
+	InitializeSelection();
+
 }
+
 

@@ -294,88 +294,35 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 
 	const float AttackValue = Value.Get<float>();
 
-	if (IsSkillTreeUIOn) //InSkillTreeUI (Set SkillA Combo Key Setting)
+	
+	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillA)
 	{
-		//X -> 1 / Y -> -1
-		CachedHUDComponent->ReadyToSkillASetting(static_cast<int32>(AttackValue));
-		/*
+		CachedUltimateSkillComponent->Skill1(AttackValue);
+	}
+
+	EAttackKeyType InputType;
+
+	if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
+	{
+		SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
+		//disable move input when player is attacking
+		SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+
 		//X Button
 		if (AttackValue == 1.f)
 		{
-		CachedHUDComponent->ReadyToSkillASetting(static_cast<int32>(AttackValue));
-		UE_LOG(LogTemp, Display, TEXT("X Setting"));
+			InputType = EAttackKeyType::X;
 		}
 		//Y Button
 		else if (AttackValue == -1.f)
 		{
-		UE_LOG(LogTemp, Display, TEXT("Y Setting"));
-		}*/
-	}
-
-	else
-	{
-		if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillA)
-		{
-			CachedUltimateSkillComponent->Skill1(AttackValue);
+			InputType = EAttackKeyType::Y;
 		}
 
-		EAttackKeyType InputType;
-
-		if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
+		//When Player Is Trapped by Boss's Ult Skill -> RandomComboQTE Start!
+		if (IsTrapped)
 		{
-			SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
-			//disable move input when player is attacking
-			SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
-
-			//X Button
-			if (AttackValue == 1.f)
-			{
-				InputType = EAttackKeyType::X;
-				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-			}
-			//Y Button
-			else if (AttackValue == -1.f)
-			{
-				InputType = EAttackKeyType::Y;
-				UE_LOG(LogTemp, Display, TEXT("Input Type: %d"), static_cast<int32>(InputType));
-			}
-
-			//When Player Is Trapped by Boss's Ult Skill -> RandomComboQTE Start!
-			if (IsTrapped)
-			{
-				if (!CachedComboManageComponent->BossUltimateQTE(InputType))
-				{
-					//X Button
-					if (AttackValue == 1.f)
-					{
-						CachedComboManageComponent->ChainAttackCount(InputType);
-					}
-					//Y Button
-					else if (AttackValue == -1.f)
-					{
-						CachedComboManageComponent->ChainAttackCount(InputType);
-					}
-
-					UE_LOG(LogTemp, Warning, TEXT("QTE Failed!!!"));
-
-					//Player Die
-					CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
-				}
-				else
-				{
-					//Broadcast to Boss
-					OnQTESuccess.Broadcast();
-					//Trapped 상태 풀림
-					IsTrapped = false;
-
-					CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
-
-				}
-				return;
-			}
-
-			//send ENUM to InputSequence array (for Combo check)
-			if (!CachedComboManageComponent->IsComboMatch(InputType))
+			if (!CachedComboManageComponent->BossUltimateQTE(InputType))
 			{
 				//X Button
 				if (AttackValue == 1.f)
@@ -387,11 +334,43 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 				{
 					CachedComboManageComponent->ChainAttackCount(InputType);
 				}
+
+				UE_LOG(LogTemp, Warning, TEXT("QTE Failed!!!"));
+
+				//Player Die
+				CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
 			}
-			CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
+			else
+			{
+				//Broadcast to Boss
+				OnQTESuccess.Broadcast();
+				//Trapped 상태 풀림
+				IsTrapped = false;
+
+				CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
+
+			}
+			return;
 		}
+
+		//send ENUM to InputSequence array (for Combo check)
+		if (!CachedComboManageComponent->IsComboMatch(InputType))
+		{
+			//X Button
+			if (AttackValue == 1.f)
+			{
+				CachedComboManageComponent->ChainAttackCount(InputType);
+			}
+			//Y Button
+			else if (AttackValue == -1.f)
+			{
+				CachedComboManageComponent->ChainAttackCount(InputType);
+			}
+		}
+		CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
 	}
 }
+
 
 void APlayerCharacter::SkillStart()
 {
@@ -428,66 +407,6 @@ void APlayerCharacter::SkillStart()
 	UpdateBP(0, CachedAttributeComponent->GetMaxBP());
 }
 
-//press skillTree button
-void APlayerCharacter::SkillTree()
-{
-	CachedHUDComponent->ShowSkillTreeUI();
-	CachedHUDComponent->InitializeSkillTreeSelection();
-	APlayerController* PC = GetWorld()->GetFirstPlayerController();
-	if (PC)
-	{
-		//PC->SetPause(true); // 게임 정햨E
-
-		// 게임 + UI 입력 모두 활성화 (게임패탛E입력 포함)
-		//PC->SetInputMode(FInputModeGameAndUI());
-
-		//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
-	}
-
-	InputSubsystem->RemoveMappingContext(PlayerContext);
-	InputSubsystem->AddMappingContext(SkillTreeContext, 1);
-
-	IsSkillTreeUIOn = true;
-
-	//To Stop Game Play
-	PlayerMoveState = EPlayerMoveState::EPMS_MoveDisabled;
-
-	//CachedHUDComponent->GetSkillTreeUI()->SetUserFocus(PC);
-}
-
-//SkillTreeInputContext
-//Cross Button in GamePad
-void APlayerCharacter::Select(const FInputActionValue& Value)
-{
-	const FVector2D SelectVector = Value.Get<FVector2D>();
-
-	UE_LOG(LogTemp, Warning, TEXT("SelectVector X=%f, Y=%f"), SelectVector.X, SelectVector.Y);
-
-	if (SelectVector.X != 0.f) //Left&Right
-	{
-		//Section Change or SkillA Option Navigate
-		CachedHUDComponent->HandleSkillTreeNavigation(static_cast<int32>(SelectVector.X));
-
-	}
-
-	if (SelectVector.Y != 0.f) //Select Up&Down
-	{
-		CachedHUDComponent->ChangeSelection(static_cast<int32>(SelectVector.Y));
-	}
-}
-
-
-void APlayerCharacter::SkillTreeOff()
-{
-	UE_LOG(LogTemp, Display, TEXT("SkillTreeOffButton"));
-	CachedHUDComponent->HideSkillTreeUI();
-	GetWorld()->GetFirstPlayerController()->SetPause(false); //Start Game Play
-	InputSubsystem->RemoveMappingContext(SkillTreeContext);
-	InputSubsystem->AddMappingContext(PlayerContext, 0);
-
-	IsSkillTreeUIOn = false;
-}
-
 //Callback Func for Skill Set (A Button in SkillTreeUI)
 void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index)
 {
@@ -516,20 +435,6 @@ void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Ind
 		CachedUltimateSkillComponent->SetKeyBindingYInSkillA(Index);
 		break;
 	}
-}
-
-//SkillTreeInputContext
-//A Button
-void APlayerCharacter::SetSkillTree() //Renaming Required
-{
-	CachedHUDComponent->SetSkillTree();
-}
-
-void APlayerCharacter::MenuScreen()
-{
-	//MainHUD숨기기
-	//Menu Widget 띄우기 
-
 }
 
 void APlayerCharacter::OnInteract()
@@ -566,12 +471,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillStart);
-		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTree);
 
-		//SkillTreeInputContext
-		EnhancedInputComponent->BindAction(SkillTreeOffAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillTreeOff);
-		EnhancedInputComponent->BindAction(SelectAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Select);
-		EnhancedInputComponent->BindAction(SkillEquipAction, ETriggerEvent::Triggered, this, &APlayerCharacter::SetSkillTree);
+		//Open SkillTree Screen
+		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::ShowSkillTreeUI);
+
+		//Open Menu Screen
+		//EnhancedInputComponent->BindAction(MenuOn, ETriggerEvent::Triggered, CachedHUDComponent, )
 
 		//Interact
 		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::OnInteract);

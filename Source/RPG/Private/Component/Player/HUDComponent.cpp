@@ -4,6 +4,7 @@
 #include "Component/Player/HUDComponent.h"
 #include "UI/MainHUDWidget.h"
 #include "UI/SkillTreeWidget.h"
+#include "UI/MenuWidget.h"
 #include "Blueprint/UserWidget.h"
 
 // Sets default values for this component's properties
@@ -40,11 +41,44 @@ void UHUDComponent::BeginPlay()
 
 		SkillTreeUIWidget->OnSkillConfirmed.AddDynamic(this, &UHUDComponent::HandleSkillConfirmed);
 	}
+
+	if (MenuUIClass)
+	{
+		MenuUIWidget = CreateWidget<UMenuWidget>(GetWorld(), MenuUIClass);
+	}
 }
 
 void UHUDComponent::HandleSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index)
 {
 	OnPlayerSkillConfirmed.Broadcast(ConfirmType, Index);
+}
+
+void UHUDComponent::ShowMenuUI()
+{
+	//Stop GamePlay 
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC || !MenuUIWidget) return;
+
+	GetWorld()->GetWorldSettings()->SetTimeDilation(0.0f);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(MenuUIWidget->TakeWidget());
+	PC->SetInputMode(InputMode);
+
+	MenuUIWidget->AddToViewport(100);
+	MenuUIWidget->SetKeyboardFocus();
+
+	//Hide Main HUD UI
+}
+
+void UHUDComponent::CloseMenuUI()
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC || !MenuUIWidget) return;
+
+	GetWorld()->GetWorldSettings()->SetTimeDilation(1.0f);
+	PC->SetInputMode(FInputModeGameOnly());
+	MenuUIWidget->RemoveFromParent();
 }
 
 void UHUDComponent::UpdatePlayerHP(int32 Current, int32 Max)
@@ -73,42 +107,30 @@ void UHUDComponent::UpdatePlayerBP(int32 Current, int32 Max)
 
 void UHUDComponent::ShowSkillTreeUI()
 {
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->AddToViewport();
-	}
+	//Stop GamePlay 
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC || !SkillTreeUIWidget) return;
+
+	GetWorld()->GetWorldSettings()->SetTimeDilation(0.0f);
+
+	FInputModeUIOnly InputMode;
+	InputMode.SetWidgetToFocus(SkillTreeUIWidget->TakeWidget());
+	PC->SetInputMode(InputMode);
+
+	SkillTreeUIWidget->AddToViewport(100);
+	SkillTreeUIWidget->SetKeyboardFocus();
+
+	SkillTreeUIWidget->InitializeSelection();
 }
 
-void UHUDComponent::HideSkillTreeUI()
+void UHUDComponent::CloseSkillTreeUI()
 {
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->RemoveFromParent();
-	}
-}
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	if (!PC || !SkillTreeUIWidget) return;
 
-void UHUDComponent::ChangeSelection(int32 Input)
-{
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->ChangeSelection(Input);
-	}
-}
-
-void UHUDComponent::SwitchSection()
-{
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->SwitchSection();
-	}
-}
-
-void UHUDComponent::HandleSkillTreeNavigation(int32 Input)
-{
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->OnDirectionalInput(Input);
-	}
+	GetWorld()->GetWorldSettings()->SetTimeDilation(1.0f);
+	PC->SetInputMode(FInputModeGameOnly());
+	SkillTreeUIWidget->RemoveFromParent();
 }
 
 void UHUDComponent::SetSkillTree()
@@ -127,14 +149,6 @@ void UHUDComponent::SetSkillPointText(int32 SkillPoint)
 	}
 }
 
-void UHUDComponent::InitializeSkillTreeSelection()
-{
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->InitializeSelection();
-	}
-}
-
 void UHUDComponent::InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills)
 {
 	if (SkillTreeUIWidget)
@@ -142,23 +156,6 @@ void UHUDComponent::InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> Ac
 		SkillTreeUIWidget->InitializeUIFromSave(UltNum, ActivatedSkills);
 	}
 }
-
-void UHUDComponent::ReadyToSkillASetting(int32 Input)
-{
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->ReadyToSkillASetting(Input);
-	}
-}
-
-void UHUDComponent::ChangeSkillASettingSelection(int32 Input)
-{
-	if (SkillTreeUIWidget)
-	{
-		SkillTreeUIWidget->ChangeSkillASettingSelection(Input);
-	}
-}
-
 
 void UHUDComponent::ShowLevelUpPopUp(int32 CurrentLevel)
 {

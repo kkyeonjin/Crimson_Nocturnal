@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/BaseUIInputWidget.h"
 #include "MenuWidget.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMenuClose);
 
 class UImage;
 
@@ -12,7 +14,7 @@ class UImage;
  * 
  */
 UCLASS()
-class RPG_API UMenuWidget : public UUserWidget
+class RPG_API UMenuWidget : public UBaseUIInputWidget
 {
 	GENERATED_BODY()
 
@@ -23,6 +25,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UTutorialWidget* TutorialWidget;
 
+	UPROPERTY()
+	FOnMenuClose OnMenuClose;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* ResumeHighlight;
@@ -44,7 +48,14 @@ public:
 
 	void OnDirectionalInput(int32 Input);
 
-	void BackToPrev();
+	void OnSelect();
+
+	void CloseMenu();
+
+protected:
+	virtual void OnDPadUp() override { OnDirectionalInput(1); }
+	virtual void OnDPadDown() override { OnDirectionalInput(-1); }
+	virtual void OnFaceButtonA() override {  }
 
 
 private:

@@ -8,6 +8,7 @@
 #include "Character/Player/Types/SkillTypes.h"
 #include "HUDComponent.generated.h"
 
+class UMenuWidget;
 class USkillTreeWidget;
 class UMainHUDWidget;
 
@@ -32,10 +33,15 @@ public:
 	TSubclassOf<USkillTreeWidget> SkillTreeUIClass;  // 블루프린트 클래스를 지정
 
 	//Show / Hide MainHUDWidget
-	void 
+	
 
 	//Show / Hide MenuWidget
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UMenuWidget> MenuUIClass;  // 블루프린트 클래스를 지정
 
+	void ShowMenuUI();
+
+	void CloseMenuUI();
 
 	void UpdatePlayerHP(int32 Current, int32 Max);
 
@@ -43,25 +49,23 @@ public:
 
 	void ShowSkillTreeUI();
 
-	void HideSkillTreeUI();
+	void CloseSkillTreeUI();
 
-	void ChangeSelection(int32 Input);
+	//void ChangeSelection(int32 Input);
 
-	void SwitchSection();
+	//void SwitchSection();
 
-	void HandleSkillTreeNavigation(int32 Input);
+	//void HandleSkillTreeNavigation(int32 Input);
 
 	void SetSkillTree();
 
 	void SetSkillPointText(int32 SkillPoint);
 
-	void InitializeSkillTreeSelection();
-
 	void InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
-	void ReadyToSkillASetting(int32 Input);
+	//void ReadyToSkillASetting(int32 Input);
 
-	void ChangeSkillASettingSelection(int32 Input);
+	//void ChangeSkillASettingSelection(int32 Input);
 
 	// UI 표시 + 자동 숨김 처리
 
@@ -101,6 +105,9 @@ protected:
 
 	UPROPERTY()
 	USkillTreeWidget* SkillTreeUIWidget;
+
+	UPROPERTY()
+	UMenuWidget* MenuUIWidget;
 
 private:
 	UFUNCTION()

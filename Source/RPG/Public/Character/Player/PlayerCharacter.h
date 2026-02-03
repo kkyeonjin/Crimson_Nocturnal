@@ -59,9 +59,6 @@ protected:
 	UInputMappingContext* PlayerContext;
 
 	UPROPERTY(EditAnywhere, Category = Input)
-	UInputMappingContext* SkillTreeContext;
-
-	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MovementAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
@@ -76,25 +73,15 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillActivation;
 
+	//Open SkillTree Screen
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillTreeOn;
 
-	//SkillTreeContext 
-	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* SelectAction;
-
-	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* SkillTreeOffAction;
-
-	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* SkillEquipAction;
-
+	//Open Menu Screen
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MenuOn;
 
-	UPROPERTY(EditAnywhere, Category = Input)
-	UInputAction* MenuOff;
-
+	//Interact with Portal / NPC ...etc
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* Interact;
 
@@ -103,15 +90,9 @@ protected:
 	void Look(const FInputActionValue& Value);
 	void Attack(const FInputActionValue& Value);
 	void SkillStart();
-	void SkillTree();
-
-	//SkillTreeInputContext
-	void Select(const FInputActionValue& Value);
-	void SkillTreeOff();
-	void SetSkillTree();
 
 	//Menu
-	void MenuScreen();
+	//void MenuScreen();
 
 	//Interact (Portal / NPC)
 	void OnInteract();
@@ -212,16 +193,10 @@ private:
 
 	bool IsSkillOn = false;
 
-	bool IsSkillTreeUIOn = false;
-
 	bool IsTrapped = false;
 
 	//turn true when BP is full
 	bool IsSkillEnable = false;
-
-	//only visible in Detail Panel
-	//UPROPERTY(VisibleInstanceOnly)
-	//AItem* OverlappingItem;
 
 	UFUNCTION()
 	void OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index);

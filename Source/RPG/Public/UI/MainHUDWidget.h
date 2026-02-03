@@ -92,9 +92,6 @@ public:
 	UFUNCTION()
 	void HideComboPopUp();
 
-	UFUNCTION()
-
-
 	UFUNCTION(BlueprintCallable)
 	void SetSubWidgets(USkillScreenOverlayWidget* Widget);
 

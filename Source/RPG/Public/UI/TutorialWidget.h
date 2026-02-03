@@ -3,8 +3,10 @@
 #pragma once
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/BaseUIInputWidget.h"
 #include "TutorialWidget.generated.h"
+
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnTutorialClose);
 
 class UImage;
 
@@ -12,13 +14,15 @@ class UImage;
  * 
  */
 UCLASS()
-class RPG_API UTutorialWidget : public UUserWidget
+class RPG_API UTutorialWidget : public UBaseUIInputWidget
 {
 	GENERATED_BODY()
 
 public:
 
 	virtual void NativeConstruct() override;
+
+	FOnTutorialClose OnTutorialClose;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Page1;

@@ -4,27 +4,21 @@
 #define MENUNUM  3
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/BaseUIInputWidget.h"
 #include "TitleWidget.generated.h"
 
-class UInputAction;
-struct FInputActionValue;
 class UImage;
-class UEnhancedInputComponent;
-class UInputMappingContext;
-class UEnhancedInputLocalPlayerSubsystem;
 
 /**
  * 
  */
 UCLASS()
-class RPG_API UTitleWidget : public UUserWidget
+class RPG_API UTitleWidget : public UBaseUIInputWidget
 {
 	GENERATED_BODY()
 	
 public:
 	virtual void NativeConstruct() override; //BeginPlay같은거, 초기세팅 
-	virtual void NativeDestruct() override;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* StartCircle;
@@ -35,22 +29,18 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* ExitCircle;
 
+protected:
+	// Title은 정말 최소한만!
+	virtual void OnDPadUp() override { OnNavigate(1); }
+	virtual void OnDPadDown() override { OnNavigate(-1); }
+	virtual void OnFaceButtonA() override { OnSelect(); }
+
 private:
-	UEnhancedInputComponent* EnhancedInputComponent;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputMappingContext* TitleContext;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* NavigateAction;
-
-	UPROPERTY(EditAnywhere, Category = "Input")
-	UInputAction* SelectAction;
 
 	int32 TitleMenuSelectCount = 0;
 
 	TArray<UImage*> MenuCircles;
 
-	void OnNavigate(const FInputActionValue& Value);
+	void OnNavigate(int32 Input);
 	void OnSelect();
 };

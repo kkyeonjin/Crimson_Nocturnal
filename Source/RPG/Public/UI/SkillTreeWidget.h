@@ -5,11 +5,12 @@
 #define SKILLNUM  5
 
 #include "CoreMinimal.h"
-#include "Blueprint/UserWidget.h"
+#include "UI/BaseUIInputWidget.h"
 #include "Character/Player/Types/SkillTypes.h"
 #include "SkillTreeWidget.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkillConfirmed, ESkillConfirmType, ConfirmType, int32, Index);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillTreeClose);
 
 class UTextBlock;
 class UImage;
@@ -18,7 +19,7 @@ class UImage;
  *
  */
 UCLASS()
-class RPG_API USkillTreeWidget : public UUserWidget
+class RPG_API USkillTreeWidget : public UBaseUIInputWidget
 {
 	GENERATED_BODY()
 
@@ -31,9 +32,6 @@ public:
 	void SetSkillTree();
 	void SetSkillPointText(int32 SkillPoint);
 
-	//OnLevelUp
-	void ShowLevelUpPopUp();
-
 	void InitializeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
 	void ReadyToSkillASetting(int32 Input);
@@ -41,8 +39,13 @@ public:
 
 	void OnDirectionalInput(int32 Input);
 
+	void OnCloseSkillTree(); 
+
 	UPROPERTY()
 	FOnSkillConfirmed OnSkillConfirmed;
+
+	UPROPERTY()
+	FOnSkillTreeClose OnSkillTreeClose;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* Skill1Highlight;
@@ -194,8 +197,20 @@ public:
 	FORCEINLINE int32 GetCurrentSection() { return CurrentSection; }
 	int32 GetXorYSettingCount();
 
+protected:
+		// BaseUIInputWidget의 virtual 함수들을 오버라이드
+		virtual void OnDPadUp() override { ChangeSelection(1); }
+		virtual void OnDPadDown() override { ChangeSelection(-1); }
+		virtual void OnDPadLeft() override { OnDirectionalInput(-1); }
+		virtual void OnDPadRight() override { OnDirectionalInput(1); }
+
+		virtual void OnFaceButtonA() override { SetSkillTree(); }
+		virtual void OnFaceButtonB() override { OnCloseSkillTree(); }
+		virtual void OnFaceButtonX() override { ReadyToSkillASetting(1); }
+		virtual void OnFaceButtonY() override { ReadyToSkillASetting(-1); }
 
 private:
+
 	int32 UltSelectCount = 0;
 	int32 CurrentSection = 0; //default 0:Ult, 1:Skill, 2:SkillA Setting 
 	TArray<UImage*> UltHighlights;
