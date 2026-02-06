@@ -9,6 +9,7 @@
 #include "Component/Boss/PhaseManageComponent.h"
 #include "Component/Common/EnemyAttackComponent.h"
 #include "Component/Common/InfectionComponent.h"
+#include "Component/Boss/BossSFXComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -34,6 +35,7 @@ void ABoss::BeginPlay()
 	}
 
 
+	/*
 	//For Debug
 	GetWorld()->GetTimerManager().SetTimer(
 		DebugTimer,
@@ -42,6 +44,7 @@ void ABoss::BeginPlay()
 		3.f,
 		false
 	);
+	*/
 	//StartUltimateMechanic();
 
 }
@@ -49,32 +52,44 @@ void ABoss::BeginPlay()
 bool ABoss::InitializeComponents()
 {
 	CachedBossAnimInstance = Cast<UBossAnimInstance>(GetMesh()->GetAnimInstance());
+	CachedBossAttributeComponent = FindComponentByClass<UBossAttributeComponent>();
+	CachedPhaseManageComponent = FindComponentByClass<UPhaseManageComponent>();
+	CachedAttackComponent = FindComponentByClass<UEnemyAttackComponent>();
+	CachedInfectionComponent = FindComponentByClass<UInfectionComponent>();
+	CachedBossSFXComponent = FindComponentByClass<UBossSFXComponent>();
+
 	if (!CachedBossAnimInstance)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("AnimInstance Cast Failed in BeginPlay"));
 		return false;
 	}
-	CachedBossAttributeComponent = FindComponentByClass<UBossAttributeComponent>();
+
 	if (!CachedBossAttributeComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("BossAttributeComp Finding Failed in BeginPlay"));
 		return false;
 	}
-	CachedPhaseManageComponent = FindComponentByClass<UPhaseManageComponent>();
+
 	if (!CachedPhaseManageComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("PhaseManageComp Finding Failed in BeginPlay"));
 		return false;
 	}
-	CachedAttackComponent = FindComponentByClass<UEnemyAttackComponent>();
+
 	if (!CachedAttackComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("BossAttackComp Finding Failed in BeginPlay"));
 	}
-	CachedInfectionComponent = FindComponentByClass<UInfectionComponent>();
+
 	if (!CachedInfectionComponent)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("InfectionComp Finding Failed in BeginPlay"));
+		return false;
+	}
+
+	if (!CachedBossSFXComponent)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("BossSFXComp Finding Failed in BeginPlay"));
 		return false;
 	}
 
@@ -162,10 +177,12 @@ void ABoss::SetCurrentMaterial_Implementation(UMaterialInstanceDynamic* Material
 	CurrentAppliedMaterials.Add(Material);
 }
 
+//First Func that starts
 void ABoss::OnBattleTriggered()
 {
 	//Play BattleStartMotion
 	CachedBossAnimInstance->PlayBossAnimMontage(0);
+	CachedBossSFXComponent->PlayBattleStartSFX();
 }
 
 void ABoss::OnCollisionEnable()
@@ -196,6 +213,7 @@ void ABoss::OnLastCrystalDestroyed()
 {
 	//죽음 애니메이션 재생 / 연출
 	CachedBossAnimInstance->PlayBossAnimMontage(6);
+	CachedBossSFXComponent->PlayDeathSFX();
 }
 
 void ABoss::StartEnding()
@@ -218,6 +236,12 @@ void ABoss::EndBattle()
 void ABoss::OnPhaseChange(EBossPhase NewPhase)
 {
 	CurrentPhase = NewPhase;
+
+	int32 PhaseNum = static_cast<int32>(NewPhase);
+
+	CachedBossAnimInstance->PlayBossAnimMontage(PhaseNum);
+
+	/*
 	switch (CurrentPhase)
 	{
 	case EBossPhase::Phase1_MagicCircle:
@@ -239,6 +263,8 @@ void ABoss::OnPhaseChange(EBossPhase NewPhase)
 		break;
 
 	}
+	*/
+	CachedBossSFXComponent->PlayPhaseSkillSFX(PhaseNum);
 }
 
 void ABoss::StartUltimateMechanic()
@@ -248,15 +274,7 @@ void ABoss::StartUltimateMechanic()
 	//CachedBossAnimInstance->PlayBossAnimMontage(4); //임시로 넣은 값
 
 	//사운드 재생
-	/*
-	GetWorld()->GetTimerManager().SetTimer(
-		UltimateRoarSoundTimerHandle,
-		this,
-		&ABoss::PlayUltimateRoarSound,
-		1.5f,
-		false
-	);
-	*/
+	CachedBossSFXComponent->PlayUltSFX();
 
 	//액터 스폰
 	GetWorld()->GetTimerManager().SetTimer(

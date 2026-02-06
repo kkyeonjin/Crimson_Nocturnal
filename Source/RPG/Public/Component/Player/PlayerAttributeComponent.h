@@ -15,7 +15,7 @@ class UEnemyAttributeComponent;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBPUpdate, int32, CurrentBP, int32, MaxBP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHPUpdate, int32, CurrentHP, int32, MaxHP);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE_ThreeParams(FOnSkillTreeUISet, int32, SkillPoint, int32, UltNum, TArray<int32>, ActivatedSkills);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnSkillTreeUISet, int32, SkillPoint, int32, UltNum, TArray<int32>, ActivatedSkills, int32, Ult1XSetting, int32, Ult1YSetting);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLevelUp, int32, CurrentLevel, int32, SkillPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillPointUpdate, int32, SkillPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageCalculated, int32, Damage);
@@ -88,6 +88,8 @@ private:
 	int32 SkillPoint;
 	int32 EquippedUlt;
 	TArray<int32> ActivatedSkills;
+	int32 Ult1XSetting;
+	int32 Ult1YSetting;
 
 	float AttackMultiplier;
 
@@ -110,11 +112,11 @@ private:
 	void LevelUp();
 
 	//Load & Save
+	UFUNCTION()
 	void LoadPlayerData();
-	void SavePlayerData();
 
-	UFUNCTION(BlueprintPure, Category = "Save System")
-	bool DoesSaveGameExist() const;
+	UFUNCTION()
+	void SavePlayerData();
 
 public:
 	FORCEINLINE virtual int32 GetATK() override { return ATK; }

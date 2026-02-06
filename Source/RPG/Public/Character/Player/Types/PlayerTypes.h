@@ -5,8 +5,8 @@ enum class EPlayerCombatState : uint8
 {
 	EPCS_Attacking UMETA(DisplayName = "Attacking"),
 	EPCS_NotAttacking UMETA(DisplayName = "NotAttacking"),
-	EPCS_GetAttacked UMETA(DisplayName = "GetAttacked")
-
+	EPCS_GetAttacked UMETA(DisplayName = "GetAttacked"),
+	EPCS_Dead UMETA(DisplayName = "Dead")
 };
 
 //접두사 안 붙이는 게 나음 -> 추후 다른 ENUM들도 변경 필 

@@ -40,11 +40,20 @@ void UHUDComponent::BeginPlay()
 		SkillTreeUIWidget = CreateWidget<USkillTreeWidget>(GetWorld(), SkillTreeUIClass);
 
 		SkillTreeUIWidget->OnSkillConfirmed.AddDynamic(this, &UHUDComponent::HandleSkillConfirmed);
+		SkillTreeUIWidget->OnSkillTreeClose.AddDynamic(this, &UHUDComponent::CloseSkillTreeUI);
 	}
 
 	if (MenuUIClass)
 	{
 		MenuUIWidget = CreateWidget<UMenuWidget>(GetWorld(), MenuUIClass);
+
+		UE_LOG(LogTemp, Warning, TEXT("MenuWidgetFound"));
+
+		MenuUIWidget->OnMenuClose.AddDynamic(this, &UHUDComponent::CloseMenuUI);
+	}
+	else
+	{
+		UE_LOG(LogTemp, Warning, TEXT("MenuWidgetNotFound"));
 	}
 }
 
@@ -69,6 +78,7 @@ void UHUDComponent::ShowMenuUI()
 	MenuUIWidget->SetKeyboardFocus();
 
 	//Hide Main HUD UI
+	MainHUDWidget->RemoveFromParent();
 }
 
 void UHUDComponent::CloseMenuUI()
@@ -79,6 +89,8 @@ void UHUDComponent::CloseMenuUI()
 	GetWorld()->GetWorldSettings()->SetTimeDilation(1.0f);
 	PC->SetInputMode(FInputModeGameOnly());
 	MenuUIWidget->RemoveFromParent();
+
+	MainHUDWidget->AddToViewport(100);
 }
 
 void UHUDComponent::UpdatePlayerHP(int32 Current, int32 Max)
@@ -107,17 +119,23 @@ void UHUDComponent::UpdatePlayerBP(int32 Current, int32 Max)
 
 void UHUDComponent::ShowSkillTreeUI()
 {
-	//Stop GamePlay 
+	
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
 	if (!PC || !SkillTreeUIWidget) return;
 
+	//Stop GamePlay 
 	GetWorld()->GetWorldSettings()->SetTimeDilation(0.0f);
 
+	//Change InputMode to UI InputMode
+	//for Use of BaseUIInputWidget::NativeOnKeyDown 
 	FInputModeUIOnly InputMode;
 	InputMode.SetWidgetToFocus(SkillTreeUIWidget->TakeWidget());
 	PC->SetInputMode(InputMode);
 
 	SkillTreeUIWidget->AddToViewport(100);
+	UE_LOG(LogTemp, Warning, TEXT("SkillTreeWidget ON"));
+
+
 	SkillTreeUIWidget->SetKeyboardFocus();
 
 	SkillTreeUIWidget->InitializeSelection();
@@ -133,11 +151,11 @@ void UHUDComponent::CloseSkillTreeUI()
 	SkillTreeUIWidget->RemoveFromParent();
 }
 
-void UHUDComponent::SetSkillTree()
+void UHUDComponent::SetSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting)
 {
 	if (SkillTreeUIWidget)
 	{
-		SkillTreeUIWidget->SetSkillTree();
+		SkillTreeUIWidget->InitializeSkillTree(SkillPoint, UltNum, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 	}
 }
 

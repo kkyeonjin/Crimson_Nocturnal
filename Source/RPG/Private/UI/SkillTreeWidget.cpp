@@ -3,6 +3,7 @@
 
 #include "UI/SkillTreeWidget.h"
 #include "Components/Image.h"
+#include "Components/PanelWidget.h"
 #include "Components/TextBlock.h"
 
 void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
@@ -21,15 +22,17 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 
 		UE_LOG(LogTemp, Warning, TEXT("Count: %d"), UltSelectCount);
 
-		UltHighlights[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
-		UltDescriptions[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
+		//UltHighlights[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
+		UltPanels[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
+		//UltDescriptions[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
 
 		for (int i = 0; i < ULTNUM; i++)
 		{
 			if (i != UltSelectCount)
 			{
-				UltHighlights[i]->SetVisibility(ESlateVisibility::Hidden);
-				UltDescriptions[i]->SetVisibility(ESlateVisibility::Hidden);
+				//UltHighlights[i]->SetVisibility(ESlateVisibility::Hidden);
+				//UltDescriptions[i]->SetVisibility(ESlateVisibility::Hidden);
+				UltPanels[i]->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
 	}
@@ -150,15 +153,16 @@ void USkillTreeWidget::ChangeSkillASettingSelection(int32 Input)
 	}
 }
 
+//Called When SkillTree is Open (when is visible)
 void USkillTreeWidget::InitializeSelection() //Renaming Required 
 {
 	UltSelectCount = 0;
-	UltHighlights[0]->SetVisibility(ESlateVisibility::Visible);
-	UltDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
+
+	UltPanels[0]->SetVisibility(ESlateVisibility::Visible);
 	for (int i = 1; i < ULTNUM; i++)
 	{
-		UltHighlights[i]->SetVisibility(ESlateVisibility::Hidden);
-		UltDescriptions[i]->SetVisibility(ESlateVisibility::Hidden);
+		UltPanels[i]->SetVisibility(ESlateVisibility::Hidden);
+
 	}
 
 	for (int i = 0; i < SKILLNUM; i++)
@@ -167,6 +171,42 @@ void USkillTreeWidget::InitializeSelection() //Renaming Required
 		SkillDescriptions[i]->SetVisibility(ESlateVisibility::Hidden);
 	}
 
+	for (int i = 0; i < 4; i++)
+	{
+		XSettingHighlights[i]->SetVisibility(ESlateVisibility::Hidden);
+		YSettingHighlights[i]->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	XSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
+	YSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
+
+}
+
+//Initialize SkillTree by loading save game data
+void USkillTreeWidget::InitializeSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills,
+	int32 Ult1XSetting, int32 Ult1YSetting)
+{
+	SetSkillPointText(SkillPoint);
+
+	if (UltNum != -1)
+	{
+		UltActivated[UltNum]->SetVisibility(ESlateVisibility::Visible);
+		UltSymbols[UltNum]->SetVisibility(ESlateVisibility::Visible);
+
+		SkillTree->SetVisibility(ESlateVisibility::Visible);
+		SkillTreeGrey->SetVisibility(ESlateVisibility::Hidden);
+	}
+
+	for (int i = 0; i < SKILLNUM; ++i)
+	{
+		if (ActivatedSkills[i] == 1)
+		{
+			SkillActivated[i]->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
+
+	XSettingNums[Ult1XSetting]->SetVisibility(ESlateVisibility::Visible);
+	YSettingNums[Ult1YSetting]->SetVisibility(ESlateVisibility::Visible);
 }
 
 // A Button
@@ -284,11 +324,13 @@ void USkillTreeWidget::ReadyToSkillASetting(int32 Input)
 		if (Input == 1) //X button
 		{
 			XSettingHighlight->SetVisibility(ESlateVisibility::Visible);
+			XSettingHighlights[0]->SetVisibility(ESlateVisibility::Visible);
 			YSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
 		}
 		else if (Input == -1) //Y button
 		{
 			YSettingHighlight->SetVisibility(ESlateVisibility::Visible);
+			YSettingHighlights[0]->SetVisibility(ESlateVisibility::Visible);
 			XSettingHighlight->SetVisibility(ESlateVisibility::Hidden);
 		}
 
@@ -313,6 +355,7 @@ void USkillTreeWidget::NativeConstruct()
 	UltActivated = { Ult1Activated, Ult2Activated, Ult3Activated };
 	UltDescriptions = { Ult1Description, Ult2Description, Ult3Description };
 	UltSymbols = { Ult1Symbol, Ult2Symbol, Ult3Symbol };
+	UltPanels = { Ult1Panel, Ult2Panel, Ult3Panel };
 
 	SkillHighlights = { Skill1Highlight, Skill2Highlight, Skill3Highlight, Skill4Highlight, Skill5Highlight };
 	SkillDescriptions = { Skill1Description, Skill2Description, Skill3Description, Skill4Description, Skill5Description };
@@ -326,5 +369,6 @@ void USkillTreeWidget::NativeConstruct()
 	InitializeSelection();
 
 }
+
 
 

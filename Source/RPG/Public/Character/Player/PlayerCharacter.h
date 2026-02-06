@@ -26,6 +26,7 @@ class UAnimMontage;
 class UPlayerAnimInstance;
 class UComboManageComponent;
 class URaycastComponent;
+class USFXComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillCReady);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQTESuccess);
@@ -151,6 +152,9 @@ protected:
 	UFUNCTION()
 	void UltTimeOver();
 
+	UFUNCTION()
+	void OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
+
 	//UltA
 	UFUNCTION()
 	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);
@@ -190,6 +194,8 @@ private:
 	UHUDComponent* CachedHUDComponent;
 
 	URaycastComponent* CachedRaycastComponent;
+
+	USFXComponent* CachedSFXComponent;
 
 	bool IsSkillOn = false;
 

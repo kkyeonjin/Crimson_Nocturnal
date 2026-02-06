@@ -4,11 +4,16 @@
 
 #include "CoreMinimal.h"
 #include "Engine/GameInstance.h"
-#include "SoundManager.h"
 #include "RPGGameInstance.generated.h"
 
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLoadGameRequested);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSaveGameRequested);
+
+class UBGMManager;
+class USaveGameData;
+
 UCLASS()
-class RPG_API UMyGameInstance : public UGameInstance
+class RPG_API URPGGameInstance : public UGameInstance
 {
     GENERATED_BODY()
 
@@ -16,40 +21,41 @@ public:
     virtual void Init() override;
     virtual void Shutdown() override;
 
+    FOnLoadGameRequested OnLoadGameRequested;
+    FOnSaveGameRequested OnSaveGameRequested;
+
     // 사운드 관리
-    UPROPERTY()
-    class USoundManager* SoundManager;
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
+    TSubclassOf<UBGMManager> BGMManagerClass;  // ★ TSubclassOf!
 
-    // 현재 게임 데이터 (메모리에서 관리)
-    UPROPERTY()
-    int32 PlayerLevel = 1;
+    UPROPERTY(BlueprintReadWrite, Category = "Audio")
+    UBGMManager* BGMManager;  // 런타임 인스턴스
 
-    UPROPERTY()
-    int32 PlayerExp = 0;
+    //Func to Communicate with BGMManager
+    void PlayHospitalBGM();
+    void PlayNecropolisBGM();
+    void PlayCathedralBGM();
+    void PlayBossBGM();
+    void StopBGM();
 
-    UPROPERTY()
-    int32 PlayerCurrentHP = 100;
+    UPROPERTY(BlueprintReadWrite)
+    bool bHasSeenTutorial = false;
 
-    UPROPERTY()
-    int32 PlayerMaxHP = 100;
+    UFUNCTION(BlueprintCallable)
+    bool IsFirstPlay() { return !bHasSeenTutorial; }
 
-    UPROPERTY()
-    FString CurrentMapName = TEXT("Map_01");
-
-    UPROPERTY()
-    FVector PlayerSavePosition = FVector::ZeroVector;
-
-    UPROPERTY()
-    bool bBossDefeated = false;
+    UFUNCTION(BlueprintCallable)
+    void SetTutorialSeen(bool HasSeenTuto) { bHasSeenTutorial = HasSeenTuto; }
 
     // SaveGame 데이터 (포인터로 관리)
     UPROPERTY()
-    class USaveGameData* SaveGameData;
+    USaveGameData* SaveGameData;
 
     // 세이브/로드 함수
-    void SaveGame();
-    void LoadGame();
-    void ClearGameData();
+    void RequestSaveGame();
+    void RequestLoadGame();
+    void ClearSaveData();
+    bool HasSaveData();
 
     // 슬롯 이름
     UPROPERTY()

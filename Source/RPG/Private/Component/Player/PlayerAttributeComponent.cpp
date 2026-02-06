@@ -4,6 +4,7 @@
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Component/Enemy/EnemyAttributeComponent.h"
+#include "Game/RPGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 
@@ -23,19 +24,28 @@ void UPlayerAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	if (DoesSaveGameExist())
+	// GameInstance 델리게이트 구독 (느슨한 결합)
+	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
 	{
-		LoadPlayerData();
-	}
-	else
-	{
-		//Initialize player stat
-		InitializePlayerStat();
-		UE_LOG(LogTemp, Warning, TEXT("Initialize Player Stat"));
+		GI->OnSaveGameRequested.AddDynamic(this, &UPlayerAttributeComponent::SavePlayerData);
+		GI->OnLoadGameRequested.AddDynamic(this, &UPlayerAttributeComponent::LoadPlayerData);
 	}
 
-	//OnBPUpdate.Broadcast(CurrentBP, MaxBP);
-	//OnHPUpdate.Broadcast(CurrentHP, MaxHP);
+	// 저장 있으면 자동 로드
+	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
+	{
+		if (GI->HasSaveData())
+		{
+			LoadPlayerData();
+		}
+		else
+		{
+			InitializePlayerStat();
+		}
+	}
+
+	OnBPUpdate.Broadcast(CurrentBP, MaxBP);
+	OnHPUpdate.Broadcast(CurrentHP, MaxHP);
 }
 
 void UPlayerAttributeComponent::InitializePlayerStat()
@@ -104,9 +114,11 @@ void UPlayerAttributeComponent::LoadPlayerData()
 		SkillPoint = PlayerGameData->SavedSkillPoint;
 		ActivatedSkills = PlayerGameData->ActivatedSkills;
 		EquippedUlt = PlayerGameData->EquippedUlt;
+		Ult1XSetting = PlayerGameData->Ult1XSetting;
+		Ult1YSetting = PlayerGameData->Ult1YSetting;
 	}
 
-	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills);
+	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 }
 
 void UPlayerAttributeComponent::SavePlayerData()
@@ -129,13 +141,12 @@ void UPlayerAttributeComponent::SavePlayerData()
 	NewPlayerData->SavedSkillPoint = SkillPoint;
 	NewPlayerData->SavedCurrentLevel = CurrentLevel;
 	NewPlayerData->EquippedUlt = EquippedUlt;
+	NewPlayerData->ActivatedSkills = ActivatedSkills;
+	NewPlayerData->Ult1XSetting = Ult1XSetting;
+	NewPlayerData->Ult1YSetting = Ult1YSetting;
+	NewPlayerData->CurrentMap = GetWorld()->GetMapName();
 
 	UGameplayStatics::SaveGameToSlot(NewPlayerData, NewPlayerData->SaveSlotName, NewPlayerData->UserIndex);
-}
-
-bool UPlayerAttributeComponent::DoesSaveGameExist() const
-{
-	return UGameplayStatics::DoesSaveGameExist(TEXT("PlayerSaveSlot"), 0);
 }
 
 //Calculation Damage Value to Enemy when Player hits Enemy

@@ -17,6 +17,7 @@ class UEnemyAttackComponent;
 class UEnemyAnimInstance;
 class UEnemyAttributeComponent;
 class APlayerCharacter;
+class USoundCue;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackEnd);
 
@@ -35,6 +36,15 @@ public:
 	// Sets default values for this character's properties
 	AEnemy();
 
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|SFX")
+	USoundCue* AttackSFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|SFX")
+	USoundCue* HitSFX;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|SFX")
+	USoundCue* DeathSFX;
 
 	
 	UFUNCTION()

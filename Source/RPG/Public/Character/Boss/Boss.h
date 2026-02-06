@@ -18,6 +18,7 @@ class APlayerCharacter;
 class UBossAnimInstance;
 class UBossAttributeComponent;
 class UPhaseManageComponent;
+class UBossSFXComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossBattleStarted);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLastAttackStarted);
@@ -45,7 +46,7 @@ public:
 	void OnInfectionEnded();
 
 	UFUNCTION()
-	void StartBattle(); //Called when StartTrigger is pressed
+	void StartBattle(); //Called when BattleStart Anim is Done (Notify)
 
 	void EndBattle();
 
@@ -99,6 +100,7 @@ private:
 	UBossAttributeComponent* CachedBossAttributeComponent;
 	UEnemyAttackComponent* CachedAttackComponent;
 	UInfectionComponent* CachedInfectionComponent;
+	UBossSFXComponent* CachedBossSFXComponent;
 
 	EBossPhase CurrentPhase;
 

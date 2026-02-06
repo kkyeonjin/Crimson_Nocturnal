@@ -4,25 +4,27 @@
 
 #include "CoreMinimal.h"
 #include "GameFramework/GameMode.h"
-#include "Title_GameMode.generated.h"
+#include "RPGGameMode.generated.h"
 
-class UTitleWidget;
+class UTutorialWidget;
+
 /**
  * 
  */
 UCLASS()
-class RPG_API ATitle_GameMode : public AGameMode
+class RPG_API ARPGGameMode : public AGameMode
 {
 	GENERATED_BODY()
 
 public:
 	virtual void BeginPlay() override;
 
-protected:
-	UPROPERTY(EditDefaultsOnly, Category = "UI")
-	TSubclassOf<UTitleWidget> TitleWidgetClass;
+	void ShowStandaloneTutorial();
 
-	UPROPERTY()
-	UTitleWidget* TitleWidget;
+	UPROPERTY(EditDefaultsOnly, Category = "UI")
+	TSubclassOf<UTutorialWidget> TutorialUIClass;  
+
+private:
+	UTutorialWidget* TutorialWidget;
 	
 };

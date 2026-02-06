@@ -7,6 +7,7 @@
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "Character/NPC/NPC.h"
+#include "Game/RPGGameInstance.h"
 
 APortal::APortal()
 {
@@ -38,6 +39,7 @@ void APortal::OnInteract()
     if (!DestinationMap.IsNone())
     {
         UGameplayStatics::OpenLevel(GetWorld(), DestinationMap);
+
     }
 }
 

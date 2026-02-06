@@ -14,6 +14,7 @@
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Component/Player/UltimateSkillComponent.h"
 #include "Component/Player/RaycastComponent.h"
+#include "Component/Player/SFXComponent.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/SkillTreeWidget.h"
 
@@ -42,8 +43,20 @@ void APlayerCharacter::BeginPlay()
 			InputSubsystem->AddMappingContext(PlayerContext, 0);
 		}
 	}
+
+
 	//cast animInstance In here (for reuse)
 	CachedAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
+	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
+	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
+	CachedKickComponent = FindComponentByClass<UKickComponent>();
+	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
+	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
+	CachedRaycastComponent = FindComponentByClass<URaycastComponent>();
+	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
+	CachedSFXComponent = FindComponentByClass<USFXComponent>();
+
+
 	if (CachedAnimInstance)
 	{
 		//binding to MontageEnd Delegate 
@@ -61,34 +74,18 @@ void APlayerCharacter::BeginPlay()
 		CachedAnimInstance->OnGameOver.AddDynamic(this, &APlayerCharacter::OpenGameOverLevel);
 	}
 
-	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
 	if (CachedComboManageComponent)
 	{
 		CachedComboManageComponent->OnComboMatch.AddDynamic(this, &APlayerCharacter::OnComboComplete);
 		CachedComboManageComponent->OnChainAttack.AddDynamic(this, &APlayerCharacter::OnChainAttack);
 	}
 
-	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
-	CachedKickComponent = FindComponentByClass<UKickComponent>();
-
-	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
-	if (CachedAttributeComponent)
-	{
-		CachedAttributeComponent->OnBPUpdate.AddDynamic(this, &APlayerCharacter::UpdateBP);
-		CachedAttributeComponent->OnHPUpdate.AddDynamic(this, &APlayerCharacter::UpdateHP);
-		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
-		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
-		CachedAttributeComponent->OnBPMax.AddDynamic(this, &APlayerCharacter::SetIsSkillEnable);
-	}
-
-	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
 	if (CachedUltimateSkillComponent)
 	{
 		CachedUltimateSkillComponent->OnSkill1Attack.AddDynamic(this, &APlayerCharacter::OnSkill1Attack);
 		CachedUltimateSkillComponent->OnUltTimeOver.AddDynamic(this, &APlayerCharacter::UltTimeOver);
 	}
-
-	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
+	
 	if (CachedHUDComponent)
 	{
 		//Initialize HP&BP Bar
@@ -98,12 +95,22 @@ void APlayerCharacter::BeginPlay()
 		CachedHUDComponent->OnPlayerSkillConfirmed.AddDynamic(this, &APlayerCharacter::OnSkillConfirmed);
 	}
 
-	CachedRaycastComponent = FindComponentByClass<URaycastComponent>();
 	if (CachedRaycastComponent)
 	{
 		CachedRaycastComponent->OnRaycastDetected.AddDynamic(this, &APlayerCharacter::InteractPopUp);
 	}
+	
+	if (CachedAttributeComponent)
+	{
+		CachedAttributeComponent->OnBPUpdate.AddDynamic(this, &APlayerCharacter::UpdateBP);
+		CachedAttributeComponent->OnHPUpdate.AddDynamic(this, &APlayerCharacter::UpdateHP);
+		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
+		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
+		CachedAttributeComponent->OnBPMax.AddDynamic(this, &APlayerCharacter::SetIsSkillEnable);
+		CachedAttributeComponent->OnSkillTreeUISet.AddDynamic(CachedHUDComponent, &UHUDComponent::SetSkillTree);
+	}
 
+	SetupPlayerInputComponent(InputComponent);
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
@@ -120,6 +127,7 @@ void APlayerCharacter::OnComboComplete(int32 ComboNum, int32 BPValue)
 	//play Combo Anim
 	const EAnimMontageType ComboMontage = static_cast<EAnimMontageType>(ComboNum);
 	CachedAnimInstance->PlayComboAttackMontage(ComboMontage);
+	CachedSFXComponent->PlayComboAttackSFX(ComboNum);
 	
 	//PlayAnimMontage(ComboAnimNum); //Play Combo Animation
 	CachedAttributeComponent->SetBPtoGet(BPValue);//Set BPValue to get
@@ -138,6 +146,7 @@ void APlayerCharacter::OnComboComplete(int32 ComboNum, int32 BPValue)
 void APlayerCharacter::OnChainAttack(int32 AnimNum, FName SectionName)
 {
 	CachedAnimInstance->PlayChainAttackMontage(AnimNum, SectionName);
+	CachedSFXComponent->PlayChainAttackSFX(AnimNum, SectionName);
 }
 
 void APlayerCharacter::SetMoveEnable()
@@ -219,6 +228,13 @@ void APlayerCharacter::OnSkillPointUpdate(int32 SkillPoint)
 void APlayerCharacter::UltTimeOver()
 {
 	CachedHUDComponent->HideSkillEffect();
+}
+
+//called when start game
+void APlayerCharacter::OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting,
+	int32 Ult1YSetting)
+{
+	CachedHUDComponent->SetSkillTree(SkillPoint, UltNum, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 }
 
 //Callback Func (from delegate at UltSkillComp)
@@ -399,6 +415,7 @@ void APlayerCharacter::SkillStart()
 		const int32 SkillNum = static_cast<int32>(SelectedSkill);
 
 		CachedHUDComponent->ShowSkillEffect(SkillNum);
+		CachedSFXComponent->PlayUltSkillSFX(SkillNum);
 
 		IsSkillEnable = false;
 	}
@@ -476,7 +493,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::ShowSkillTreeUI);
 
 		//Open Menu Screen
-		//EnhancedInputComponent->BindAction(MenuOn, ETriggerEvent::Triggered, CachedHUDComponent, )
+		EnhancedInputComponent->BindAction(MenuOn, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::ShowMenuUI);
 
 		//Interact
 		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::OnInteract);
@@ -490,22 +507,26 @@ void APlayerCharacter::HandleAttack(AActor* Target)
 
 void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 {
-	UE_LOG(LogTemp, Error, TEXT("Player Hit!!!"));
-	CachedAttributeComponent->SetEnemyAttributeComponent(Target);
-	CachedAttributeComponent->ApplyDamage();
-
-	if (CachedAttributeComponent->GetCurrentHP() <= 0.f)
+	if (PlayerCombatState != EPlayerCombatState::EPCS_Dead)
 	{
-		CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
+		UE_LOG(LogTemp, Error, TEXT("Player Hit!!!"));
+		CachedAttributeComponent->SetEnemyAttributeComponent(Target);
+		CachedAttributeComponent->ApplyDamage();
 
+		if (CachedAttributeComponent->GetCurrentHP() <= 0.f)
+		{
+			UE_LOG(LogTemp, Warning, TEXT("LowHP!!!"));
+			CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
+			CachedSFXComponent->PlayDeathSFX();
+			PlayerCombatState = EPlayerCombatState::EPCS_Dead;
+		}
+		else
+		{
+			CachedAnimInstance->PlayAnimMontage(2); //play Stun Anim
+			CachedSFXComponent->PlayHitSFX();
+		}
 	}
-	else
-	{
-		CachedAnimInstance->PlayAnimMontage(2); //play Stun Anim
-	}
-
 	PlayerMoveState = EPlayerMoveState::EPMS_MoveDisabled;
-
 }
 
 

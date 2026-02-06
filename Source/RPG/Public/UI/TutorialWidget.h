@@ -22,6 +22,8 @@ public:
 
 	virtual void NativeConstruct() override;
 
+	void InitializeTutorial();
+
 	FOnTutorialClose OnTutorialClose;
 
 	UPROPERTY(meta = (BindWidget))
@@ -45,6 +47,11 @@ public:
 	void TurnPages(int32 Input);
 
 	void CloseTutorial();
+
+protected:
+	virtual void OnDPadLeft() override { TurnPages(-1); }
+	virtual void OnDPadRight() override { TurnPages(1); }
+	virtual void OnFaceButtonB() override { CloseTutorial(); }
 
 private:
 	TArray<UImage*> TutorialImages;

@@ -5,11 +5,11 @@
 UENUM(BlueprintType)
 enum class EBossPhase : uint8
 {
-	Phase1_MagicCircle UMETA(DisplayName = "Magic Circle"),
-	Phase2_WingAttack UMETA(DisplayName = "Wing Attack"),
-	Phase3_GroundSlam UMETA(DisplayName = "Ground Slam"),
-	Ultimate UMETA(DisplayName = "Ultimate"),
-	Defeated UMETA(DisplayName = "Defeated")
+	Phase1_MagicCircle = 1 UMETA(DisplayName = "Magic Circle"),
+	Phase2_WingAttack = 2 UMETA(DisplayName = "Wing Attack"),
+	Phase3_GroundSlam = 3 UMETA(DisplayName = "Ground Slam"),
+	Ultimate = 4 UMETA(DisplayName = "Ultimate"),
+	Defeated = 0 UMETA(DisplayName = "Defeated")
 };
 
 

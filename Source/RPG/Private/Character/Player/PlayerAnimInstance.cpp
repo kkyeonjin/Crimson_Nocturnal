@@ -29,7 +29,6 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 		IsFalling = PlayerCharacterMovement->IsFalling();
 		//PlayerState = PlayerCharacter->GetPlayerState();
 	}
-
 }
 
 void UPlayerAnimInstance::AnimNotify_AttackEnd()
@@ -79,6 +78,7 @@ void UPlayerAnimInstance::AnimNotify_KickCollisionDisable()
 
 void UPlayerAnimInstance::AnimNotify_GameOver()
 {
+	UE_LOG(LogTemp, Warning, TEXT("OnGameOver"));
 	OnGameOver.Broadcast();
 }
 
@@ -104,23 +104,6 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)
 		case 3:
 			Montage_Play(Death);
 			break;
-
-
-		//Combo Animations
-		/*
-		case EAnimMontageType::ComboA:
-			Montage_Play(ComboA);
-			break;
-		case EAnimMontageType::ComboB:
-			Montage_Play(ComboB);
-			break;
-		case EAnimMontageType::ComboC:
-			Montage_Play(ComboC);
-			break;
-		case EAnimMontageType::ComboD:
-			Montage_Play(ComboD);
-			break;
-			*/
 
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("Unknown animation montage: %d"), AnimNum);

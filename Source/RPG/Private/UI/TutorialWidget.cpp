@@ -3,6 +3,7 @@
 
 #include "UI/TutorialWidget.h"
 #include "Components/Image.h"
+#include "Game/RPGGameInstance.h"
 
 
 void UTutorialWidget::TurnPages(int32 Input)
@@ -24,7 +25,14 @@ void UTutorialWidget::TurnPages(int32 Input)
 
 void UTutorialWidget::CloseTutorial()
 {
-	OnTutorialClose.Broadcast();
+	this->SetVisibility(ESlateVisibility::Hidden);
+
+	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetOwningPlayer()->GetGameInstance()))
+	{
+		GI->SetTutorialSeen(true);
+	}
+
+	//OnTutorialClose.Broadcast();
 }
 
 void UTutorialWidget::NativeConstruct()
@@ -32,4 +40,12 @@ void UTutorialWidget::NativeConstruct()
 	Super::NativeConstruct();
 
 	TutorialImages = { Page1, Page2, Page3, Page4, Page5, Page6 };
+}
+
+void UTutorialWidget::InitializeTutorial()
+{
+	this->SetVisibility(ESlateVisibility::Visible);
+	this->SetKeyboardFocus();
+	TutorialImages[0]->SetVisibility(ESlateVisibility::Visible);
+	CurrentPage = 0;
 }

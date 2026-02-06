@@ -8,6 +8,7 @@
 #include "Component/Common/InfectionComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -87,6 +88,8 @@ void AEnemy::AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode)
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.RemoveDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		CachedEnemyAnimInstance->OnEnemyAttackMontageEnd.AddDynamic(this, &AEnemy::OnEnemyAttackMontageEnded);
 		EnemyCombatState = EEnemyCombatState::EECS_Attacking;
+
+		UGameplayStatics::PlaySoundAtLocation(GetWorld(), AttackSFX, GetActorLocation());
 	}
 }
 
@@ -222,6 +225,8 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 			CachedEnemyAttributeComponent->SendEXPValue(); //Send EXP to Player that should gain
 			EnemyCombatState = EEnemyCombatState::EECS_Dead;
 
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSFX, GetActorLocation());
+
 			OnEnemyDefeated.Broadcast(this);
 
 			//bIsDead = true;
@@ -237,6 +242,7 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 		else
 		{
 			CachedEnemyAnimInstance->PlayAnimMontage(1); //HitReact AnimMontage 
+			UGameplayStatics::PlaySoundAtLocation(GetWorld(), HitSFX, GetActorLocation());
 		}
 	}
 	if (HitParticles && GetWorld())

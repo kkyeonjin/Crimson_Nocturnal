@@ -17,11 +17,13 @@ class RPG_API USaveGameData : public USaveGame
 public:
 	USaveGameData();
 
-	UPROPERTY()
-	FString SaveSlotName = TEXT("PlayerSaveSlot");
+	void ClearData();
 
 	UPROPERTY()
-	uint32 UserIndex = 0;
+	FString SaveSlotName;
+
+	UPROPERTY()
+	uint32 UserIndex;
 
 	UPROPERTY()
 	int32 SavedCurrentLevel;
@@ -57,7 +59,7 @@ public:
 	int32 EquippedUlt;
 
 	UPROPERTY()
-	int32 CurrentMap;
+	FString CurrentMap;
 
 	UPROPERTY()
 	int32 Ult1XSetting;

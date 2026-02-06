@@ -8,6 +8,7 @@
 #include "Character/Player/Types/SkillTypes.h"
 #include "HUDComponent.generated.h"
 
+struct FInputActionValue;
 class UMenuWidget;
 class USkillTreeWidget;
 class UMainHUDWidget;
@@ -39,16 +40,20 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UMenuWidget> MenuUIClass;  // 블루프린트 클래스를 지정
 
+	UFUNCTION()
 	void ShowMenuUI();
 
+	UFUNCTION()
 	void CloseMenuUI();
 
 	void UpdatePlayerHP(int32 Current, int32 Max);
 
 	void UpdatePlayerBP(int32 Current, int32 Max);
 
+	UFUNCTION()
 	void ShowSkillTreeUI();
 
+	UFUNCTION()
 	void CloseSkillTreeUI();
 
 	//void ChangeSelection(int32 Input);
@@ -57,7 +62,8 @@ public:
 
 	//void HandleSkillTreeNavigation(int32 Input);
 
-	void SetSkillTree();
+	UFUNCTION()
+	void SetSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
 
 	void SetSkillPointText(int32 SkillPoint);
 

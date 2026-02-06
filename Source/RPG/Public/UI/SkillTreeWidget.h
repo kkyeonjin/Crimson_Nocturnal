@@ -26,9 +26,11 @@ class RPG_API USkillTreeWidget : public UBaseUIInputWidget
 public:
 
 	virtual void NativeConstruct() override;
+
 	void ChangeSelection(int32 Input);
 	void SwitchSection();
 	void InitializeSelection();
+	void InitializeSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
 	void SetSkillTree();
 	void SetSkillPointText(int32 SkillPoint);
 
@@ -191,6 +193,15 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* X4Highlight;
 
+	UPROPERTY(meta=(BindWidget))
+	UPanelWidget* Ult1Panel;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget* Ult2Panel;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget* Ult3Panel;
+
 
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillSelectCount; }
 	FORCEINLINE int32 GetUltSelectCount() { return UltSelectCount; }
@@ -217,6 +228,8 @@ private:
 	TArray<UImage*> UltActivated;
 	TArray<UImage*> UltDescriptions;
 	TArray<UImage*> UltSymbols;
+
+	TArray<UPanelWidget*> UltPanels;
 
 	int32 SkillSelectCount = 0;
 	TArray<UImage*> SkillHighlights;

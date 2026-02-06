@@ -6,9 +6,11 @@
 #include "UI/BaseUIInputWidget.h"
 #include "MenuWidget.generated.h"
 
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMenuClose);
 
 class UImage;
+class UControllerMapWidget;
 
 /**
  * 
@@ -25,6 +27,10 @@ public:
 	UPROPERTY(EditAnywhere)
 	class UTutorialWidget* TutorialWidget;
 
+	//Sub Widget
+	UPROPERTY(EditAnywhere)
+	UControllerMapWidget* ControllerMapWidget;
+
 	UPROPERTY()
 	FOnMenuClose OnMenuClose;
 
@@ -40,11 +46,8 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* ExitHighlight;
 
-	UPROPERTY(meta = (BindWidget))
-	UImage* ControllerMap;
-
 	UFUNCTION(BlueprintCallable)
-	void SetSubWidget(UTutorialWidget* Widget);
+	void SetSubWidget(UTutorialWidget* TutoWidget, UControllerMapWidget* ContWidget);
 
 	void OnDirectionalInput(int32 Input);
 
@@ -55,7 +58,8 @@ public:
 protected:
 	virtual void OnDPadUp() override { OnDirectionalInput(1); }
 	virtual void OnDPadDown() override { OnDirectionalInput(-1); }
-	virtual void OnFaceButtonA() override {  }
+	virtual void OnFaceButtonA() override { OnSelect(); }
+	virtual void OnFaceButtonB() override { CloseMenu(); }
 
 
 private:
