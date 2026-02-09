@@ -3,6 +3,7 @@
 
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Character/Player/PlayerCharacter.h"
+#include "Component/Boss/BossAttributeComponent.h"
 #include "Component/Enemy/EnemyAttributeComponent.h"
 #include "Game/RPGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
@@ -167,15 +168,10 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		BPtoGet = 0;
 	}
 
-	if (!EnemyAttributeComponent)
-	{
-		UE_LOG(LogTemp, Error, TEXT("EAC is not Found"));
-		return 0.f;
-	}
-
-	int32 Damage = ATK - EnemyAttributeComponent->GetDEF();
+	int32 Damage = ATK - TargetDEF;
 	if (Damage > 0)
 	{
+		UE_LOG(LogTemp, Error, TEXT("Damage!! :%d"), Damage);
 		OnDamageCalculated.Broadcast(Damage); //for skillB
 		return Damage;
 	}
@@ -195,6 +191,13 @@ void UPlayerAttributeComponent::ApplyDamage()
 		OnHPUpdate.Broadcast(CurrentHP, MaxHP);
 		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
 	}
+	else if (BossAttributeComponent)
+	{
+		int32 Damage = BossAttributeComponent->CalcDamage();
+		CurrentHP -= Damage;
+		OnHPUpdate.Broadcast(CurrentHP, MaxHP);
+		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
+	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("EnemyAttributeComponent CANNOT FIND"));
@@ -203,11 +206,32 @@ void UPlayerAttributeComponent::ApplyDamage()
 
 void UPlayerAttributeComponent::SetEnemyAttributeComponent(AActor* Target)
 {
-	EnemyAttributeComponent = Target->FindComponentByClass<UEnemyAttributeComponent>();
-	if (!EnemyAttributeComponent)
+	if (!Target) return;
+
+	// 1순위: BossAttributeComponent 확인
+	if (UBossAttributeComponent* BossComp = Target->FindComponentByClass<UBossAttributeComponent>())
 	{
-		UE_LOG(LogTemp, Display, TEXT("EnemyAttributeComp Cannot Find"));
+		EnemyAttributeComponent = nullptr;  // Enemy 타입은 Clear
+		BossAttributeComponent = BossComp;  // Boss 타입 저장
+
+		UE_LOG(LogTemp, Display, TEXT("Found BossAttributeComponent"));
+		TargetDEF = BossAttributeComponent->GetDEF();
+		return;
 	}
+
+	// 2순위: EnemyAttributeComponent 확인
+	if (UEnemyAttributeComponent* EnemyComp = Target->FindComponentByClass<UEnemyAttributeComponent>())
+	{
+		EnemyAttributeComponent = EnemyComp;
+		BossAttributeComponent = nullptr;  // Boss 타입은 Clear
+
+		UE_LOG(LogTemp, Display, TEXT("Found EnemyAttributeComponent"));
+		TargetDEF = EnemyAttributeComponent->GetDEF();
+		return;
+	}
+
+	// 둘 다 없음
+	UE_LOG(LogTemp, Warning, TEXT("No Attribute Component found on %s"), *Target->GetName());
 }
 
 //take Enemy's EXP value who player just killed 

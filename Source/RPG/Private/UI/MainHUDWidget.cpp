@@ -3,6 +3,7 @@
 
 #include "UI/MainHUDWidget.h"
 #include "Components/Image.h"
+#include "Components/PanelWidget.h"
 #include "Components/ProgressBar.h"
 #include "Components/TextBlock.h"
 #include "UI/SkillScreenOverlayWidget.h"
@@ -82,11 +83,17 @@ void UMainHUDWidget::ShowLevelUpPopUp(int32 CurrentLevel)
 	LevelUp->SetVisibility(ESlateVisibility::Visible);
 }
 
-void UMainHUDWidget::HideLevelUpPopUp()
+void UMainHUDWidget::HidePopUp()
 {
 	SpecialLevelUp->SetVisibility(ESlateVisibility::Hidden);
-
 	LevelUp->SetVisibility(ESlateVisibility::Hidden);
+
+	StartPopUp->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainHUDWidget::ShowStartPopUp()
+{
+	StartPopUp->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainHUDWidget::ShowComboPopUp(int32 ComboNum)
@@ -107,14 +114,40 @@ void UMainHUDWidget::HideComboPopUp()
 	}
 }
 
+void UMainHUDWidget::NoticeToBreak()
+{
+	BreakTheCrystal->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainHUDWidget::ShowInteractPopUp()
+{
+	InteractPopUp->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainHUDWidget::HideInteractPopUp()
+{
+	InteractPopUp->SetVisibility(ESlateVisibility::Hidden);
+}
+
+void UMainHUDWidget::ShowDialogue(const FString& NewDialogueName, const FString& NewDialogueLine)
+{
+	DialogueName->SetText(FText::FromString(NewDialogueName));
+	DialogueLine->SetText(FText::FromString(NewDialogueLine));
+
+	DialoguePanel->SetVisibility(ESlateVisibility::Visible);
+}
+
+void UMainHUDWidget::HideDialogue()
+{
+	if (DialoguePanel->GetVisibility() == ESlateVisibility::Visible)
+	{
+		DialoguePanel->SetVisibility(ESlateVisibility::Hidden);
+	}
+}
+
 void UMainHUDWidget::SetSubWidgets(USkillScreenOverlayWidget* Widget)
 {
 	SkillScreenOverlayWidget = Widget;
-}
-
-void UMainHUDWidget::ToggleWidget()
-{
-
 }
 
 void UMainHUDWidget::NativeConstruct()

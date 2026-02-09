@@ -3,7 +3,7 @@
 
 #include "Character/Boss/Boss.h"
 #include "Actor/Crystal.h"
-//#include "Enemy/Boss/BossUltimateSkillActor.h"
+#include "Actor/BossUltimateSkill.h"
 #include "Component/Boss/BossAttributeComponent.h"
 #include "Character/Boss/BossAnimInstance.h"
 #include "Component/Boss/PhaseManageComponent.h"
@@ -11,6 +11,7 @@
 #include "Component/Common/InfectionComponent.h"
 #include "Component/Boss/BossSFXComponent.h"
 #include "Character/Player/PlayerCharacter.h"
+#include "Game/RPGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
 // Sets default values
@@ -33,19 +34,6 @@ void ABoss::BeginPlay()
 		//bind delegates only when all components are found safely
 		BindDelegates();
 	}
-
-
-	/*
-	//For Debug
-	GetWorld()->GetTimerManager().SetTimer(
-		DebugTimer,
-		this,
-		&ABoss::StartUltimateMechanic,
-		3.f,
-		false
-	);
-	*/
-	//StartUltimateMechanic();
 
 }
 
@@ -83,7 +71,7 @@ bool ABoss::InitializeComponents()
 
 	if (!CachedInfectionComponent)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("InfectionComp Finding Failed in BeginPlay"));
+		UE_LOG(LogTemp, Warning, TEXT("InfectionComp Finding Failed in Boss BeginPlay"));
 		return false;
 	}
 
@@ -105,7 +93,8 @@ void ABoss::BindDelegates()
 	check(CachedAttackComponent);
 	check(CachedBossAttributeComponent);
 	
-	check(Crystal);
+	// Crystal 배열 check
+	check(Crystals.Num() >= 3);  // 최소 3개 있어야 함
 
 	CachedPhaseManageComponent->OnPhaseChange.AddDynamic(this, &ABoss::OnPhaseChange);
 
@@ -119,7 +108,10 @@ void ABoss::BindDelegates()
 
 	CachedBossAttributeComponent->OnHpThreshold.AddDynamic(this, &ABoss::OnHpThreshold);
 
-	Crystal->OnLastCrystalDestroyed.AddDynamic(this, &ABoss::OnLastCrystalDestroyed);
+	if (Crystals.Num() > 2 && Crystals[2])
+	{
+		Crystals[2]->OnLastCrystalDestroyed.AddDynamic(this, &ABoss::OnLastCrystalDestroyed);
+	}
 }
 
 void ABoss::InitializeMaterials()
@@ -183,6 +175,12 @@ void ABoss::OnBattleTriggered()
 	//Play BattleStartMotion
 	CachedBossAnimInstance->PlayBossAnimMontage(0);
 	CachedBossSFXComponent->PlayBattleStartSFX();
+
+	//Change BGM 
+	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
+	{
+		GI->PlayBossBGM();  // BGM 변경
+	}
 }
 
 void ABoss::OnCollisionEnable()
@@ -197,15 +195,28 @@ void ABoss::OnCollisionDisable()
 
 void ABoss::OnHpThreshold(int32 ThresholdStep)
 {
-	Crystal->DestroyCrystal(ThresholdStep);
+	for (ACrystal* Crystal : Crystals)
+	{
+		if (Crystal)
+		{
+			Crystal->DestroyCrystal(ThresholdStep);
+		}
+	}
 }
 
 void ABoss::OnPlayerQTESuccess()
 {
 	//Destroy Ult Skill Actor
-
+	UltActor->Destroy();
 
 	//Crystal->SetReadyToBreak(true);
+	for (ACrystal* Crystal : Crystals)
+	{
+		if (Crystal)
+		{
+			Crystal->SetReadyToBreak();
+		}
+	}
 }
 
 //callback func when crystal destroyed by player
@@ -241,29 +252,6 @@ void ABoss::OnPhaseChange(EBossPhase NewPhase)
 
 	CachedBossAnimInstance->PlayBossAnimMontage(PhaseNum);
 
-	/*
-	switch (CurrentPhase)
-	{
-	case EBossPhase::Phase1_MagicCircle:
-		UE_LOG(LogTemp, Display, TEXT("Phase 1 - Magic Circle AoE"));
-		CachedBossAnimInstance->PlayBossAnimMontage(1);
-		break;
-
-	case EBossPhase::Phase2_WingAttack:
-		UE_LOG(LogTemp, Display, TEXT("Phase 2 - Wing Attack"));
-		CachedBossAnimInstance->PlayBossAnimMontage(2);
-		break;
-
-	case EBossPhase::Phase3_GroundSlam:
-		UE_LOG(LogTemp, Display, TEXT("Phase 3 - Slam"));
-		CachedBossAnimInstance->PlayBossAnimMontage(3);
-		break;
-
-	default:
-		break;
-
-	}
-	*/
 	CachedBossSFXComponent->PlayPhaseSkillSFX(PhaseNum);
 }
 
@@ -309,20 +297,20 @@ void ABoss::SpawnUltimateActor()
 	//Player가 QTE Event 실행할 준비 하도록 함 
 	PlayerCharacter->StartBossQTEMode();
 
-	/*
+	
 	//액터 스폰
-	if (UltSkillActorClass && GetWorld())
+	if (UltSkillClass && GetWorld())
 	{
 		UE_LOG(LogTemp, Warning, TEXT("UltSkillActor Spawn"));
 
-		ABossUltimateSkillActor* UltActor = GetWorld()->SpawnActor<ABossUltimateSkillActor>(
-			UltSkillActorClass,
+		UltActor = GetWorld()->SpawnActor<ABossUltimateSkill>(
+			UltSkillClass,
 			UltSpawnPoint,
 			FRotator::ZeroRotator);
 
 		UltActor->SetTargetPlayer(PlayerCharacter);
 	}
-	*/
+	
 }
 
 
@@ -360,7 +348,7 @@ void ABoss::GetHit(const FVector& ImpactPoint, AActor* Target)
 		}
 		else
 		{
-			CachedBossAnimInstance->PlayBossAnimMontage(1); //HitReact AnimMontage 
+			CachedBossAnimInstance->PlayBossAnimMontage(4); //HitReact AnimMontage 
 		}
 	}
 	if (HitParticles && GetWorld())

@@ -1,8 +1,8 @@
 // Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
-#define HP_THRESHOLD_1 145
-#define HP_THRESHOLD_2 65
+#define HP_THRESHOLD_1 700
+#define HP_THRESHOLD_2 200
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
@@ -41,7 +41,13 @@ private:
 	int32 CurrentHP;
 	int32 MaxHP;
 	int32 DEF;
-	TArray<int32> ATK;
+
+	//to set different ATK by Phases easily (through Editor)
+	//Phase 1, 3: Actor has Attack Collision / Phase2: Boss has Attack Collision
+	// -> and All Phases have different ATK Value!!
+	UPROPERTY(EditAnywhere)
+	int32 ATK;
+
 	int32 PhaseNum;
 
 	UPlayerAttributeComponent* PlayerAttributeComponent;
@@ -49,10 +55,8 @@ private:
 
 	bool IsInfected = false;
 
-	void SetPhaseNum();
-
 public:
-	FORCEINLINE virtual int32 GetATK() { return ATK[PhaseNum]; }
+	FORCEINLINE virtual int32 GetATK() { return ATK; }
 	FORCEINLINE virtual int32 GetDEF() { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() { return CurrentHP; }
 	FORCEINLINE virtual int32 GetMaxHP() { return MaxHP; }

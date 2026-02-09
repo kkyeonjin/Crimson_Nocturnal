@@ -36,6 +36,7 @@ public:
     void PlayNecropolisBGM();
     void PlayCathedralBGM();
     void PlayBossBGM();
+    void PlaySaloonBGM();
     void StopBGM();
 
     UPROPERTY(BlueprintReadWrite)

@@ -72,7 +72,22 @@ public:
 	UImage* Level5PopUp;
 
 	UPROPERTY(meta = (BindWidget))
+	UImage* StartPopUp;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* BreakTheCrystal;
+
+	UPROPERTY(meta = (BindWidget))
 	UImage* InteractPopUp;
+
+	UPROPERTY(meta=(BindWidget))
+	UTextBlock* DialogueName;
+
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* DialogueLine;
+
+	UPROPERTY(meta = (BindWidget))
+	UPanelWidget* DialoguePanel;
 
 	UFUNCTION()
 	void ShowQTEUI(int32 ComboNum);
@@ -84,7 +99,10 @@ public:
 	void ShowLevelUpPopUp(int32 CurrentLevel);
 
 	UFUNCTION()
-	void HideLevelUpPopUp();
+	void HidePopUp();
+
+	UFUNCTION()
+	void ShowStartPopUp();
 
 	UFUNCTION()
 	void ShowComboPopUp(int32 ComboNum);
@@ -92,12 +110,23 @@ public:
 	UFUNCTION()
 	void HideComboPopUp();
 
+	UFUNCTION()
+	void NoticeToBreak();
+
+	UFUNCTION()
+	void ShowInteractPopUp();
+
+	UFUNCTION()
+	void HideInteractPopUp();
+
+	UFUNCTION()
+	void ShowDialogue(const FString& NewDialogueName, const FString& NewDialogueLine);
+
+	UFUNCTION()
+	void HideDialogue();
+
 	UFUNCTION(BlueprintCallable)
 	void SetSubWidgets(USkillScreenOverlayWidget* Widget);
-
-	//Show / Hide Widget
-	UFUNCTION()
-	void ToggleWidget();
 
 
 private:

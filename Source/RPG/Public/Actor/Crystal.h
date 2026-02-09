@@ -7,6 +7,8 @@
 #include "Interface/HitInterface.h"
 #include "Crystal.generated.h"
 
+class USoundCue;
+
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLastCrystalDestroyed);
 
 UCLASS()
@@ -22,15 +24,17 @@ public:
 
 	void DestroyCrystal(int32 CrystalToBreak);
 
+	void SetReadyToBreak();
+
 	FOnLastCrystalDestroyed OnLastCrystalDestroyed;
 
 protected:
-	// Called when the game starts or when spawned
-	virtual void BeginPlay() override;
-
 	void DestroyLastCrystal();
 
 private:
+
+	void PlayCrystalSFX();
+	void PlayCrystalVFX();
 
 	//Set in Engine Editor 
 	UPROPERTY(EditAnywhere)
@@ -38,6 +42,12 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	int32 CrystalNum;
+
+	UPROPERTY(EditAnywhere)
+	UParticleSystem* BreakParticles;
+
+	UPROPERTY(EditAnywhere)
+	USoundCue* BreakSFX;
 
 
 };

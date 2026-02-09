@@ -2,6 +2,8 @@
 
 
 #include "Actor/Crystal.h"
+#include "Sound/SoundCue.h"
+#include "Kismet/GameplayStatics.h"
 
 // Sets default values
 ACrystal::ACrystal()
@@ -25,26 +27,48 @@ void ACrystal::DestroyCrystal(int32 CrystalToBreak)
 	{
 		//PlayVFX;
 		//PlaySound();
+		UE_LOG(LogTemp, Warning, TEXT("Crystal%d BREAK!!"), CrystalNum);
 
 		Destroy();
+
+		PlayCrystalSFX();
+		PlayCrystalVFX();
 	}
 }
 
 void ACrystal::DestroyLastCrystal()
 {
-	//PlayVFX();
-	//PlaySound();
+	PlayCrystalSFX();
+	PlayCrystalVFX();
 
 	//ownerBoss->PlayAnimation
 	OnLastCrystalDestroyed.Broadcast();
 	
 }
 
-// Called when the game starts or when spawned
-void ACrystal::BeginPlay()
+void ACrystal::PlayCrystalSFX()
 {
-	Super::BeginPlay();
-	
+	if (BreakParticles && GetWorld())
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(
+			GetWorld(),
+			BreakParticles,
+			GetActorLocation()
+		);
+	}
+}
+
+void ACrystal::PlayCrystalVFX()
+{
+	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BreakSFX, GetActorLocation());
+}
+
+void ACrystal::SetReadyToBreak()
+{
+	if (CrystalNum == 3)
+	{
+		bIsBreakable = true;
+	}
 }
 
 

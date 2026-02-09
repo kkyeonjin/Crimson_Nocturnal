@@ -2,6 +2,8 @@
 
 
 #include "Game/RPGGameMode.h"
+
+#include "Character/Player/PlayerCharacter.h"
 #include "Game/RPGGameInstance.h"
 #include "UI/TutorialWidget.h"
 
@@ -32,9 +34,26 @@ void ARPGGameMode::BeginPlay()
         {
             GI->PlayCathedralBGM();
         }
-        
-        
+        else if (LevelName.Contains(TEXT("Saloon")))
+        {
+            GI->PlaySaloonBGM();
+            //IMC 변경
+            OnEnterSaloon.Broadcast();
+        }
     }
+}
+
+void ARPGGameMode::OnTutorialClosed()
+{
+    if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
+    {
+        Player->ShowStartPopUp();  // PlayerCharacter에 새 함수 추가
+    }
+}
+
+void ARPGGameMode::BroadcastDialogue(const FString& DialogueName, const FString& DialogueLine)
+{
+    OnDialogueEvent.Broadcast(DialogueName, DialogueLine);
 }
 
 void ARPGGameMode::ShowStandaloneTutorial()
@@ -47,6 +66,8 @@ void ARPGGameMode::ShowStandaloneTutorial()
     {
         TutorialWidget = CreateWidget<UTutorialWidget>(PC, TutorialUIClass);
         TutorialWidget->AddToViewport(200);  // Menu 위!
+
+        TutorialWidget->OnTutorialClose.AddDynamic(this, &ARPGGameMode::OnTutorialClosed);
 
         // 2. UI Only 모드
         FInputModeUIOnly InputMode;

@@ -232,10 +232,12 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 			//bIsDead = true;
 
 			//Stop BT
+			/*
 			CachedBTComponent->StopLogic(TEXT("EnemyDead"));
 			//Stop Movement
 			GetCharacterMovement()->StopMovementImmediately();
 			GetCharacterMovement()->DisableMovement();
+			*/
 
 			StartDeathSequence();
 		}

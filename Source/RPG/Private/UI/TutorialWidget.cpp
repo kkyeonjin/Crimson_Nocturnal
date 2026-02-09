@@ -32,7 +32,7 @@ void UTutorialWidget::CloseTutorial()
 		GI->SetTutorialSeen(true);
 	}
 
-	//OnTutorialClose.Broadcast();
+	OnTutorialClose.Broadcast();
 }
 
 void UTutorialWidget::NativeConstruct()
@@ -42,6 +42,7 @@ void UTutorialWidget::NativeConstruct()
 	TutorialImages = { Page1, Page2, Page3, Page4, Page5, Page6 };
 }
 
+//Called when Tutorial is open
 void UTutorialWidget::InitializeTutorial()
 {
 	this->SetVisibility(ESlateVisibility::Visible);

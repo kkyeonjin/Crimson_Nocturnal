@@ -13,7 +13,7 @@ class UEnemyAttackComponent;
 class UBossAttackComponent;
 class UInfectionComponent;
 class ACrystal;
-class ABossUltimateSkillActor;
+class ABossUltimateSkill;
 class APlayerCharacter;
 class UBossAnimInstance;
 class UBossAttributeComponent;
@@ -125,8 +125,10 @@ private:
 	UParticleSystem* HitParticles;
 
 	//UltSkill,,,
-	//UPROPERTY(EditAnywhere)
-	//TSubclassOf<ABossUltimateSkillActor> UltSkillActorClass;
+	UPROPERTY(EditAnywhere)
+	TSubclassOf<ABossUltimateSkill> UltSkillClass;
+
+	ABossUltimateSkill* UltActor;
 
 	FTimerHandle RoarTimerHandle;     // 1.5초 타이머
 	FTimerHandle UltSkillActorTimerHandle;
@@ -139,8 +141,8 @@ private:
 	UPROPERTY(EditAnywhere)
 	FVector UltSpawnPoint;
 
-	UPROPERTY(EditAnywhere)
-	ACrystal* Crystal;
+	UPROPERTY(EditAnywhere, Category = "Crystals")
+	TArray<ACrystal*> Crystals;  // 맵에서 할당 (3개)
 
 	//IInfectable
 	virtual USkeletalMeshComponent* GetMeshComponent_Implementation() override;

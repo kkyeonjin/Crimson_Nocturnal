@@ -35,64 +35,32 @@ void UBossAttributeComponent::BeginPlay()
 		UE_LOG(LogTemp, Error, TEXT("PlayerCharacter From EnemyComp Load Failed"));
 	}
 
-	Owner = Cast<ABoss>(GetOwner());
-	if (!Owner)
-	{
-		UE_LOG(LogTemp, Error, TEXT("Boss Load Failed"));
-	}
-
 	FBossStat* Row = BossStatTable->FindRow<FBossStat>(TEXT("Boss"), TEXT("Load Boss Stat Data"));
 	if (Row)
 	{
-		ATK.Add(Row->ATK);
-		ATK.Add(Row->ATK2);
-		ATK.Add(Row->ATK3);
 		DEF = Row->DEF;
 		CurrentHP = Row->CurrentHP;
 		MaxHP = Row->MaxHP;
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("EnemyStatTable Load Failed"));
+		UE_LOG(LogTemp, Error, TEXT("BossStatTable Load Failed"));
 	}
 	// ...
 
 }
 
-void UBossAttributeComponent::SetPhaseNum()
-{
-	if (Owner)
-	{
-		EBossPhase CurrentPhase = Owner->GetCurrentPhase();
-
-		switch (CurrentPhase)
-		{
-		case EBossPhase::Phase1_MagicCircle:
-			PhaseNum = 0;
-			break;
-		case EBossPhase::Phase2_WingAttack:
-			PhaseNum = 1;
-			break;
-		case EBossPhase::Phase3_GroundSlam:
-			PhaseNum = 2;
-			break;
-		default:
-			break;
-		}
-	}
-}
-
 int32 UBossAttributeComponent::CalcDamage()
 {
 	//set ATK after checking the current phase
-	SetPhaseNum();
+	//SetPhaseNum();
 
 	if (!PlayerAttributeComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("EAC is not Found"));
+		UE_LOG(LogTemp, Error, TEXT("BAC is not Found"));
 		return 0;
 	}
-	int32 BaseDamage = ATK[PhaseNum] - PlayerAttributeComponent->GetDEF();
+	int32 BaseDamage = ATK - PlayerAttributeComponent->GetDEF();
 	int32 FinalDamage = FMath::Max(BaseDamage, 0);
 
 	return FinalDamage;
@@ -111,7 +79,7 @@ void UBossAttributeComponent::ApplyDamage()
 		}
 
 		CurrentHP -= Damage;
-		UE_LOG(LogTemp, Display, TEXT("EnemyHP: %d"), CurrentHP);
+		UE_LOG(LogTemp, Display, TEXT("BossHP: %d"), CurrentHP);
 
 		if (CurrentHP < HP_THRESHOLD_2 )
 		{
@@ -128,7 +96,7 @@ void UBossAttributeComponent::ApplyDamage()
 	}
 	else
 	{
-		UE_LOG(LogTemp, Error, TEXT("PAC CANNOT FIND"));
+		UE_LOG(LogTemp, Error, TEXT("PAC CANNOT FIND in BAC"));
 	}
 }
 

@@ -4,6 +4,7 @@
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
+#include "DrawDebugHelpers.h"
 #include "RaycastComponent.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRaycastDetected);

@@ -7,6 +7,8 @@
 #include "Interface/InteractableInterface.h"
 #include "NPC.generated.h"
 
+class UDialogueComponent;
+
 UCLASS()
 class RPG_API ANPC : public ACharacter, public IInteractable
 {
@@ -25,5 +27,6 @@ public:
     virtual void OnInteract() override;
 
 private:
+    UDialogueComponent* DialogueComponent;
 
 };

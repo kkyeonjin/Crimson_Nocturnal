@@ -78,6 +78,14 @@ void URPGGameInstance::PlayBossBGM()
 	}
 }
 
+void URPGGameInstance::PlaySaloonBGM()
+{
+	if (BGMManager)
+	{
+		BGMManager->PlayBGM(BGMManager->SaloonBGM);
+	}
+}
+
 
 void URPGGameInstance::StopBGM()
 {

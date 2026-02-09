@@ -5,6 +5,7 @@
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
 #include "EnhancedInputSubsystems.h"
+#include "InputMappingContext.h"
 #include "Animation/AnimMontage.h"
 #include "Character/Player/PlayerAnimInstance.h"
 #include "Component/Player/ComboManageComponent.h"
@@ -15,6 +16,7 @@
 #include "Component/Player/UltimateSkillComponent.h"
 #include "Component/Player/RaycastComponent.h"
 #include "Component/Player/SFXComponent.h"
+#include "Game/RPGGameMode.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/SkillTreeWidget.h"
 
@@ -108,6 +110,13 @@ void APlayerCharacter::BeginPlay()
 		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
 		CachedAttributeComponent->OnBPMax.AddDynamic(this, &APlayerCharacter::SetIsSkillEnable);
 		CachedAttributeComponent->OnSkillTreeUISet.AddDynamic(CachedHUDComponent, &UHUDComponent::SetSkillTree);
+	}
+	
+	if (ARPGGameMode* GM = Cast<ARPGGameMode>(GetWorld()->GetAuthGameMode()))
+	{
+		GM->OnDialogueEvent.AddDynamic(CachedHUDComponent, &UHUDComponent::ShowDialogue);
+		GM->OnEnterSaloon.AddDynamic(this, &APlayerCharacter::EnterSaloonMode);
+		GM->OnExitSaloon.AddDynamic(this, &APlayerCharacter::ExitSaloonMode);
 	}
 
 	SetupPlayerInputComponent(InputComponent);
@@ -255,6 +264,11 @@ void APlayerCharacter::StartBossQTEMode()
 	CachedHUDComponent->ShowQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
 }
 
+void APlayerCharacter::ShowStartPopUp()
+{
+	CachedHUDComponent->ShowStartPopUp();
+}
+
 void APlayerCharacter::Move(const FInputActionValue& Value)
 {
 	//Disable Move Func When Player Is Trapped by Boss's Ult Skill
@@ -364,6 +378,7 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 				IsTrapped = false;
 
 				CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
+				CachedHUDComponent->NoticeToBreak();
 
 			}
 			return;
@@ -417,11 +432,21 @@ void APlayerCharacter::SkillStart()
 		CachedHUDComponent->ShowSkillEffect(SkillNum);
 		CachedSFXComponent->PlayUltSkillSFX(SkillNum);
 
+		//Make BP to Zero (0) 
+		UpdateBP(0, CachedAttributeComponent->GetMaxBP());
+
 		IsSkillEnable = false;
 	}
+}
 
-	//Make BP to Zero (0) 
-	UpdateBP(0, CachedAttributeComponent->GetMaxBP());
+//Open SkillTree UI through PlayerCharacter to check player's level
+//Open SkillTree is only possible when level >= 2
+void APlayerCharacter::OpenSkillTree()
+{
+	if (CachedAttributeComponent->GetCurrentLevel() >= 2)
+	{
+		CachedHUDComponent->ShowSkillTreeUI();
+	}
 }
 
 //Callback Func for Skill Set (A Button in SkillTreeUI)
@@ -461,8 +486,7 @@ void APlayerCharacter::OnInteract()
 
 void APlayerCharacter::InteractPopUp()
 {
-	//Press RT PopUp ,,,, 
-	//CachedHUDComponent->
+	CachedHUDComponent->ShowInteractPopUp();
 }
 
 void APlayerCharacter::OpenGameOverLevel()
@@ -470,8 +494,36 @@ void APlayerCharacter::OpenGameOverLevel()
 	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("GameOver")));
 }
 
+void APlayerCharacter::EnterSaloonMode()
+{
+	// PlayerController에서 LocalPlayer 가져오기
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			Subsystem->RemoveMappingContext(PlayerContext);
+			Subsystem->AddMappingContext(SaloonContext, 0);
+		}
+	}
+}
+
+void APlayerCharacter::ExitSaloonMode()
+{
+	if (APlayerController* PC = Cast<APlayerController>(Controller))
+	{
+		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
+			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
+		{
+			Subsystem->RemoveMappingContext(SaloonContext);
+			Subsystem->AddMappingContext(PlayerContext, 0);
+		}
+	}
+}
+
 void APlayerCharacter::SetIsSkillEnable()
 {
+	UE_LOG(LogTemp, Warning, TEXT("SkillEnable !!BPMAX!!"));
 	IsSkillEnable = true;
 }
 
@@ -488,15 +540,18 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
 		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillStart);
+		EnhancedInputComponent->BindAction(PopUpOff, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::HidePopUp);
 
 		//Open SkillTree Screen
-		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::ShowSkillTreeUI);
+		EnhancedInputComponent->BindAction(SkillTreeOn, ETriggerEvent::Triggered, this, &APlayerCharacter::OpenSkillTree);
 
 		//Open Menu Screen
 		EnhancedInputComponent->BindAction(MenuOn, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::ShowMenuUI);
 
 		//Interact
 		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::OnInteract);
+		//Dialogue
+		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::HideDialogue);
 	}
 }
 

@@ -6,6 +6,7 @@
 #include "GameFramework/Actor.h"
 #include "BossBattleArena.generated.h"
 
+class ABossDoor;
 class AMinionSpawner;
 class ABoss;
 class UBoxComponent;
@@ -24,8 +25,8 @@ public:
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* BattleTrigger;
 
-	UPROPERTY(EditAnywhere)
-	AActor* ArenaDoor;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arena")
+	ABossDoor* ArenaDoor;  // ±‚¡∏ AActor* °Ê ABossDoor*
 
 	UPROPERTY(EditAnywhere)
 	ABoss* BossActor;

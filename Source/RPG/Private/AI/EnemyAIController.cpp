@@ -36,7 +36,7 @@ void AEnemyAIController::BeginPlay()
 	if (!PerceptionComponent)
 	{
 		PerceptionComponent = GetPerceptionComponent();
-		UE_LOG(LogTemp, Warning, TEXT("Perception Set"));
+		//UE_LOG(LogTemp, Warning, TEXT("Perception Set"));
 	}
 
 	Owner = Cast<AEnemy>(GetPawn());
@@ -48,7 +48,7 @@ void AEnemyAIController::BeginPlay()
 //When Enemy detects player 
 void AEnemyAIController::OnPerceptionUpdated(const TArray<AActor*>& UpdatedActors)
 {
-	UE_LOG(LogTemp, Warning, TEXT("PerceptionUpdated"));
+	//UE_LOG(LogTemp, Warning, TEXT("PerceptionUpdated"));
 	for (AActor* Actor : UpdatedActors)
 	{
 		if (Actor && Actor->ActorHasTag("Player"))

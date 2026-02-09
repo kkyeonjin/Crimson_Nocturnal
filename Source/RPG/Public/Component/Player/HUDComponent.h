@@ -56,12 +56,6 @@ public:
 	UFUNCTION()
 	void CloseSkillTreeUI();
 
-	//void ChangeSelection(int32 Input);
-
-	//void SwitchSection();
-
-	//void HandleSkillTreeNavigation(int32 Input);
-
 	UFUNCTION()
 	void SetSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
 
@@ -69,15 +63,14 @@ public:
 
 	void InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
-	//void ReadyToSkillASetting(int32 Input);
-
-	//void ChangeSkillASettingSelection(int32 Input);
-
 	// UI Ç¥½Ã + ÀÚµ¿ ¼û±è Ã³¸®
 
 	void ShowLevelUpPopUp(int32 CurrentLevel);
 
-	void HideLevelUpPopUp();
+	void HidePopUp();
+
+	//Start PopUp
+	void ShowStartPopUp();
 
 	//Combo UI
 	void ShowComboPopUp(int32 ComboNum);
@@ -85,15 +78,29 @@ public:
 	void HideComboPopUp();
 
 	//EventUI
-
 	void ShowQTEUI(int32 ComboNum);
 
 	void HideQTEUI(int32 ComboNum);
+
+	//Break the Crystal
+	void NoticeToBreak();
+
 
 	//Skill Screen Effect
 	void ShowSkillEffect(int32 SkillNum);
 
 	void HideSkillEffect();
+
+	//Interact PopUp
+	void ShowInteractPopUp();
+
+	void HideInteractPopUp();
+
+	//Show Dialogue
+	UFUNCTION()
+	void ShowDialogue(const FString& DialogueName, const FString& DialogueLine);
+
+	void HideDialogue();
 
 	FORCEINLINE int32 GetUltSelectCount() { return SkillTreeUIWidget->GetUltSelectCount(); }
 	FORCEINLINE int32 GetSkillSelectCount() { return SkillTreeUIWidget->GetSkillSelectCount(); }

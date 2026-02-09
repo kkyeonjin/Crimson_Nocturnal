@@ -3,6 +3,7 @@
 
 #include "Actor/BossBattleArena.h"
 #include "Components/BoxComponent.h"
+#include "Actor/BossDoor.h"
 #include "Actor/MinionSpawner.h"
 #include "Character/Boss/Boss.h"
 
@@ -35,14 +36,7 @@ void ABossBattleArena::StartBattle()
 	if (ArenaDoor)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("DoorChecked"));
-
-		GetWorld()->GetTimerManager().SetTimer(
-			DoorTimer,
-			this,
-			&ABossBattleArena::CloseDoor,
-			DoorCloseTime,
-			true
-		);
+		ArenaDoor->CloseDoor();  // 타이머/애니 로직 제거
 	}
 
 	//2. Start BattleStart Motion
@@ -117,6 +111,7 @@ void ABossBattleArena::CloseDoor()
 	if (Alpha >= 1.0f)
 	{
 		GetWorld()->GetTimerManager().ClearTimer(DoorTimer);
+		UE_LOG(LogTemp, Display, TEXT("DoorClosed!!"));
 	}
 
 }

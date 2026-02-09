@@ -38,7 +38,7 @@ EBTNodeResult::Type UBTT_Attack::ExecuteTask(UBehaviorTreeComponent& OwnerComp, 
     AEnemy* EnemyLocal = Cast<AEnemy>(AIPawn);
     if (EnemyLocal == nullptr)
     {
-        UE_LOG(LogTemp, Error, TEXT("Cast to AEnemy failed"));
+        //UE_LOG(LogTemp, Error, TEXT("Cast to AEnemy failed"));
         return EBTNodeResult::Failed;
     }
     else

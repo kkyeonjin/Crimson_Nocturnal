@@ -178,21 +178,18 @@ void UHUDComponent::InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> Ac
 void UHUDComponent::ShowLevelUpPopUp(int32 CurrentLevel)
 {
 	MainHUDWidget->ShowLevelUpPopUp(CurrentLevel);
-
-	//ComboTimerOutTimer Starts
-	GetWorld()->GetTimerManager().SetTimer(
-		LevelUpPopUpTimer,
-		this,
-		&UHUDComponent::HideLevelUpPopUp,
-		3.f,
-		false
-	); //last parameter false-> call Timer just once 
-
 }
 
-void UHUDComponent::HideLevelUpPopUp()
+void UHUDComponent::HidePopUp()
 {
-	MainHUDWidget->HideLevelUpPopUp();
+	MainHUDWidget->HidePopUp();
+}
+
+void UHUDComponent::ShowStartPopUp()
+{
+	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	PC->SetInputMode(FInputModeGameOnly());
+	MainHUDWidget->ShowStartPopUp();
 }
 
 void UHUDComponent::ShowComboPopUp(int32 ComboNum)
@@ -238,6 +235,26 @@ void UHUDComponent::HideSkillEffect()
 	MainHUDWidget->OnSkillFinished();
 }
 
+void UHUDComponent::ShowInteractPopUp()
+{
+	MainHUDWidget->ShowInteractPopUp();
+}
+
+void UHUDComponent::HideInteractPopUp()
+{
+	MainHUDWidget->HideInteractPopUp();
+}
+
+void UHUDComponent::ShowDialogue(const FString& DialogueName, const FString& DialogueLine)
+{
+	MainHUDWidget->ShowDialogue(DialogueName, DialogueLine);
+}
+
+void UHUDComponent::HideDialogue()
+{
+	MainHUDWidget->HideDialogue();
+}
+
 void UHUDComponent::ShowQTEUI(int32 ComboNum)
 {
 	if (MainHUDWidget)
@@ -251,6 +268,14 @@ void UHUDComponent::HideQTEUI(int32 ComboNum)
 	if (MainHUDWidget)
 	{
 		MainHUDWidget->HideQTEUI(ComboNum);
+	}
+}
+
+void UHUDComponent::NoticeToBreak()
+{
+	if (MainHUDWidget)
+	{
+		MainHUDWidget->NoticeToBreak();
 	}
 }
 

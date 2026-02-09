@@ -48,6 +48,8 @@ public:
 
 	void StartBossQTEMode();
 
+	void ShowStartPopUp();
+
 	FOnSkillCReady OnSkillCReady;
 
 	FOnQTESuccess OnQTESuccess;
@@ -78,13 +80,23 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillTreeOn;
 
+	UPROPERTY()
+	UInputAction* PopUpOff;
+
 	//Open Menu Screen
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MenuOn;
 
-	//Interact with Portal / NPC ...etc
+	//Interact with Portal / NPC ...etc (+Dialogue)
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* Interact;
+
+	//For Event Level (Saloon)
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputMappingContext* SaloonContext;
+
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* Dance;
 
 	//Function for Input Binding 
 	void Move(const FInputActionValue& Value);
@@ -92,6 +104,8 @@ protected:
 	void Attack(const FInputActionValue& Value);
 	void SkillStart();
 
+	//Open SKillTree
+	void OpenSkillTree();
 	//Menu
 	//void MenuScreen();
 
@@ -166,6 +180,14 @@ protected:
 	//Move to GameOver Level
 	UFUNCTION()
 	void OpenGameOverLevel();
+
+	//For Event Level (Saloon)
+	UFUNCTION()
+	void EnterSaloonMode();
+
+	UFUNCTION()
+	void ExitSaloonMode();
+
 
 private:
 

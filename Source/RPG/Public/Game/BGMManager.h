@@ -29,6 +29,9 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio|BGM")
     USoundCue* BossBGM;
 
+    UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Audio|BGM")
+    USoundCue* SaloonBGM;
+
     void PlayBGM(USoundCue* BGMCue);
     void StopBGM();
 	

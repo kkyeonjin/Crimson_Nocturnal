@@ -11,6 +11,7 @@
 #include "PlayerAttributeComponent.generated.h"
 
 class UEnemyAttributeComponent;
+class UBossAttributeComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBPUpdate, int32, CurrentBP, int32, MaxBP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPMax);
@@ -75,6 +76,11 @@ protected:
 private:
 	//to get enemy's DEF value for Damage Calculation
 	UEnemyAttributeComponent* EnemyAttributeComponent;
+
+	//to get boss's DEF value for Damage Calculation
+	UBossAttributeComponent* BossAttributeComponent;
+
+	int32 TargetDEF; //store Enemy or Boss's DEF value for CalcDamage
 
 	int32 ATK;
 	int32 DEF;
