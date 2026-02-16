@@ -17,6 +17,8 @@ class RPG_API ANPC : public ACharacter, public IInteractable
 public:
     ANPC();
 
+    virtual void BeginPlay() override;
+
     UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Components")
     class UBoxComponent* CollisionBox;
 

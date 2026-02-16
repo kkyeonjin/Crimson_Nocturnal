@@ -99,6 +99,7 @@ void ABoss::BindDelegates()
 	CachedPhaseManageComponent->OnPhaseChange.AddDynamic(this, &ABoss::OnPhaseChange);
 
 	CachedBossAnimInstance->OnBattleStart.AddDynamic(this, &ABoss::StartBattle);
+	CachedBossAnimInstance->OnSlamActorSpawn.AddDynamic(CachedPhaseManageComponent, &UPhaseManageComponent::Phase3);
 	CachedBossAnimInstance->OnBossCollisionEnable.AddDynamic(this, &ABoss::OnCollisionEnable);
 	CachedBossAnimInstance->OnBossCollisionDisable.AddDynamic(this, &ABoss::OnCollisionDisable);
 	CachedBossAnimInstance->OnBossDead.AddDynamic(this, &ABoss::StartEnding);
@@ -234,6 +235,10 @@ void ABoss::StartEnding()
 
 void ABoss::StartBattle()
 {
+	//For Debug
+	UE_LOG(LogTemp, Error, TEXT("Destroy Crystal"));
+	Crystals[0]->DestroyCrystal(1);
+
 	UE_LOG(LogTemp, Display, TEXT("BattleSTart"));
 	//CachedPhaseManageComponent->Phase3();
 	CachedPhaseManageComponent->ExecuteCurrentPhase();
@@ -257,9 +262,9 @@ void ABoss::OnPhaseChange(EBossPhase NewPhase)
 
 void ABoss::StartUltimateMechanic()
 {
-
 	//UltSkill 애니메이션 재생(포효하는듯한,,,암튼 먼가 으아아아 한거)
-	//CachedBossAnimInstance->PlayBossAnimMontage(4); //임시로 넣은 값
+	CachedBossAnimInstance->PlayBossAnimMontage(5); //임시로 넣은 값
+	CachedPhaseManageComponent->StopPhaseExecution();
 
 	//사운드 재생
 	CachedBossSFXComponent->PlayUltSFX();
@@ -295,7 +300,7 @@ void ABoss::SpawnUltimateActor()
 	PlayerCharacter->OnQTESuccess.AddDynamic(this, &ABoss::OnPlayerQTESuccess);
 
 	//Player가 QTE Event 실행할 준비 하도록 함 
-	PlayerCharacter->StartBossQTEMode();
+	//PlayerCharacter->StartBossQTEMode();
 
 	
 	//액터 스폰

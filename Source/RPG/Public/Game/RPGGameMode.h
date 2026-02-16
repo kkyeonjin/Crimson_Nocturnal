@@ -12,6 +12,7 @@ class UTutorialWidget;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDialogueEvent, const FString&, DialogueName, const FString&, DialogueLine);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterSaloon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitSaloon);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSaveRequired);
 
 /**
  * 
@@ -33,7 +34,7 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UTutorialWidget> TutorialUIClass;  
 
-	UPROPERTY(BlueprintAssignable, Category = "Dialogue")
+	UPROPERTY()
 	FOnDialogueEvent OnDialogueEvent;
 
 	UPROPERTY()
@@ -42,7 +43,10 @@ public:
 	UPROPERTY()
 	FOnExitSaloon OnExitSaloon;
 
-	UFUNCTION(BlueprintCallable, Category = "Dialogue")
+	UPROPERTY()
+	FOnSaveRequired OnSaveRequired;
+
+	UFUNCTION()
 	void BroadcastDialogue(const FString& DialogueName, const FString& DialogueLine);
 
 private:

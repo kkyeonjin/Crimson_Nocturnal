@@ -11,6 +11,7 @@
 //delegate rings(broadcast) when combo matches
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComboMatch, int32, ComboNum, int32, BPValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChainAttack, int32, AttackAnimNum, FName, SectionName);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQTEFailed);
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_API UComboManageComponent : public UActorComponent
@@ -33,10 +34,15 @@ public:
 	UPROPERTY()
 	FOnChainAttack OnChainAttack;
 
+	UPROPERTY()
+	FOnQTEFailed OnQTEFailed;
+
 	int32 GetComboAnimMontage(int32 ComboAnimNum);
 
 	//Check BossUlt QTE Matched (Renaming Required)
 	bool BossUltimateQTE(EAttackKeyType Key);
+
+	void StartQTETimer();
 
 protected:
 	// Called when the game starts
@@ -70,6 +76,8 @@ private:
 	void InitializeComboPattern();
 
 	void CheckComboTimeOut();
+
+	void QTEFailed();
 
 	int32 RequiredBossComboNum = 0;
 

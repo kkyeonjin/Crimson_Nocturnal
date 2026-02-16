@@ -9,7 +9,6 @@
 void USkillScreenOverlayWidget::ShowSkillEffect(int32 SkillNum)
 {
 	SetVisibility(ESlateVisibility::Visible);
-	UE_LOG(LogTemp, Display, TEXT("ShowSkillScreenOverlay"));
 	SkillImages[SkillNum]->SetVisibility(ESlateVisibility::Visible);
 	
 }

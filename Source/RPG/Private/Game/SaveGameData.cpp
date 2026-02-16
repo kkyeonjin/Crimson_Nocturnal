@@ -3,6 +3,8 @@
 
 #include "Game/SaveGameData.h"
 
+#include "Kismet/GameplayStatics.h"
+
 USaveGameData::USaveGameData()
 {
 
@@ -10,7 +12,7 @@ USaveGameData::USaveGameData()
 
 void USaveGameData::ClearData()
 {
-	if (!this) return;
+	//if (!this) return;
 
 	SaveSlotName = TEXT("PlayerSaveSlot");
 
@@ -20,8 +22,7 @@ void USaveGameData::ClearData()
 
 	SavedCurrentExp = 0;
 
-	ActivatedSkills.Empty();           // 1. ºñ¿ì±â
-	ActivatedSkills.Init(0, 5);
+	ActivatedSkills = { 0, 0, 0, 0, 0 };
 
 	SavedCurrentHP = 120;
 		
@@ -37,12 +38,14 @@ void USaveGameData::ClearData()
 
 	SavedSkillPoint = 0;
 
-	EquippedUlt = 0;
+	EquippedUlt = 10;
 
 	CurrentMap = TEXT("Hospital");
 
 	Ult1XSetting = 0;
 
 	Ult1YSetting = 0;
+
+	UGameplayStatics::DeleteGameInSlot(TEXT("PlayerSaveSlot"), 0);
 }
 

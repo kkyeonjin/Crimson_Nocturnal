@@ -43,11 +43,22 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UTextBlock* BPText;
 
+	UPROPERTY(meta = (BindWidget))
+	UTextBlock* LevelText;
+
 	UFUNCTION(BlueprintCallable)
 	void UpdateHP(int32 Current, int32 Max);
 
 	UFUNCTION(BlueprintCallable)
 	void UpdateBP(int32 Current, int32 Max);
+
+	UFUNCTION()
+	void UpdateLevelText(int32 CurrentLevel);
+
+	UFUNCTION()
+	void SetUltEmblem(int32 UltNum);
+
+	void ShowReadyToUseUlt();
 
 	//EventUIPanel
 	UPROPERTY(meta = (BindWidget))
@@ -61,6 +72,24 @@ public:
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* ComboD;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* UltA;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* UltB;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* UltC;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* UltAReady;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* UltBReady;
+
+	UPROPERTY(meta = (BindWidget))
+	UImage* UltCReady;
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* LevelUp;
@@ -80,6 +109,9 @@ public:
 	UPROPERTY(meta = (BindWidget))
 	UImage* InteractPopUp;
 
+	UPROPERTY(meta = (BindWidget))
+	UImage* DancePopUp;
+
 	UPROPERTY(meta=(BindWidget))
 	UTextBlock* DialogueName;
 
@@ -97,6 +129,9 @@ public:
 
 	UFUNCTION()
 	void ShowLevelUpPopUp(int32 CurrentLevel);
+
+	UFUNCTION()
+	void HideLevelUp();
 
 	UFUNCTION()
 	void HidePopUp();
@@ -125,6 +160,8 @@ public:
 	UFUNCTION()
 	void HideDialogue();
 
+	void ShowDancePopUp();
+
 	UFUNCTION(BlueprintCallable)
 	void SetSubWidgets(USkillScreenOverlayWidget* Widget);
 
@@ -134,6 +171,13 @@ private:
 
 	TArray<UImage*> ComboPopUpImages;
 
+	TArray<UImage*> UltImages;
+
+	TArray<UImage*> UltReadyImages;
+
 	UImage* SpecialLevelUp;
+
+	//for Ult Emblem Initialize 
+	bool IsReadyToUseUlt = false;
 
 };

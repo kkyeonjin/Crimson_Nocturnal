@@ -16,8 +16,8 @@ namespace EnemyConstants
 {
 	constexpr float PATROL_SPEED = 250.0f;
 	constexpr float CHASE_SPEED = 500.0f;
-	constexpr float DEATH_ANIMATION_DURATION = 2.5f;
-	constexpr float FADEOUT_DURATION = 2.5f;
+	constexpr float DEATH_ANIMATION_DURATION = 2.f;
+	constexpr float FADEOUT_DURATION = 2.f;
 }
 
 
@@ -25,5 +25,5 @@ namespace EnemyConstants
 namespace AIConstants
 {
 	constexpr float SERVICE_TICK_INTERVAL = 0.1f;
-	constexpr float ATTACK_RADIUS = 300.0f;
+	constexpr float ATTACK_RADIUS = 200.0f;
 }

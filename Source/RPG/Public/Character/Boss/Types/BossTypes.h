@@ -16,9 +16,9 @@ enum class EBossPhase : uint8
 // ? Boss »ó¼ö
 namespace BossConstants
 {
-	constexpr float PHASE1_DURATION = 4.0f;
-	constexpr float PHASE2_DURATION = 3.5f;
-	constexpr float PHASE3_DURATION = 4.5f;
+	constexpr float PHASE1_DURATION = 7.5f;
+	constexpr float PHASE2_DURATION = 4.5f;
+	constexpr float PHASE3_DURATION = 6.f;
 	constexpr float ROAR_TIMER = 1.5f;
 }
 

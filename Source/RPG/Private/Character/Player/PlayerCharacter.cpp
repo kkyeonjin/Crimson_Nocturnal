@@ -14,7 +14,7 @@
 #include "Component/Player/KickComponent.h"
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Component/Player/UltimateSkillComponent.h"
-#include "Component/Player/RaycastComponent.h"
+#include "Component/Player/InteractionComponent.h"
 #include "Component/Player/SFXComponent.h"
 #include "Game/RPGGameMode.h"
 #include "Kismet/GameplayStatics.h"
@@ -38,14 +38,26 @@ void APlayerCharacter::BeginPlay()
 
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
-		InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PlayerController->GetLocalPlayer());
+		InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
+			PlayerController->GetLocalPlayer());
 
 		if (InputSubsystem)
 		{
-			InputSubsystem->AddMappingContext(PlayerContext, 0);
+			//둘 다 추가 (Saloon은 Priority 낮게)
+			if (GetWorld()->GetMapName().Contains(TEXT("Saloon")))
+			{
+				InputSubsystem->AddMappingContext(PlayerContext, 0);  
+				InputSubsystem->AddMappingContext(SaloonContext, 1);
+			}
+			else
+			{
+				InputSubsystem->AddMappingContext(PlayerContext, 1);  // 기본 Priority 높게
+				InputSubsystem->AddMappingContext(SaloonContext, 0);
+			}
+
+			UE_LOG(LogTemp, Warning, TEXT("Both Contexts Loaded"));
 		}
 	}
-
 
 	//cast animInstance In here (for reuse)
 	CachedAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
@@ -54,7 +66,7 @@ void APlayerCharacter::BeginPlay()
 	CachedKickComponent = FindComponentByClass<UKickComponent>();
 	CachedUltimateSkillComponent = FindComponentByClass<UUltimateSkillComponent>();
 	CachedHUDComponent = FindComponentByClass<UHUDComponent>();
-	CachedRaycastComponent = FindComponentByClass<URaycastComponent>();
+	CachedInteractionComponent = FindComponentByClass<UInteractionComponent>();
 	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
 	CachedSFXComponent = FindComponentByClass<USFXComponent>();
 
@@ -80,6 +92,7 @@ void APlayerCharacter::BeginPlay()
 	{
 		CachedComboManageComponent->OnComboMatch.AddDynamic(this, &APlayerCharacter::OnComboComplete);
 		CachedComboManageComponent->OnChainAttack.AddDynamic(this, &APlayerCharacter::OnChainAttack);
+		CachedComboManageComponent->OnQTEFailed.AddDynamic(this, &APlayerCharacter::OnQTEFailed);
 	}
 
 	if (CachedUltimateSkillComponent)
@@ -93,33 +106,47 @@ void APlayerCharacter::BeginPlay()
 		//Initialize HP&BP Bar
 		UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
 		UpdateBP(CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
+		CachedHUDComponent->UpdateLevelText(CachedAttributeComponent->GetCurrentLevel());
 
 		CachedHUDComponent->OnPlayerSkillConfirmed.AddDynamic(this, &APlayerCharacter::OnSkillConfirmed);
 	}
 
-	if (CachedRaycastComponent)
-	{
-		CachedRaycastComponent->OnRaycastDetected.AddDynamic(this, &APlayerCharacter::InteractPopUp);
-	}
-	
 	if (CachedAttributeComponent)
 	{
-		CachedAttributeComponent->OnBPUpdate.AddDynamic(this, &APlayerCharacter::UpdateBP);
-		CachedAttributeComponent->OnHPUpdate.AddDynamic(this, &APlayerCharacter::UpdateHP);
+		CachedAttributeComponent->OnBPUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::UpdatePlayerBP);
+		CachedAttributeComponent->OnHPUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::UpdatePlayerHP);
+		//For Level Text Update
+		CachedAttributeComponent->OnLevelUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::UpdateLevelText);
+		//For Level Up PopUp 
 		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
 		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
 		CachedAttributeComponent->OnBPMax.AddDynamic(this, &APlayerCharacter::SetIsSkillEnable);
-		CachedAttributeComponent->OnSkillTreeUISet.AddDynamic(CachedHUDComponent, &UHUDComponent::SetSkillTree);
+		CachedAttributeComponent->OnSkillTreeUISet.AddDynamic(this, &APlayerCharacter::OnSkillTreeSet);
+		CachedAttributeComponent->OnSkillPointUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::SetSkillPointText);
 	}
-	
+
 	if (ARPGGameMode* GM = Cast<ARPGGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		GM->OnDialogueEvent.AddDynamic(CachedHUDComponent, &UHUDComponent::ShowDialogue);
 		GM->OnEnterSaloon.AddDynamic(this, &APlayerCharacter::EnterSaloonMode);
 		GM->OnExitSaloon.AddDynamic(this, &APlayerCharacter::ExitSaloonMode);
+		GM->OnDialogueEvent.AddDynamic(CachedHUDComponent, &UHUDComponent::ShowDialogue);
+
+		//Save When move to another level
+		GM->OnSaveRequired.AddDynamic(CachedAttributeComponent, &UPlayerAttributeComponent::SavePlayerData);
+
+		//load when open a new map
+
 	}
 
 	SetupPlayerInputComponent(InputComponent);
+
+	//For Debug
+	//CachedHUDComponent->ShowSkillTreeUI();
+
+	//CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
+
+
+
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
@@ -132,7 +159,6 @@ void APlayerCharacter::OnAttackMontageEnded()
 //delegate callback function (when combo matches)
 void APlayerCharacter::OnComboComplete(int32 ComboNum, int32 BPValue)
 {
-
 	//play Combo Anim
 	const EAnimMontageType ComboMontage = static_cast<EAnimMontageType>(ComboNum);
 	CachedAnimInstance->PlayComboAttackMontage(ComboMontage);
@@ -146,6 +172,7 @@ void APlayerCharacter::OnComboComplete(int32 ComboNum, int32 BPValue)
 	CachedHUDComponent->ShowComboPopUp(ComboNum);
 
 	//감염 스킬 On 상태에서 콤보 Match 시 적으로 Broadcast
+	//For SkillC
 	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillC)
 	{
 		OnSkillCReady.Broadcast();
@@ -218,6 +245,8 @@ void APlayerCharacter::OnLevelUp(int32 CurrentLevel, int32 SkillPoint)
 	UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
 	CachedHUDComponent->SetSkillPointText(SkillPoint);
 	CachedHUDComponent->ShowLevelUpPopUp(CurrentLevel);
+
+	CachedSFXComponent->PlayLevelUpSFX();
 }
 
 void APlayerCharacter::OnDamageCalculated(int32 Damage) //for SkillB(HP Drain)
@@ -240,10 +269,17 @@ void APlayerCharacter::UltTimeOver()
 }
 
 //called when start game
-void APlayerCharacter::OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting,
-	int32 Ult1YSetting)
+void APlayerCharacter::OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting)
 {
+	SetUltimateSkill(UltNum);
 	CachedHUDComponent->SetSkillTree(SkillPoint, UltNum, ActivatedSkills, Ult1XSetting, Ult1YSetting);
+}
+
+void APlayerCharacter::OnQTEFailed()
+{
+	UE_LOG(LogTemp, Error, TEXT("QTE FAILED!!!!!!"));
+	CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
+	CachedAnimInstance->PlayAnimMontage(3);
 }
 
 //Callback Func (from delegate at UltSkillComp)
@@ -251,7 +287,10 @@ void APlayerCharacter::OnSkill1Attack(int32 AnimNum, float AttackMultiplier)
 {
 	UE_LOG(LogTemp, Warning, TEXT("Skill Broadcast Received"));
 	CachedAttributeComponent->SetAttackMultiplier(AttackMultiplier);
-	CachedAnimInstance->PlayAnimMontage(AnimNum);
+	//play Combo Anim
+	const EAnimMontageType ComboMontage = static_cast<EAnimMontageType>(AnimNum);
+	CachedAnimInstance->PlayComboAttackMontage(ComboMontage);
+	CachedSFXComponent->PlayComboAttackSFX(AnimNum);
 }
 
 void APlayerCharacter::StartBossQTEMode()
@@ -259,6 +298,7 @@ void APlayerCharacter::StartBossQTEMode()
 	IsTrapped = true;
 	//Set Random QTE Combo Num
 	CachedComboManageComponent->SetRequiredBossComboNum();
+	CachedComboManageComponent->StartQTETimer();
 
 	//HUD 함수 아래에 연결
 	CachedHUDComponent->ShowQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
@@ -314,18 +354,10 @@ void APlayerCharacter::Look(const FInputActionValue& Value)
 //X / Y Button
 void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
-
-	//For Debug
-	if (IsTrapped)
-	{
-		UE_LOG(LogTemp, Display, TEXT("QTE Attack Button Pressed"));
-
-	}
-
 	const float AttackValue = Value.Get<float>();
 
-	
 	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillA)
+		//if (SelectedSkill == EUltimateSkill::SkillA)
 	{
 		CachedUltimateSkillComponent->Skill1(AttackValue);
 	}
@@ -364,11 +396,6 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 				{
 					CachedComboManageComponent->ChainAttackCount(InputType);
 				}
-
-				UE_LOG(LogTemp, Warning, TEXT("QTE Failed!!!"));
-
-				//Player Die
-				CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
 			}
 			else
 			{
@@ -405,6 +432,9 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 
 void APlayerCharacter::SkillStart()
 {
+	//for debug
+	IsSkillEnable = true;
+
 	if (IsSkillEnable)
 	{
 		UE_LOG(LogTemp, Warning, TEXT("SkillStart!!!"));
@@ -449,6 +479,14 @@ void APlayerCharacter::OpenSkillTree()
 	}
 }
 
+void APlayerCharacter::StartDance()
+{
+	if (CachedAnimInstance)
+	{
+		CachedAnimInstance->PlayAnimMontage(4); //Play Dance Anim Montage
+	}
+}
+
 //Callback Func for Skill Set (A Button in SkillTreeUI)
 void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index)
 {
@@ -479,14 +517,19 @@ void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Ind
 	}
 }
 
-void APlayerCharacter::OnInteract()
-{
-
-}
-
 void APlayerCharacter::InteractPopUp()
 {
 	CachedHUDComponent->ShowInteractPopUp();
+}
+
+void APlayerCharacter::DancePopUp()
+{
+	CachedHUDComponent->ShowDancePopUp();
+}
+
+void APlayerCharacter::HideInteractPopUp()
+{
+	CachedHUDComponent->HideInteractPopUp();
 }
 
 void APlayerCharacter::OpenGameOverLevel()
@@ -496,34 +539,25 @@ void APlayerCharacter::OpenGameOverLevel()
 
 void APlayerCharacter::EnterSaloonMode()
 {
-	// PlayerController에서 LocalPlayer 가져오기
-	if (APlayerController* PC = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
-		{
-			Subsystem->RemoveMappingContext(PlayerContext);
-			Subsystem->AddMappingContext(SaloonContext, 0);
-		}
-	}
+	//IsInSaloon = true;
+	UE_LOG(LogTemp, Error, TEXT("Set IsInSaloon TRUE"));
 }
 
 void APlayerCharacter::ExitSaloonMode()
 {
-	if (APlayerController* PC = Cast<APlayerController>(Controller))
-	{
-		if (UEnhancedInputLocalPlayerSubsystem* Subsystem =
-			ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(PC->GetLocalPlayer()))
-		{
-			Subsystem->RemoveMappingContext(SaloonContext);
-			Subsystem->AddMappingContext(PlayerContext, 0);
-		}
-	}
+	//IsInSaloon = false;
+}
+
+void APlayerCharacter::OnInteract()
+{
+	CachedInteractionComponent->InteractionStart();
 }
 
 void APlayerCharacter::SetIsSkillEnable()
 {
 	UE_LOG(LogTemp, Warning, TEXT("SkillEnable !!BPMAX!!"));
+	CachedSFXComponent->PlayBPMaxSPX();
+	CachedHUDComponent->ShowReadyToUseUlt();
 	IsSkillEnable = true;
 }
 
@@ -550,8 +584,12 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 
 		//Interact
 		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, this, &APlayerCharacter::OnInteract);
-		//Dialogue
-		EnhancedInputComponent->BindAction(Interact, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::HideDialogue);
+		//Hide Dialogue
+		EnhancedInputComponent->BindAction(HideDialogue, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::HideDialogue);
+
+		//Saloon Event
+		EnhancedInputComponent->BindAction(Dance, ETriggerEvent::Triggered, this, &APlayerCharacter::StartDance);
+
 	}
 }
 

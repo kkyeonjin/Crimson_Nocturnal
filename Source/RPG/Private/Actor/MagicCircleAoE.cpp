@@ -26,7 +26,6 @@ void AMagicCircleAoE::BeginPlay()
 
 void AMagicCircleAoE::InitializeCircle()
 {
-    //MagicCircleDecal->SetVisibility(true);
 
     SetRandomPoints();
 

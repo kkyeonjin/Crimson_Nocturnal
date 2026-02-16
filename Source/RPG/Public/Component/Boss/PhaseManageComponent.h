@@ -19,11 +19,6 @@ public:
 	// Sets default values for this component's properties
 	UPhaseManageComponent();
 
-	void SelectNextPhase();
-
-	//For Debug
-	void ForcePhaseTransition(EBossPhase NewPhase);
-
 	EBossPhase SelectRandomPhase();
 
 	void ExecuteCurrentPhase();
@@ -32,6 +27,9 @@ public:
 	FOnPhaseChange OnPhaseChange;
 
 	void Phase1();
+
+	//Defined with UFUNCTION cause this it called by AnimNotify & Delegate Callback
+	UFUNCTION()
 	void Phase3();
 
 	void UltimateAttack();
@@ -74,7 +72,10 @@ private:
 
 	bool bPreventConsecutivePhases = true;
 
+	bool bIsPhaseExecutionEnable = true;
+
 public:
 	FORCEINLINE EBossPhase GetCurrentPhase() { return CurrentPhase; }
+	FORCEINLINE void StopPhaseExecution() { bIsPhaseExecutionEnable = false; }
 
 };

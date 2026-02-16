@@ -17,7 +17,9 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnBPUpdate, int32, CurrentBP, int3
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBPMax);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnHPUpdate, int32, CurrentHP, int32, MaxHP);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_FiveParams(FOnSkillTreeUISet, int32, SkillPoint, int32, UltNum, TArray<int32>, ActivatedSkills, int32, Ult1XSetting, int32, Ult1YSetting);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMainHUDSet);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnLevelUp, int32, CurrentLevel, int32, SkillPoint);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnLevelUpdate, int32, CurrentLevel);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnSkillPointUpdate, int32, SkillPoint);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnDamageCalculated, int32, Damage);
 
@@ -45,11 +47,17 @@ public:
 	UPROPERTY()
 	FOnHPUpdate OnHPUpdate;
 
-	UPROPERTY(BlueprintAssignable)
+	UPROPERTY()
 	FOnSkillTreeUISet OnSkillTreeUISet;
 
 	UPROPERTY()
+	FOnMainHUDSet OnMainHUDSet;
+
+	UPROPERTY()
 	FOnLevelUp OnLevelUp;
+
+	UPROPERTY()
+	FOnLevelUpdate OnLevelUpdate;
 
 	UPROPERTY()
 	FOnDamageCalculated OnDamageCalculated;
@@ -60,15 +68,24 @@ public:
 	UPROPERTY()
 	FOnBPMax OnBPMax;
 
+	//Load & Save
+	UFUNCTION()
+	void LoadPlayerData();
+
+	//Save when exit game
+	UFUNCTION()
+	void SavePlayerData();
+
+	UFUNCTION()
+	void RequestSave();
+
+	UFUNCTION()
+	void RestoreRunTimeData(USaveGameData* RuntimeSaveGameData);
+
 
 protected:
 	// Called when the game starts
 	virtual void BeginPlay() override;
-
-	/*
-	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category="Stats")
-	UDataTable* PlayerStatTable;
-	*/
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
 	UDataTable* PlayerLevelTable;
@@ -93,13 +110,15 @@ private:
 	int32 MaxLevel = 5;
 	int32 SkillPoint;
 	int32 EquippedUlt;
-	TArray<int32> ActivatedSkills;
+	TArray<int32> ActivatedSkills = { 0, 0, 0, 0, 0 };
 	int32 Ult1XSetting;
 	int32 Ult1YSetting;
 
 	float AttackMultiplier;
 
 	int32 BPtoGet = 0;
+
+	bool IsBPMax = false;
 
 	float ATKMutiplier; //for Skill1
 	float DEFMultiplier; //for Skill2
@@ -117,12 +136,6 @@ private:
 	void CheckLevelUp();
 	void LevelUp();
 
-	//Load & Save
-	UFUNCTION()
-	void LoadPlayerData();
-
-	UFUNCTION()
-	void SavePlayerData();
 
 public:
 	FORCEINLINE virtual int32 GetATK() override { return ATK; }

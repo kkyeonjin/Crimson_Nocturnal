@@ -3,40 +3,28 @@
 
 #include "Game/BGMManager.h"
 #include "Components/AudioComponent.h"
+#include "Kismet/GameplayStatics.h"
 
 void UBGMManager::PlayBGM(USoundCue* BGMCue)
 {
-    if (!BGMCue) return;
+    if (!BGMCue || !GetWorld()) return;  // World 확인 추가
 
-    // AudioComponent가 없으면 생성
-    if (!BGMAudioComponent)
+    StopBGM();  // 기존 중지
+
+    CurrentBGMAudioComp = UGameplayStatics::SpawnSound2D(GetWorld(), BGMCue, 0.7f);
+    if (CurrentBGMAudioComp)
     {
-        BGMAudioComponent = NewObject<UAudioComponent>();
-        if (BGMAudioComponent)
-        {
-            BGMAudioComponent->RegisterComponent();
-            BGMAudioComponent->SetVolumeMultiplier(0.7f);  // 음량 조절
-        }
-    }
-
-    if (BGMAudioComponent)
-    {
-        BGMAudioComponent->Stop();
-        BGMAudioComponent->SetSound(BGMCue);
-        BGMAudioComponent->Play();
-        CurrentBGM = BGMCue;
-
+        CurrentBGMAudioComp->bAllowSpatialization = false;
         UE_LOG(LogTemp, Log, TEXT("BGM 재생: %s"), *BGMCue->GetName());
     }
 }
 
 void UBGMManager::StopBGM()
 {
-    if (BGMAudioComponent)
+    if (CurrentBGMAudioComp)
     {
-        BGMAudioComponent->Stop();
-        CurrentBGM = nullptr;
-
-        UE_LOG(LogTemp, Log, TEXT("BGM 정지"));
+        CurrentBGMAudioComp->Stop();
+        CurrentBGMAudioComp->DestroyComponent();
+        CurrentBGMAudioComp = nullptr;
     }
 }

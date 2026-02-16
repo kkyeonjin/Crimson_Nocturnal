@@ -18,6 +18,11 @@ void URPGGameInstance::Init()
 		UE_LOG(LogTemp, Warning, TEXT("BGMManager Created: %s"),
 			BGMManager ? TEXT("OK") : TEXT("FAIL"));
 	}
+
+	if (SaveGameDataClass && !SaveGameData)
+	{
+		SaveGameData = NewObject<USaveGameData>(this, SaveGameDataClass);
+	}
 }
 
 void URPGGameInstance::Shutdown()
@@ -46,10 +51,28 @@ bool URPGGameInstance::HasSaveData()
 	return UGameplayStatics::DoesSaveGameExist(TEXT("PlayerSaveSlot"), 0);
 }
 
+void URPGGameInstance::BackupPlayerData()
+{
+	//세이브파일 노트를 여기에 복사해서 가지고 있는 것
+	RunTimeSaveGameData = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(TEXT("PlayerSaveSlot"), 0));
+}
+
+//Send to AttributeComp
+void URPGGameInstance::RestorePlayerData()
+{
+	OnRuntimeRestoreRequested.Broadcast(RunTimeSaveGameData);
+}
+
+bool URPGGameInstance::HasRunTimeSaveData()
+{
+	return RunTimeSaveGameData != nullptr;
+}
+
 void URPGGameInstance::PlayHospitalBGM()
 {
 	if (BGMManager)
 	{
+		UE_LOG(LogTemp, Warning, TEXT("Start Hospital BGM,,,"));
 		BGMManager->PlayBGM(BGMManager->HospitalBGM);
 	}
 }

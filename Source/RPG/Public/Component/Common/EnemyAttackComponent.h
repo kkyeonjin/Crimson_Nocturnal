@@ -52,6 +52,9 @@ private:
 	UPROPERTY(EditAnywhere)
 	bool IsCollisionEnableAtStart;
 
+	UPROPERTY(EditAnywhere)
+	bool IsTraceEnable;
+
 	UPROPERTY(EditAnywhere, Category="Attack")
 	FVector AttackTraceSize;
 

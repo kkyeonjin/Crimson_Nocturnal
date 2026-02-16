@@ -2,9 +2,9 @@
 
 
 #include "Game/RPGGameMode.h"
-
 #include "Character/Player/PlayerCharacter.h"
 #include "Game/RPGGameInstance.h"
+#include "Kismet/GameplayStatics.h"
 #include "UI/TutorialWidget.h"
 
 //Called When New Map is open
@@ -14,6 +14,8 @@ void ARPGGameMode::BeginPlay()
 
     if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
     {
+        GI->RequestLoadGame();
+
         // 현재 맵에 맞는 BGM 재생
         FString LevelName = GetWorld()->GetMapName();
 
@@ -37,8 +39,6 @@ void ARPGGameMode::BeginPlay()
         else if (LevelName.Contains(TEXT("Saloon")))
         {
             GI->PlaySaloonBGM();
-            //IMC 변경
-            OnEnterSaloon.Broadcast();
         }
     }
 }

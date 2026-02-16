@@ -60,6 +60,7 @@ void ACrystal::PlayCrystalSFX()
 
 void ACrystal::PlayCrystalVFX()
 {
+	FVector ParticleLocation = GetActorLocation() + FVector(0, 0, 20);
 	UGameplayStatics::PlaySoundAtLocation(GetWorld(), BreakSFX, GetActorLocation());
 }
 

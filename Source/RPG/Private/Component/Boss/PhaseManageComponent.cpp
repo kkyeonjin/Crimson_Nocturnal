@@ -69,33 +69,36 @@ EBossPhase UPhaseManageComponent::SelectRandomPhase()
 
 void UPhaseManageComponent::ExecuteCurrentPhase()
 {
-	CurrentPhase = SelectRandomPhase();
-
-	//For Setting CurrentPhase && Play Animation through calling AnimInstance in Boss class
-	OnPhaseChange.Broadcast(CurrentPhase);
-
-	switch (CurrentPhase)
+	if (bIsPhaseExecutionEnable)
 	{
-	case EBossPhase::Phase1_MagicCircle:
-		Phase1();
-		//StartPhaseTimer();
-		break;
+		//CurrentPhase = SelectRandomPhase();
+		CurrentPhase = EBossPhase::Phase3_GroundSlam;
+		//For Setting CurrentPhase && Play Animation through calling AnimInstance in Boss class
+		OnPhaseChange.Broadcast(CurrentPhase);
 
-	case EBossPhase::Phase2_WingAttack:
-		Phase2();
-		//StartPhaseTimer();
-		break;
+		switch (CurrentPhase)
+		{
+		case EBossPhase::Phase1_MagicCircle:
+			Phase1();
+			//StartPhaseTimer();
+			break;
 
-	case EBossPhase::Phase3_GroundSlam:
-		Phase3();
-		//StartPhaseTimer();
-		break;
+		case EBossPhase::Phase2_WingAttack:
+			Phase2();
+			//StartPhaseTimer();
+			break;
 
-	default:
-		break;
+		case EBossPhase::Phase3_GroundSlam:
+			//Phase3();
+			//StartPhaseTimer();
+			break;
+
+		default:
+			break;
+		}
+
+		StartPhaseTimer();
 	}
-
-	StartPhaseTimer();
 }
 
 

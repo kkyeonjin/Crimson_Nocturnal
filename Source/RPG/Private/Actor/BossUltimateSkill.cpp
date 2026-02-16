@@ -22,7 +22,7 @@ void ABossUltimateSkill::BeginPlay()
 		StormTimer,
 		this,
 		&ABossUltimateSkill::StartUltSkill,
-		1.f,
+		0.5f,
 		false
 	);
 
@@ -55,6 +55,7 @@ void ABossUltimateSkill::TeleportPlayerToCenter()
 	FVector TeleportLocation = CenterLocation + FVector(0, 0, TeleportHeight);
 
 	TargetPlayer->SetActorLocation(TeleportLocation);
+	TargetPlayer->StartBossQTEMode();
 
 	UE_LOG(LogTemp, Warning,
 		TEXT("UltimateSkillActor: Player teleported to center at %.0f, %.0f, %.0f"),

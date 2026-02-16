@@ -1,32 +1,36 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+// Fill out your copyright notice in the Description page of Project Settings.
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
-#include "DrawDebugHelpers.h"
-#include "RaycastComponent.generated.h"
-
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnRaycastDetected);
+#include "InteractionComponent.generated.h"
 
 class APlayerCharacter;
 
-UCLASS(ClassGroup = (Raycast), meta = (BlueprintSpawnableComponent))
-class RPG_API URaycastComponent : public UActorComponent
+UCLASS( ClassGroup=(Custom), meta=(BlueprintSpawnableComponent) )
+class RPG_API UInteractionComponent : public UActorComponent
 {
-    GENERATED_BODY()
+	GENERATED_BODY()
 
-public:
-    URaycastComponent();
+public:	
+	// Sets default values for this component's properties
+	UInteractionComponent();
+
+    UPROPERTY()
+    AActor* CurrentInteractable = nullptr;
 
     UFUNCTION()
     void OnCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
 
+    UFUNCTION()
+    void OnCollisionEndOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
+
+    UFUNCTION()
+    void InteractionStart();
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raycast")
     float TraceDistance = 500.0f;
-
-    UPROPERTY()
-    FOnRaycastDetected OnRaycastDetected;
 
 protected:
     virtual void BeginPlay() override;
@@ -40,4 +44,5 @@ protected:
 private:
     APlayerCharacter* PlayerCharacter;
 
+		
 };

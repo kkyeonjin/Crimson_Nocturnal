@@ -81,7 +81,7 @@ namespace ComboConstants
 
     // timeout values
     constexpr float COMBO_TIMEOUT = 2.0f;
-    constexpr float BOSS_SURVIVAL_TIMEOUT = 5.0f;
+    constexpr float BOSS_SURVIVAL_TIMEOUT = 8.0f;
 }
 
 

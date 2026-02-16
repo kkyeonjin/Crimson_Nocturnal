@@ -60,6 +60,11 @@ void UHUDComponent::BeginPlay()
 void UHUDComponent::HandleSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index)
 {
 	OnPlayerSkillConfirmed.Broadcast(ConfirmType, Index);
+
+	if (MainHUDWidget && ConfirmType == ESkillConfirmType::UltimateSkill)
+	{
+		MainHUDWidget->SetUltEmblem(Index);
+	}
 }
 
 void UHUDComponent::ShowMenuUI()
@@ -117,6 +122,15 @@ void UHUDComponent::UpdatePlayerBP(int32 Current, int32 Max)
 	}
 }
 
+void UHUDComponent::UpdateLevelText(int32 CurrentLevel)
+{
+	if (MainHUDWidget)
+	{
+		UE_LOG(LogTemp, Warning, TEXT("UpdateLevelTextIn HUDComp"));
+		MainHUDWidget->UpdateLevelText(CurrentLevel);
+	}
+}
+
 void UHUDComponent::ShowSkillTreeUI()
 {
 	
@@ -133,8 +147,6 @@ void UHUDComponent::ShowSkillTreeUI()
 	PC->SetInputMode(InputMode);
 
 	SkillTreeUIWidget->AddToViewport(100);
-	UE_LOG(LogTemp, Warning, TEXT("SkillTreeWidget ON"));
-
 
 	SkillTreeUIWidget->SetKeyboardFocus();
 
@@ -151,8 +163,15 @@ void UHUDComponent::CloseSkillTreeUI()
 	SkillTreeUIWidget->RemoveFromParent();
 }
 
+//Initialize when open new level
 void UHUDComponent::SetSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting)
 {
+	UE_LOG(LogTemp, Error, TEXT("Initial Setting for SkillTree,,, in HUDComp"));
+
+	if (MainHUDWidget)
+	{
+		MainHUDWidget->SetUltEmblem(UltNum);
+	}
 	if (SkillTreeUIWidget)
 	{
 		SkillTreeUIWidget->InitializeSkillTree(SkillPoint, UltNum, ActivatedSkills, Ult1XSetting, Ult1YSetting);
@@ -175,9 +194,30 @@ void UHUDComponent::InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> Ac
 	}
 }
 
+void UHUDComponent::ShowReadyToUseUlt()
+{
+	if (MainHUDWidget)
+	{
+		MainHUDWidget->ShowReadyToUseUlt();
+	}
+}
+
 void UHUDComponent::ShowLevelUpPopUp(int32 CurrentLevel)
 {
 	MainHUDWidget->ShowLevelUpPopUp(CurrentLevel);
+
+	GetWorld()->GetTimerManager().SetTimer(
+		LevelUpPopUpTimer,
+		this,
+		&UHUDComponent::HideLevelUp,
+		2.5f,
+		false
+	); //last parameter false-> call Timer just once 
+}
+
+void UHUDComponent::HideLevelUp()
+{
+	MainHUDWidget->HideLevelUp();
 }
 
 void UHUDComponent::HidePopUp()
@@ -188,7 +228,9 @@ void UHUDComponent::HidePopUp()
 void UHUDComponent::ShowStartPopUp()
 {
 	APlayerController* PC = GetWorld()->GetFirstPlayerController();
+	UE_LOG(LogTemp, Error, TEXT("SetInputModeToGAMEONLY"));
 	PC->SetInputMode(FInputModeGameOnly());
+	GetWorld()->GetWorldSettings()->SetTimeDilation(1.0f);
 	MainHUDWidget->ShowStartPopUp();
 }
 
@@ -215,19 +257,6 @@ void UHUDComponent::HideComboPopUp()
 void UHUDComponent::ShowSkillEffect(int32 SkillNum)
 {
 	MainHUDWidget->OnSkillStarted(SkillNum);
-
-	//ComboTimerOutTimer Starts
-	GetWorld()->GetTimerManager().SetTimer(
-		SkillEffectTimer,
-		this,
-		&UHUDComponent::HideSkillEffect,
-		4.f,
-		false
-	); //last parameter false-> call Timer just once 
-
-	UE_LOG(LogTemp, Display, TEXT("HUDCOMP->SkillEffect"));
-	UE_LOG(LogTemp, Display, TEXT("SkillNum: %d"), SkillNum);
-	
 }
 
 void UHUDComponent::HideSkillEffect()
@@ -243,6 +272,11 @@ void UHUDComponent::ShowInteractPopUp()
 void UHUDComponent::HideInteractPopUp()
 {
 	MainHUDWidget->HideInteractPopUp();
+}
+
+void UHUDComponent::ShowDancePopUp()
+{
+	MainHUDWidget->ShowDancePopUp();
 }
 
 void UHUDComponent::ShowDialogue(const FString& DialogueName, const FString& DialogueLine)

@@ -8,6 +8,7 @@
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnLoadGameRequested);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSaveGameRequested);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE_OneParam(FOnRuntimeRestoreRequested, USaveGameData*, RuntimeSaveGameData);
 
 class UBGMManager;
 class USaveGameData;
@@ -23,6 +24,7 @@ public:
 
     FOnLoadGameRequested OnLoadGameRequested;
     FOnSaveGameRequested OnSaveGameRequested;
+    FOnRuntimeRestoreRequested OnRuntimeRestoreRequested;
 
     // 사운드 관리
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
@@ -49,14 +51,26 @@ public:
     void SetTutorialSeen(bool HasSeenTuto) { bHasSeenTutorial = HasSeenTuto; }
 
     // SaveGame 데이터 (포인터로 관리)
+    UPROPERTY(EditAnywhere, BlueprintReadWrite)
+    TSubclassOf<USaveGameData> SaveGameDataClass;  // ★ TSubclassOf!
+
+    UPROPERTY(BlueprintReadWrite)
+    USaveGameData* SaveGameData;  // 런타임 인스턴스
+
+    //for runtime backup
     UPROPERTY()
-    USaveGameData* SaveGameData;
+    USaveGameData* RunTimeSaveGameData;
 
     // 세이브/로드 함수
     void RequestSaveGame();
     void RequestLoadGame();
     void ClearSaveData();
     bool HasSaveData();
+
+    //when new map loaded
+    void BackupPlayerData();
+    void RestorePlayerData();
+    bool HasRunTimeSaveData();
 
     // 슬롯 이름
     UPROPERTY()

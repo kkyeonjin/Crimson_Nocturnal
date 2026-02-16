@@ -8,6 +8,11 @@ void UBossAnimInstance::AnimNotify_BattleStart()
 	OnBattleStart.Broadcast();
 }
 
+void UBossAnimInstance::AnimNotify_SlamActorSpawn()
+{
+	OnSlamActorSpawn.Broadcast();
+}
+
 void UBossAnimInstance::AnimNotify_CollisionEnable()
 {
 	OnBossCollisionEnable.Broadcast();

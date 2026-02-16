@@ -12,6 +12,14 @@ ANPC::ANPC()
 
 }
 
+void ANPC::BeginPlay()
+{
+	Super::BeginPlay();
+
+    DialogueComponent = FindComponentByClass<UDialogueComponent>();
+
+}
+
 void ANPC::OnInteract()
 {
     //대화
@@ -24,6 +32,10 @@ void ANPC::OnInteract()
         {
             GM->BroadcastDialogue(DialogueName, DialogueLine);
         }
+    }
+    else
+    {
+        UE_LOG(LogTemp, Display, TEXT("Dialog in NPC NOT FOUND!!!!"));
     }
 }
 

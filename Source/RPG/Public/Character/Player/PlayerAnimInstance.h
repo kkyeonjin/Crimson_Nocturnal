@@ -131,6 +131,8 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Death")
 	UAnimMontage* Death;
 
+	UPROPERTY(EditAnywhere, Category = "Dance")
+	UAnimMontage* Dance;
 
 public:
 	FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }

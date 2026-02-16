@@ -2,6 +2,7 @@
 
 
 #include "Character/Enemy/Enemy.h"
+#include "AI/EnemyAIController.h"
 #include "Character/Enemy/EnemyAnimInstance.h"
 #include "Component/Common/EnemyAttackComponent.h"
 #include "Component/Enemy/EnemyAttributeComponent.h"
@@ -111,8 +112,8 @@ void AEnemy::OnEnemyAttackMontageEnded()
 		//UE_LOG(LogTemp, Display, TEXT("[%s] BT Task Finished from Enemy"), *GetName());
 
 		// 캐시 초기화
-		CachedBTComponent = nullptr;
-		CachedBTTaskNode = nullptr;
+		//CachedBTComponent = nullptr;
+		//CachedBTTaskNode = nullptr;
 	}
 }
 
@@ -229,16 +230,17 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 
 			OnEnemyDefeated.Broadcast(this);
 
-			//bIsDead = true;
+			// 1. BT/Controller 먼저 정리 (Movement 전에)
+			if (CachedBTComponent) CachedBTComponent->StopLogic(TEXT("EnemyDead"));
 
-			//Stop BT
-			/*
-			CachedBTComponent->StopLogic(TEXT("EnemyDead"));
-			//Stop Movement
-			GetCharacterMovement()->StopMovementImmediately();
-			GetCharacterMovement()->DisableMovement();
-			*/
+			// 2. Null 체크 Movement 중단
+			if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
+			{
+				MoveComp->StopMovementImmediately();
+				MoveComp->DisableMovement();  // 순서 반대로 해도 OK
+			}
 
+			// 3. 페이드 시작 (Movement 후)
 			StartDeathSequence();
 		}
 		else

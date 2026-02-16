@@ -7,6 +7,7 @@
 #include "BossAnimInstance.generated.h"
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBattleStart);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSlamActorSpawn);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossCollisionDisable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDead);
@@ -26,6 +27,9 @@ public:
 	FOnBattleStart OnBattleStart;
 
 	UPROPERTY()
+	FOnSlamActorSpawn OnSlamActorSpawn;
+
+	UPROPERTY()
 	FOnBossCollisionEnable OnBossCollisionEnable;
 
 	UPROPERTY()
@@ -37,6 +41,9 @@ public:
 protected:
 	UFUNCTION()
 	void AnimNotify_BattleStart();
+
+	UFUNCTION()
+	void AnimNotify_SlamActorSpawn();
 
 	UFUNCTION()
 	void AnimNotify_CollisionEnable();

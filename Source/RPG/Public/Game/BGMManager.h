@@ -37,7 +37,8 @@ public:
 	
 private:
     UPROPERTY()
-    UAudioComponent* BGMAudioComponent;
+	UAudioComponent* CurrentBGMAudioComp = nullptr;
+
     UPROPERTY()
     USoundCue* CurrentBGM;
 

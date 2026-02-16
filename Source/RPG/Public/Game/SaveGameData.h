@@ -32,7 +32,7 @@ public:
 	int32 SavedCurrentExp;
 
 	UPROPERTY()
-	TArray<int32> ActivatedSkills;
+	TArray<int32> ActivatedSkills = { 0, 0, 0, 0, 0 };
 
 	UPROPERTY()
 	int32 SavedCurrentHP;

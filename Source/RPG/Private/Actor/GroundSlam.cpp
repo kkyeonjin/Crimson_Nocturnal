@@ -49,7 +49,7 @@ void AGroundSlam::StartSlam()
             CollisionStartTimer,
             this,
             &AGroundSlam::CollisionEnable,
-            0.7f,
+            0.1f,
             false
         );
     }

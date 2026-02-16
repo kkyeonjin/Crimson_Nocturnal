@@ -26,14 +26,24 @@ void UMainHUDWidget::UpdateHP(int32 Current, int32 Max)
 
 	if (HPText)
 	{
-		HPText->SetText(FText::AsNumber(Current));
+		FText HealthText = FText::Format(
+			FText::FromString(TEXT("{0}/{1}")),  // ÅÛÇÃ¸´
+			FText::AsNumber(Current),             // {0}
+			FText::AsNumber(Max)                  // {1}
+		);
+
+		HPText->SetText(HealthText);
 	}
 }
 
 void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
 {
 	float Percent = (float)Current / (float)Max;
-	//UE_LOG(LogTemp, Error, TEXT("HP Percent: %f"), Percent);
+
+	if (Percent == 1.f)
+	{
+		IsReadyToUseUlt = true;
+	}
 
 	if (BPBar)
 	{
@@ -47,7 +57,66 @@ void UMainHUDWidget::UpdateBP(int32 Current, int32 Max)
 
 	if (BPText)
 	{
-		BPText->SetText(FText::AsNumber(Current));
+		FText BloodText = FText::Format(
+			FText::FromString(TEXT("{0}/{1}")),  // ÅÛÇÃ¸´
+			FText::AsNumber(Current),             // {0}
+			FText::AsNumber(Max)                  // {1}
+		);
+
+		BPText->SetText(BloodText);
+	}
+}
+
+void UMainHUDWidget::UpdateLevelText(int32 CurrentLevel)
+{
+	UE_LOG(LogTemp, Warning, TEXT("Update Level Text"));
+
+	if (LevelText)
+	{
+		FText Level = FText::Format(
+			FText::FromString(TEXT("Lv. {0}")),
+			FText::AsNumber(CurrentLevel)
+		);
+
+		UE_LOG(LogTemp, Warning, TEXT("Level Text: %d"), CurrentLevel);
+
+		LevelText->SetText(Level);
+	}
+}
+
+//called when game start (to initialize hud)
+void UMainHUDWidget::SetUltEmblem(int32 UltNum)
+{
+	if (IsReadyToUseUlt)
+	{
+		for (int i = 0; i < UltReadyImages.Num(); i++)
+		{
+			UltReadyImages[i]->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+		UltReadyImages[UltNum]->SetVisibility(ESlateVisibility::Visible);
+	}
+	else
+	{
+		for (int i = 0; i < UltImages.Num(); i++)
+		{
+			UltImages[i]->SetVisibility(ESlateVisibility::Hidden);
+		}
+
+		UltImages[UltNum]->SetVisibility(ESlateVisibility::Visible);
+	}
+}
+
+void UMainHUDWidget::ShowReadyToUseUlt()
+{
+	IsReadyToUseUlt = true; 
+
+	for (int i = 0; i < UltReadyImages.Num(); i++)
+	{
+		if (UltImages[i]->GetVisibility() == ESlateVisibility::Visible)
+		{
+			UltReadyImages[i]->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }
 
@@ -83,12 +152,18 @@ void UMainHUDWidget::ShowLevelUpPopUp(int32 CurrentLevel)
 	LevelUp->SetVisibility(ESlateVisibility::Visible);
 }
 
+void UMainHUDWidget::HideLevelUp()
+{
+	LevelUp->SetVisibility(ESlateVisibility::Hidden);
+}
+
 void UMainHUDWidget::HidePopUp()
 {
-	SpecialLevelUp->SetVisibility(ESlateVisibility::Hidden);
-	LevelUp->SetVisibility(ESlateVisibility::Hidden);
-
-	StartPopUp->SetVisibility(ESlateVisibility::Visible);
+	if (SpecialLevelUp)
+	{
+		SpecialLevelUp->SetVisibility(ESlateVisibility::Hidden);
+	}
+	StartPopUp->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainHUDWidget::ShowStartPopUp()
@@ -126,11 +201,13 @@ void UMainHUDWidget::ShowInteractPopUp()
 
 void UMainHUDWidget::HideInteractPopUp()
 {
+	DancePopUp->SetVisibility(ESlateVisibility::Hidden);
 	InteractPopUp->SetVisibility(ESlateVisibility::Hidden);
 }
 
 void UMainHUDWidget::ShowDialogue(const FString& NewDialogueName, const FString& NewDialogueLine)
 {
+	UE_LOG(LogTemp, Display, TEXT("ShowDialogue in MainHUDWidget"));
 	DialogueName->SetText(FText::FromString(NewDialogueName));
 	DialogueLine->SetText(FText::FromString(NewDialogueLine));
 
@@ -143,6 +220,11 @@ void UMainHUDWidget::HideDialogue()
 	{
 		DialoguePanel->SetVisibility(ESlateVisibility::Hidden);
 	}
+}
+
+void UMainHUDWidget::ShowDancePopUp()
+{
+	DancePopUp->SetVisibility(ESlateVisibility::Visible);
 }
 
 void UMainHUDWidget::SetSubWidgets(USkillScreenOverlayWidget* Widget)
@@ -158,13 +240,17 @@ void UMainHUDWidget::NativeConstruct()
 
 	ComboPopUpImages = { ComboA, ComboB, ComboC, ComboD };
 
+	UltImages = { UltA, UltB, UltC };
+
+	UltReadyImages = { UltAReady, UltBReady, UltCReady };
+
 }
 
 void UMainHUDWidget::OnSkillStarted(int32 SkillNum)
 {
 	SkillScreenOverlayWidget->ShowSkillEffect(SkillNum);
-
-	UE_LOG(LogTemp, Error, TEXT("Is Valid: %s"), SkillScreenOverlayWidget ? TEXT("Yes") : TEXT("No"));
+	UltReadyImages[SkillNum]->SetVisibility(ESlateVisibility::Hidden);
+	IsReadyToUseUlt = false;
 }
 
 void UMainHUDWidget::OnSkillFinished()

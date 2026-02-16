@@ -10,9 +10,14 @@ void ATitleGameMode::BeginPlay()
 {
 	Super::BeginPlay();
 
+    FString LevelName = GetWorld()->GetMapName();
+
     // BGM Àç»ý¸¸!
-    if (UAudioComponent* AudioComp = UGameplayStatics::SpawnSound2D(this, TitleBGM))
+    if (LevelName.Contains(TEXT("Title")))
     {
-        AudioComp->Play();
+        if (UAudioComponent* AudioComp = UGameplayStatics::SpawnSound2D(this, TitleBGM))
+        {
+            AudioComp->Play();
+        }
     }
 }

@@ -37,37 +37,56 @@ void UEnemyAttackComponent::InitializeEnemyAttackComponents(USceneComponent* New
 
 void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
 {
-	//UE_LOG(LogTemp, Display, TEXT("Overlap Start"));
-	const FVector Start = TraceStartPoint->GetComponentLocation();
-	const FVector End = TraceEndPoint->GetComponentLocation();
+	if (ActorsToIgnore.Contains(OtherActor)) return;
+	if (!OtherActor || !OtherActor->ActorHasTag("Player")) return;
 
-	FHitResult HitResult;
-	ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2); //EnemyAttack Trace Channel
+	FVector HitLocation;
+	bool bHitValid = false;
 
-	UKismetSystemLibrary::BoxTraceSingle(
-		this,
-		Start,
-		End,
-		AttackTraceSize,
-		TraceStartPoint->GetComponentRotation(),
-		TraceChannel,
-		false,
-		ActorsToIgnore,
-		EDrawDebugTrace::ForDuration,
-		HitResult,
-		true,
-		FLinearColor::Yellow
-	);
-
-	if (HitResult.GetActor() && HitResult.GetActor()->ActorHasTag("Player"))
+	if (IsTraceEnable)
 	{
-		ActorsToIgnore.Add(HitResult.GetActor());
-		IHitInterface* HitInterface = Cast<IHitInterface>(HitResult.GetActor());
+		//UE_LOG(LogTemp, Display, TEXT("Overlap Start"));
+		const FVector Start = TraceStartPoint->GetComponentLocation();
+		const FVector End = TraceEndPoint->GetComponentLocation();
 
-		if (HitInterface)
-		{
-			HitInterface->GetHit(HitResult.ImpactPoint, GetOwner());
+		FHitResult HitResult;
+		ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel2); //EnemyAttack Trace Channel
+
+		UKismetSystemLibrary::BoxTraceSingle(
+			this,
+			Start,
+			End,
+			AttackTraceSize,
+			TraceStartPoint->GetComponentRotation(),
+			TraceChannel,
+			false,
+			ActorsToIgnore,
+			EDrawDebugTrace::ForDuration,
+			HitResult,
+			true,
+			FLinearColor::Yellow
+		);
+
+		if (HitResult.GetActor()) {
+			HitLocation = HitResult.ImpactPoint;
+			bHitValid = true;
 		}
+	}
+	else
+	{
+		HitLocation = SweepResult.ImpactPoint;
+		bHitValid = true;
+	}
+
+	if (!bHitValid) return;
+
+	// 히트 리스트에 추가 (중복 방지)
+	ActorsToIgnore.AddUnique(OtherActor);
+
+	// 데미지 적용
+	if (IHitInterface* HitInterface = Cast<IHitInterface>(OtherActor)) 
+	{
+		HitInterface->GetHit(HitLocation, GetOwner());
 	}
 }
 

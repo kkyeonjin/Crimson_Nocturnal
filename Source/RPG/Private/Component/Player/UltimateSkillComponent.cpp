@@ -2,7 +2,6 @@
 
 
 #include "Component/Player/UltimateSkillComponent.h"
-
 #include "Character/Player/Types/PlayerTypes.h"
 
 // Sets default values for this component's properties
@@ -11,25 +10,6 @@ UUltimateSkillComponent::UUltimateSkillComponent()
 	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
 	// off to improve performance if you don't need them.
 	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
-}
-
-
-// Called when the game starts
-void UUltimateSkillComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-
-}
-
-
-// Called every frame
-void UUltimateSkillComponent::TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction)
-{
-	Super::TickComponent(DeltaTime, TickType, ThisTickFunction);
 
 	// ...
 }
@@ -78,7 +58,7 @@ void UUltimateSkillComponent::Skill1(float AttackValue)
 	{
 		//포인터라서 이렇게 접근해야함
 		UE_LOG(LogTemp, Warning, TEXT("Attack Value: %f"), AttackValue);
-		//UE_LOG(LogTemp, Warning, TEXT("Combo AnimNum: %d"), (*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum);
+		UE_LOG(LogTemp, Warning, TEXT("Combo AnimNum: %d"), (*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum);
 		OnSkill1Attack.Broadcast((*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum, (*CachedComboPatterns)[XSettingForSkillA].ComboAttackMultiplier);
 	}
 	//Y Button

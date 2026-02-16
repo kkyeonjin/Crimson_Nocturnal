@@ -48,6 +48,9 @@ void UBossAttributeComponent::BeginPlay()
 	}
 	// ...
 
+	//for Debug
+	//OnHpThreshold.Broadcast(1);
+
 }
 
 int32 UBossAttributeComponent::CalcDamage()

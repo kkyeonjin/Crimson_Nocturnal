@@ -21,17 +21,14 @@ class RPG_API UUltimateSkillComponent : public UActorComponent
 public:
 	// Sets default values for this component's properties
 	UUltimateSkillComponent();
-	// Called every frame
-	virtual void TickComponent(float DeltaTime, ELevelTick TickType, FActorComponentTickFunction* ThisTickFunction) override;
 
 	//Timer Manage Func
 	void TimerStart(EUltimateSkill* SelectedSkill);
 
 	void SkillTimeOver();
 
+	//Skill 2/3은 여기에 함수 없어도 ㄱㅊ음 
 	void Skill1(float AttackValue);
-	void Skill2();
-	void Skill3();
 
 	UPROPERTY()
 	FOnSkill1Attack OnSkill1Attack;
@@ -39,13 +36,7 @@ public:
 	UPROPERTY()
 	FOnUltTimeOver OnUltTimeOver;
 
-
-protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
-
 private:
-
 	FTimerHandle SkillActiveTimer;
 	float SkillAActiveTime = 6.f; //Default
 	float SkillBActiveTime = 5.f; //Default

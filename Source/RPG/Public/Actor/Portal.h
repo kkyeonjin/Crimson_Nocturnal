@@ -26,8 +26,12 @@ public:
 
     // IInteractable 구현
     virtual void OnInteract() override;
-    //virtual FString GetInteractionPromptText_Implementation() const override;
 
 private:
+    UPROPERTY(EditAnywhere) 
+    bool EnteringSaloon = false;  // Saloon으로 가는 포탈
+
+    UPROPERTY(EditAnywhere)
+    bool ExitingSaloon = false;  // Saloon에서 나가는 포탈
    
 };

@@ -95,6 +95,16 @@ void USFXComponent::PlayUltSkillSFX(int32 UltSkillIndex)
 	}
 }
 
+void USFXComponent::PlayLevelUpSFX()
+{
+	PlaySoundAtPlayer(LevelUpSFX);
+}
+
+void USFXComponent::PlayBPMaxSPX()
+{
+	PlaySoundAtPlayer(BPMaxSFX);
+}
+
 void USFXComponent::PlaySoundAtPlayer(USoundCue* SoundCue)
 {
 	UGameplayStatics::PlaySoundAtLocation(this, SoundCue, GetOwner()->GetActorLocation());

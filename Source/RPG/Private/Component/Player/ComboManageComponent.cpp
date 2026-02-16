@@ -141,7 +141,9 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboA.ComboNum = 0;
 	ComboA.AnimMontageNum = static_cast<int32>(EAnimMontageType::ComboA);
 	ComboA.ComboAttackMultiplier = 3.5;
-	ComboA.BPValue = 20;
+	//ComboA.BPValue = 20;
+	//for debug
+	ComboA.BPValue = 100;
 	ComboPatterns.Add(ComboA);
 
 	//ComboB
@@ -183,6 +185,16 @@ void UComboManageComponent::CheckComboTimeOut()
 	UE_LOG(LogTemp, Warning, TEXT("InputReset"));
 }
 
+void UComboManageComponent::StartQTETimer()
+{
+	GetWorld()->GetTimerManager().SetTimer(
+		BossSurvivalTimer,
+		this, &UComboManageComponent::QTEFailed,
+		BossSurvivalTimeOut,
+		false
+	);
+}
+
 int32 UComboManageComponent::GetComboAnimMontage(int32 ComboAnimNum)
 {
 	return ComboPatterns[ComboAnimNum].AnimMontageNum;
@@ -221,6 +233,8 @@ bool UComboManageComponent::BossUltimateQTE(EAttackKeyType Key)
 				//Set AttackMultiplier
 				CurrentAttackMultiplier = ComboPatterns[RequiredBossComboNum].ComboAttackMultiplier;
 				//start broadcast when combo matches
+				GetWorld()->GetTimerManager().ClearTimer(ComboTimeOutTimer);
+				GetWorld()->GetTimerManager().ClearTimer(BossSurvivalTimer);
 				OnComboMatch.Broadcast(ComboPatterns[RequiredBossComboNum].AnimMontageNum, ComboPatterns[RequiredBossComboNum].BPValue);
 				UE_LOG(LogTemp, Warning, TEXT("ComboMatch!!"));
 				ResetInputSequence();
@@ -232,3 +246,7 @@ bool UComboManageComponent::BossUltimateQTE(EAttackKeyType Key)
 }
 
 
+void UComboManageComponent::QTEFailed()
+{
+	OnQTEFailed.Broadcast();
+}

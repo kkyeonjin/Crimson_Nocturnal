@@ -25,11 +25,12 @@ class AItem;
 class UAnimMontage;
 class UPlayerAnimInstance;
 class UComboManageComponent;
-class URaycastComponent;
+class UInteractionComponent;
 class USFXComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillCReady);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQTESuccess);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInteractPressed);
 
 UCLASS()
 class RPG_API APlayerCharacter : public ACharacter, public IHitInterface //, public IDefeatInterface
@@ -50,9 +51,20 @@ public:
 
 	void ShowStartPopUp();
 
+	//Portal / NPC Detected (Raycast)
+	UFUNCTION()
+	void InteractPopUp();
+
+	//Dance Event (Saloon)
+	void DancePopUp();
+
+	void HideInteractPopUp();
+
 	FOnSkillCReady OnSkillCReady;
 
 	FOnQTESuccess OnQTESuccess;
+
+	FOnInteractPressed OnInteractPressed;
 
 protected:
 	virtual void BeginPlay() override;
@@ -80,7 +92,7 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillTreeOn;
 
-	UPROPERTY()
+	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* PopUpOff;
 
 	//Open Menu Screen
@@ -91,7 +103,10 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* Interact;
 
-	//For Event Level (Saloon)
+	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* HideDialogue;
+
+	//for event Level(Saloon)
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SaloonContext;
 
@@ -106,11 +121,9 @@ protected:
 
 	//Open SKillTree
 	void OpenSkillTree();
-	//Menu
-	//void MenuScreen();
 
-	//Interact (Portal / NPC)
-	void OnInteract();
+	//Saloon event
+	void StartDance();
 
 	UFUNCTION()
 	void SetIsSkillEnable();
@@ -169,13 +182,12 @@ protected:
 	UFUNCTION()
 	void OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
 
+	UFUNCTION()
+	void OnQTEFailed();
+
 	//UltA
 	UFUNCTION()
 	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);
-
-	//Portal / NPC Detected (Raycast)
-	UFUNCTION()
-	void InteractPopUp();
 
 	//Move to GameOver Level
 	UFUNCTION()
@@ -188,6 +200,9 @@ protected:
 	UFUNCTION()
 	void ExitSaloonMode();
 
+	UFUNCTION()
+	void OnInteract();
+
 
 private:
 
@@ -199,7 +214,7 @@ private:
 	//default state is moveEnabled
 	EPlayerMoveState PlayerMoveState = EPlayerMoveState::EPMS_MoveEnabled;
 
-	EUltimateSkill SelectedSkill = EUltimateSkill::SkillA;
+	EUltimateSkill SelectedSkill = EUltimateSkill::None;
 
 	UPlayerAnimInstance* CachedAnimInstance;
 
@@ -215,7 +230,7 @@ private:
 
 	UHUDComponent* CachedHUDComponent;
 
-	URaycastComponent* CachedRaycastComponent;
+	UInteractionComponent* CachedInteractionComponent;
 
 	USFXComponent* CachedSFXComponent;
 
@@ -237,7 +252,7 @@ public:
 	FORCEINLINE EPlayerMoveState GetPlayerMoveState() const { return PlayerMoveState; }
 	FORCEINLINE void SetPlayerMoveState(EPlayerMoveState State) { PlayerMoveState = State; }
 
-	FORCEINLINE void SetUltimateSkill(int32 SkillNum) { SelectedSkill = static_cast<EUltimateSkill>(SkillNum + 1); }
+	FORCEINLINE void SetUltimateSkill(int32 SkillNum) { SelectedSkill = static_cast<EUltimateSkill>(SkillNum); }
 
 	FORCEINLINE void SetIsSkillOn(bool bIsSkillOn) { IsSkillOn = bIsSkillOn; }
 

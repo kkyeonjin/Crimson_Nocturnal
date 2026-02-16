@@ -63,12 +63,20 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|UltSkill")
     USoundCue* UltCSFX;
 
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|LevelUp")
+    USoundCue* LevelUpSFX;
+
+    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|BPMax")
+    USoundCue* BPMaxSFX;
+
     // ===== 재생 함수들 =====
     void PlayChainAttackSFX(int32 AnimNum, FName SectionName);
     void PlayComboAttackSFX(int32 ComboNum);
     void PlayHitSFX();
     void PlayDeathSFX();
     void PlayUltSkillSFX(int32 UltSkillIndex);
+    void PlayLevelUpSFX();
+    void PlayBPMaxSPX();
 
 	
 private:

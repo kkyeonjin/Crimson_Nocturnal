@@ -46,9 +46,14 @@ public:
 	UFUNCTION()
 	void CloseMenuUI();
 
+	UFUNCTION()
 	void UpdatePlayerHP(int32 Current, int32 Max);
 
+	UFUNCTION()
 	void UpdatePlayerBP(int32 Current, int32 Max);
+
+	UFUNCTION()
+	void UpdateLevelText(int32 CurrentLevel);
 
 	UFUNCTION()
 	void ShowSkillTreeUI();
@@ -59,13 +64,18 @@ public:
 	UFUNCTION()
 	void SetSkillTree(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
 
+	UFUNCTION()
 	void SetSkillPointText(int32 SkillPoint);
 
 	void InitializeSkillTreeUIFromSave(int32 UltNum, TArray<int32> ActivatedSkills);
 
+	void ShowReadyToUseUlt();
+
 	// UI Ç¥½Ã + ÀÚµ¿ ¼û±è Ã³¸®
 
 	void ShowLevelUpPopUp(int32 CurrentLevel);
+
+	void HideLevelUp();
 
 	void HidePopUp();
 
@@ -95,6 +105,9 @@ public:
 	void ShowInteractPopUp();
 
 	void HideInteractPopUp();
+
+	//Dance PopUP
+	void ShowDancePopUp();
 
 	//Show Dialogue
 	UFUNCTION()

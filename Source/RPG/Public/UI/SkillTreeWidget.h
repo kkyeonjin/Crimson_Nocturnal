@@ -232,6 +232,7 @@ private:
 	TArray<UPanelWidget*> UltPanels;
 
 	int32 SkillSelectCount = 0;
+	int32 CurrentSkillPoint = 0;
 	TArray<UImage*> SkillHighlights;
 	TArray<UImage*> SkillDescriptions;
 	TArray<UImage*> SkillActivated;

@@ -31,7 +31,7 @@ protected:
 
 private:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Ultimate|Settings", meta = (AllowPrivateAccess))
-	float TeleportHeight = 100.0f;
+	float TeleportHeight = 100.f;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AActor> DarkStormActorClass;
