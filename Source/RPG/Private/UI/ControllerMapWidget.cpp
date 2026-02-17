@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/ControllerMapWidget.h"
 
 void UControllerMapWidget::InitializeContMap()
@@ -11,6 +8,5 @@ void UControllerMapWidget::InitializeContMap()
 
 void UControllerMapWidget::CloseContMap()
 {
-	UE_LOG(LogTemp, Display, TEXT("ContMapClose"));
 	this->SetVisibility(ESlateVisibility::Hidden);
 }

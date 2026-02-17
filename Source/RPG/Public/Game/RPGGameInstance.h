@@ -1,4 +1,5 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
+﻿// GI that exists all the time during runtime
+// Manage load/save/BGM play
 
 #pragma once
 
@@ -25,13 +26,11 @@ public:
     FOnLoadGameRequested OnLoadGameRequested;
     FOnSaveGameRequested OnSaveGameRequested;
     FOnRuntimeRestoreRequested OnRuntimeRestoreRequested;
-
-    // 사운드 관리
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
-    TSubclassOf<UBGMManager> BGMManagerClass;  // ★ TSubclassOf!
+    TSubclassOf<UBGMManager> BGMManagerClass; 
 
     UPROPERTY(BlueprintReadWrite, Category = "Audio")
-    UBGMManager* BGMManager;  // 런타임 인스턴스
+    UBGMManager* BGMManager;  
 
     //Func to Communicate with BGMManager
     void PlayHospitalBGM();
@@ -48,20 +47,19 @@ public:
     bool IsFirstPlay() { return !bHasSeenTutorial; }
 
     UFUNCTION(BlueprintCallable)
-    void SetTutorialSeen(bool HasSeenTuto) { bHasSeenTutorial = HasSeenTuto; }
+    void SetTutorialSeen(bool HasSeenTuto);
 
-    // SaveGame 데이터 (포인터로 관리)
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
-    TSubclassOf<USaveGameData> SaveGameDataClass;  // ★ TSubclassOf!
+    TSubclassOf<USaveGameData> SaveGameDataClass; 
 
     UPROPERTY(BlueprintReadWrite)
-    USaveGameData* SaveGameData;  // 런타임 인스턴스
+    USaveGameData* SaveGameData;  
 
     //for runtime backup
     UPROPERTY()
     USaveGameData* RunTimeSaveGameData;
 
-    // 세이브/로드 함수
+    // Load & Save
     void RequestSaveGame();
     void RequestLoadGame();
     void ClearSaveData();
@@ -72,7 +70,6 @@ public:
     void RestorePlayerData();
     bool HasRunTimeSaveData();
 
-    // 슬롯 이름
     UPROPERTY()
     FString SaveSlotName = TEXT("SaveSlot_01");
 };

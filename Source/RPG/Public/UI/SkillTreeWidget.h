@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// SkillTree widget that can be opened during gameplay (communicate with HUDComp)
+// Equip Ultimate Skill & Ultimate Skill A Setting & normal skill activation 
 
 #pragma once
 #define ULTNUM  3
@@ -15,16 +16,12 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillTreeClose);
 class UTextBlock;
 class UImage;
 
-/**
- *
- */
 UCLASS()
 class RPG_API USkillTreeWidget : public UBaseUIInputWidget
 {
 	GENERATED_BODY()
 
 public:
-
 	virtual void NativeConstruct() override;
 
 	void ChangeSelection(int32 Input);
@@ -209,7 +206,6 @@ public:
 	int32 GetXorYSettingCount();
 
 protected:
-		// BaseUIInputWidget의 virtual 함수들을 오버라이드
 		virtual void OnDPadUp() override { ChangeSelection(1); }
 		virtual void OnDPadDown() override { ChangeSelection(-1); }
 		virtual void OnDPadLeft() override { OnDirectionalInput(-1); }
@@ -223,7 +219,7 @@ protected:
 private:
 
 	int32 UltSelectCount = 0;
-	int32 CurrentSection = 0; //default 0:Ult, 1:Skill, 2:SkillA Setting 
+	int32 CurrentSection = 0; 
 	TArray<UImage*> UltHighlights;
 	TArray<UImage*> UltActivated;
 	TArray<UImage*> UltDescriptions;
@@ -243,4 +239,6 @@ private:
 	TArray<UImage*> YSettingNums;
 	TArray<UImage*> XSettingHighlights;
 	TArray<UImage*> YSettingHighlights;
+
+	void SetImageArrays();
 };

@@ -1,23 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Actor/BossUltimateSkill.h"
 #include "Character/Player/PlayerCharacter.h"
 
-// Sets default values
+
 ABossUltimateSkill::ABossUltimateSkill()
 {
-	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-
-// Called when the game starts or when spawned
 void ABossUltimateSkill::BeginPlay()
 {
 	Super::BeginPlay();
 
+
+	// Delayed spawn 
+	// Storm actor(UltActor) must be spawned after the Boss Ult Anim when finished
 	GetWorld()->GetTimerManager().SetTimer(
 		StormTimer,
 		this,
@@ -25,7 +21,6 @@ void ABossUltimateSkill::BeginPlay()
 		0.5f,
 		false
 	);
-
 }
 
 void ABossUltimateSkill::StartUltSkill()
@@ -35,14 +30,14 @@ void ABossUltimateSkill::StartUltSkill()
 	{
 		GetWorld()->SpawnActor<AActor>(
 			DarkStormActorClass,
-			GetActorLocation(), //임시로 넣은 값
+			GetActorLocation(), 
 			FRotator::ZeroRotator);
 	}
 
 	TeleportPlayerToCenter();
 }
 
-
+// Teleport Player to UltActor's location (trapped)
 void ABossUltimateSkill::TeleportPlayerToCenter()
 {
 	if (!TargetPlayer)
@@ -56,9 +51,5 @@ void ABossUltimateSkill::TeleportPlayerToCenter()
 
 	TargetPlayer->SetActorLocation(TeleportLocation);
 	TargetPlayer->StartBossQTEMode();
-
-	UE_LOG(LogTemp, Warning,
-		TEXT("UltimateSkillActor: Player teleported to center at %.0f, %.0f, %.0f"),
-		TeleportLocation.X, TeleportLocation.Y, TeleportLocation.Z);
 }
 

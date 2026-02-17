@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/MenuWidget.h"
 #include "Components/Image.h"
 #include "Game/RPGGameInstance.h"
@@ -14,7 +11,7 @@ void UMenuWidget::SetSubWidget(UTutorialWidget* TutoWidget, UControllerMapWidget
 	ControllerMapWidget = ContWidget;
 }
 
-
+// up&down
 void UMenuWidget::OnDirectionalInput(int32 Input)
 {
 	MenuHighlights[CurrentMenuCount]->SetVisibility(ESlateVisibility::Hidden);
@@ -46,10 +43,9 @@ void UMenuWidget::OnSelect()
 			TutorialWidget->InitializeTutorial();
 			break;
 		case 3: //Exit
-			//게임 종료
 			if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetGameInstance()))
 			{
-				GI->Shutdown();  // 현 상태 저장 & 종료
+				GI->Shutdown();  
 			}
 			break;
 		default:

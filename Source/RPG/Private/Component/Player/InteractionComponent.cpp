@@ -1,19 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Player/InteractionComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Components/ShapeComponent.h"
 #include "Interface/InteractableInterface.h"
 
-// Sets default values for this component's properties
 UInteractionComponent::UInteractionComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	//PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UInteractionComponent::BeginPlay()
@@ -37,8 +29,6 @@ void UInteractionComponent::OnCollisionOverlap(UPrimitiveComponent* OverlappedCo
 {
     if (OtherActor->ActorHasTag("Portal") || OtherActor->ActorHasTag("NPC"))
     {
-        UE_LOG(LogTemp, Warning, TEXT("Ray Collision Overlapped"));
-
         IInteractable* InteractableInterface = Cast<IInteractable>(OtherActor);
 
         if (InteractableInterface)
@@ -77,7 +67,6 @@ void UInteractionComponent::InteractionStart()
 {
     if (CurrentInteractable)
     {
-        
         IInteractable* InteractableInterface = Cast<IInteractable>(CurrentInteractable);
 
         if (InteractableInterface)

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/SkillTreeWidget.h"
 #include "Components/Image.h"
 #include "Components/PanelWidget.h"
@@ -11,6 +8,7 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 	if (CurrentSection == static_cast<int32>(ESkillTreeSection::UltimateSkill))
 	{
 		UltSelectCount -= Input;
+		// Circular selection enable
 		if (UltSelectCount == -1)
 		{
 			UltSelectCount = 2;
@@ -20,18 +18,12 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 			UltSelectCount = 0;
 		}
 
-		UE_LOG(LogTemp, Warning, TEXT("Count: %d"), UltSelectCount);
-
-		//UltHighlights[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
 		UltPanels[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
-		//UltDescriptions[UltSelectCount]->SetVisibility(ESlateVisibility::Visible);
 
 		for (int i = 0; i < ULTNUM; i++)
 		{
 			if (i != UltSelectCount)
 			{
-				//UltHighlights[i]->SetVisibility(ESlateVisibility::Hidden);
-				//UltDescriptions[i]->SetVisibility(ESlateVisibility::Hidden);
 				UltPanels[i]->SetVisibility(ESlateVisibility::Hidden);
 			}
 		}
@@ -47,8 +39,6 @@ void USkillTreeWidget::ChangeSelection(int32 Input) //Up&Down Button
 		{
 			SkillSelectCount = 0;
 		}
-
-		UE_LOG(LogTemp, Warning, TEXT("Count: %d"), SkillSelectCount);
 
 		SkillHighlights[SkillSelectCount]->SetVisibility(ESlateVisibility::Visible);
 		SkillDescriptions[SkillSelectCount]->SetVisibility(ESlateVisibility::Visible);
@@ -92,9 +82,6 @@ void USkillTreeWidget::SwitchSection() // L&R Button
 
 		UltPanels[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
 
-		//UltHighlights[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
-		//UltDescriptions[UltSelectCount]->SetVisibility(ESlateVisibility::Hidden);
-
 		SkillHighlights[0]->SetVisibility(ESlateVisibility::Visible);
 		SkillDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
 	}
@@ -107,11 +94,7 @@ void USkillTreeWidget::SwitchSection() // L&R Button
 		SkillDescriptions[SkillSelectCount]->SetVisibility(ESlateVisibility::Hidden);
 
 		UltPanels[0]->SetVisibility(ESlateVisibility::Visible);
-
-		//UltHighlights[0]->SetVisibility(ESlateVisibility::Visible);
-		//UltDescriptions[0]->SetVisibility(ESlateVisibility::Visible);
 	}
-
 }
 
 //L&R Button when SkillA Key Setting
@@ -192,7 +175,20 @@ void USkillTreeWidget::InitializeSkillTree(int32 SkillPoint, int32 UltNum, TArra
 {
 	SetSkillPointText(SkillPoint);
 
-	if (UltNum != -1)
+	SetImageArrays();
+
+	/*
+	//FIX: 빈 배열 체크
+	if (ActivatedSkills.Num() == 0)
+	{
+		ActivatedSkills.Init(0, 5);  // 기본 5개 슬롯 0으로 채움
+		UE_LOG(LogTemp, Warning, TEXT("SkillTree: ActivatedSkills was empty, initialized"));
+	}
+
+	UE_LOG(LogTemp, Warning, TEXT("XSettingNums SIZE: %d"), XSettingNums.Num());
+	*/
+
+	if (UltNum != 10) //10 is for No Equipped skill
 	{
 		UltActivated[UltNum]->SetVisibility(ESlateVisibility::Visible);
 		UltSymbols[UltNum]->SetVisibility(ESlateVisibility::Visible);
@@ -211,6 +207,17 @@ void USkillTreeWidget::InitializeSkillTree(int32 SkillPoint, int32 UltNum, TArra
 
 	XSettingNums[Ult1XSetting]->SetVisibility(ESlateVisibility::Visible);
 	YSettingNums[Ult1YSetting]->SetVisibility(ESlateVisibility::Visible);
+
+
+	// 안전 루프: 실제 크기까지만
+	int32 NumSkills = FMath::Min(ActivatedSkills.Num(), SKILLNUM);
+	for (int i = 0; i < NumSkills; ++i)
+	{
+		if (ActivatedSkills[i] == 1)
+		{
+			SkillActivated[i]->SetVisibility(ESlateVisibility::Visible);
+		}
+	}
 }
 
 // A Button
@@ -312,7 +319,6 @@ void USkillTreeWidget::InitializeUIFromSave(int32 UltNum, TArray<int32> Activate
 	UltSymbols[UltNum]->SetVisibility(ESlateVisibility::Visible);
 
 	//Update Skill UI
-
 	for (int i = 0; i < ActivatedSkills.Num(); i++)
 	{
 		if (i == 1)
@@ -359,6 +365,13 @@ void USkillTreeWidget::NativeConstruct()
 {
 	Super::NativeConstruct();
 
+	SetImageArrays();
+	
+	InitializeSelection();
+}
+
+void USkillTreeWidget::SetImageArrays()
+{
 	UltHighlights = { Ult1Highlight, Ult2Highlight, Ult3Highlight };
 	UltActivated = { Ult1Activated, Ult2Activated, Ult3Activated };
 	UltDescriptions = { Ult1Description, Ult2Description, Ult3Description };
@@ -373,8 +386,6 @@ void USkillTreeWidget::NativeConstruct()
 	YSettingNums = { Y1, Y2, Y3, Y4 };
 	XSettingHighlights = { X1Highlight, X2Highlight, X3Highlight, X4Highlight };
 	YSettingHighlights = { Y1Highlight, Y2Highlight, Y3Highlight, Y4Highlight };
-
-	InitializeSelection();
 
 }
 

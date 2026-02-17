@@ -1,5 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 UENUM(BlueprintType)
@@ -13,7 +11,6 @@ enum class EBossPhase : uint8
 };
 
 
-// ? Boss »ó¼ö
 namespace BossConstants
 {
 	constexpr float PHASE1_DURATION = 7.5f;

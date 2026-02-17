@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/Player//PlayerAnimInstance.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -8,7 +5,6 @@
 
 void UPlayerAnimInstance::NativeInitializeAnimation()
 {
-	//call parent version of function
 	Super::NativeInitializeAnimation();
 
 	//find pawn Instance that currently applied on animation blueprint
@@ -27,21 +23,17 @@ void UPlayerAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	{
 		GroundSpeed = UKismetMathLibrary::VSizeXY(PlayerCharacterMovement->Velocity);
 		IsFalling = PlayerCharacterMovement->IsFalling();
-		//PlayerState = PlayerCharacter->GetPlayerState();
 	}
 }
 
 void UPlayerAnimInstance::AnimNotify_AttackEnd()
 {
-	// 캐스팅으로 캐릭터 접근
 	OnAttackMontageEnd.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::AnimNotify_MoveEnable()
 {
 	OnMoveEnable.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::AnimNotify_BladeLCollisionEnable()
@@ -67,29 +59,23 @@ void UPlayerAnimInstance::AnimNotify_BladeRCollisionDisable()
 void UPlayerAnimInstance::AnimNotify_KickCollisionEnable()
 {
 	OnKickCollisionEnable.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::AnimNotify_KickCollisionDisable()
 {
 	OnKickCollisionDisable.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("NotifyRings"));
 }
 
 void UPlayerAnimInstance::AnimNotify_GameOver()
 {
-	UE_LOG(LogTemp, Warning, TEXT("OnGameOver"));
 	OnGameOver.Broadcast();
 }
 
 void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)
 {
-	//EAnimMontageType MontageType = static_cast<EAnimMontageType>(AnimNum);
-
 	switch (AnimNum)
 	{
 		//Primary Animations
-		
 		case 0:
 			Montage_Play(AttackA);
 			break;
@@ -113,14 +99,12 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)
 			UE_LOG(LogTemp, Warning, TEXT("Unknown animation montage: %d"), AnimNum);
 			break;
 	}
-
 }
 
 void UPlayerAnimInstance::PlayChainAttackMontage(int32 AnimNum, FName Section)
 {
 	switch (AnimNum)
 	{
-		//Primary Animations
 	case 0:
 		Montage_Play(AttackA);
 		Montage_JumpToSection(Section, AttackA);

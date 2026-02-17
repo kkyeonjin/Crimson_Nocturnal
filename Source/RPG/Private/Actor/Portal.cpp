@@ -1,18 +1,11 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Actor/Portal.h"
-#include "Components/BoxComponent.h"
+﻿#include "Actor/Portal.h"
 #include "Components/StaticMeshComponent.h"
 #include "Kismet/GameplayStatics.h"
-#include "Character/NPC/NPC.h"
-#include "Game/RPGGameInstance.h"
 #include "Game/RPGGameMode.h"
 
 APortal::APortal()
 {
     PrimaryActorTick.bCanEverTick = false;
-
 }
 
 void APortal::OnInteract()
@@ -23,25 +16,17 @@ void APortal::OnInteract()
 
         ARPGGameMode* GM = Cast<ARPGGameMode>(GetWorld()->GetAuthGameMode());
 
+        // RuntimeDataSave is required cause Player+Components are newly loaded when new level is open
         GM->OnSaveRequired.Broadcast();
 
-        if (EnteringSaloon)
+        // Move to saloon portal's entrance when exit from the saloon
+        if (ExitingSaloon)
         {
             LevelString += TEXT("#SaloonDoor");
-            //Saloon 입장 이벤트
-            GM->OnEnterSaloon.Broadcast();  // GameMode로 전달
-            UE_LOG(LogTemp, Warning, TEXT("Enter Saloon!!! in portal"));
-        }
-        else if (ExitingSaloon)
-        {
-            //Saloon 퇴장 이벤트
-            GM->OnExitSaloon.Broadcast();
         }
 
         UGameplayStatics::OpenLevel(GetWorld(), FName(*LevelString));
 
-        UE_LOG(LogTemp, Warning, TEXT("Portal: %s → Saloon %s"),
-            *GetName(), EnteringSaloon ? TEXT("Enter") : TEXT("Exit"));
     }
 }
 

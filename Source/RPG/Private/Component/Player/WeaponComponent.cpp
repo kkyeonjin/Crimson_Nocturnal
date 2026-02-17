@@ -1,23 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Player/WeaponComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Components/ShapeComponent.h"
 #include "Interface/HitInterface.h"
-// Sets default values for this component's properties
+
+
 UWeaponComponent::UWeaponComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
-// Called when the game starts
 void UWeaponComponent::BeginPlay()
 {
 	Super::BeginPlay();
@@ -62,10 +55,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 		const FVector StartL = TraceStartPointL->GetComponentLocation();
 		const FVector EndL = TraceEndPointL->GetComponentLocation();
 
-		//TArray<AActor*> ActorsToIgnore;
-		//ActorsToIgnore.Add(GetOwner());
 		FHitResult HitResultL;
-		//ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 
 		UKismetSystemLibrary::BoxTraceSingle(
 			this,
@@ -76,7 +66,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 			TraceChannel,
 			false,
 			ActorsToIgnore,
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			HitResultL,
 			true
 		);
@@ -108,10 +98,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 		const FVector StartR = TraceStartPointR->GetComponentLocation();
 		const FVector EndR = TraceEndPointR->GetComponentLocation();
 
-		//TArray<AActor*> ActorsToIgnore;
-		//ActorsToIgnore.Add(GetOwner());
 		FHitResult HitResultR;
-		//ETraceTypeQuery TraceChannel = UEngineTypes::ConvertToTraceType(ECC_GameTraceChannel1);
 
 		UKismetSystemLibrary::BoxTraceSingle(
 			this,
@@ -122,7 +109,7 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 			TraceChannel,
 			false,
 			ActorsToIgnore,
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			HitResultR,
 			true
 		);
@@ -135,7 +122,8 @@ void UWeaponComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedC
 				APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(GetOwner());
 				if (PlayerCharacter)
 				{
-					//대미지 적용 위해서 플레이어가 공격한 적의 정보 Comp에 보내주기 위함 
+					// Send enemy's info that player attacks to AttributeComp
+					// cause Damage calculation needs enemy's DEF value
 					PlayerCharacter->HandleAttack(HitResultR.GetActor());
 				}
 			}

@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+//Ultimate skill system: 3 skills with timer-based activation.
+// UltSkillA: Custom combo keybinding / UltSkillB: Lifesteal (passive) / UltSkillC: Infection (passive broadcast)
 
 #pragma once
 
@@ -10,7 +11,6 @@
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnSkill1Attack, int32, AnimNum, float, AttackMultiplier);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnUltTimeOver);
 
-//struct FComboPattern;
 enum class EUltimateSkill : uint8;
 
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
@@ -19,17 +19,17 @@ class RPG_API UUltimateSkillComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UUltimateSkillComponent();
 
-	//Timer Manage Func
+	//Timer Manage Function
 	void TimerStart(EUltimateSkill* SelectedSkill);
 
 	void SkillTimeOver();
 
-	//Skill 2/3은 여기에 함수 없어도 ㄱㅊ음 
+	//Handle UltSkillA input (custom combo playback)
 	void Skill1(float AttackValue);
 
+	//Delegates
 	UPROPERTY()
 	FOnSkill1Attack OnSkill1Attack;
 
@@ -38,12 +38,16 @@ public:
 
 private:
 	FTimerHandle SkillActiveTimer;
-	float SkillAActiveTime = 6.f; //Default
-	float SkillBActiveTime = 5.f; //Default
-	float SkillCActiveTime = 7.f; //Default
 
-	int32 XSettingForSkillA = 0; //Default
-	int32 YSettingForSkillA = 0; //Default
+	// UltSkill durations(upgradable)
+	float SkillAActiveTime = 6.f; 
+	float SkillBActiveTime = 5.f; 
+	float SkillCActiveTime = 7.f; 
+
+
+	// UltSkillA combo bindings (0-3 = ComboA-D)
+	int32 XSettingForSkillA = 0; 
+	int32 YSettingForSkillA = 0; 
 
 	TArray<FComboPattern>* CachedComboPatterns;
 
@@ -54,7 +58,7 @@ public:
 	FORCEINLINE bool IsSkillActivated() { return bIsSkillActivated; }
 	FORCEINLINE void IncreaseSkillTime() { SkillAActiveTime *= 1.5f; SkillBActiveTime *= 1.5f; SkillCActiveTime *= 1.5f; }
 
-	//For SkillA
+	//For UltSkillA
 	FORCEINLINE void SetKeyBindingXInSkillA(int32 ComboNum) { XSettingForSkillA = ComboNum; }
 	FORCEINLINE void SetKeyBindingYInSkillA(int32 ComboNum) { YSettingForSkillA = ComboNum; }
 

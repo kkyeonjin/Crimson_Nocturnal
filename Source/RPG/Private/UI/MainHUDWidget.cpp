@@ -87,23 +87,26 @@ void UMainHUDWidget::UpdateLevelText(int32 CurrentLevel)
 //called when game start (to initialize hud)
 void UMainHUDWidget::SetUltEmblem(int32 UltNum)
 {
-	if (IsReadyToUseUlt)
+	if (UltNum != 10) //10 is for No Equipped skill
 	{
 		for (int i = 0; i < UltReadyImages.Num(); i++)
 		{
 			UltReadyImages[i]->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		UltReadyImages[UltNum]->SetVisibility(ESlateVisibility::Visible);
-	}
-	else
-	{
 		for (int i = 0; i < UltImages.Num(); i++)
 		{
 			UltImages[i]->SetVisibility(ESlateVisibility::Hidden);
 		}
 
-		UltImages[UltNum]->SetVisibility(ESlateVisibility::Visible);
+		if (IsReadyToUseUlt)
+		{
+			UltReadyImages[UltNum]->SetVisibility(ESlateVisibility::Visible);
+		}
+		else
+		{
+			UltImages[UltNum]->SetVisibility(ESlateVisibility::Visible);
+		}
 	}
 }
 

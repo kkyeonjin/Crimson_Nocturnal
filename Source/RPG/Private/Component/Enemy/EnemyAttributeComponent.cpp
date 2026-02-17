@@ -3,39 +3,29 @@
 
 #include "Component/Enemy/EnemyAttributeComponent.h"
 #include "Character/Enemy/Enemy.h"
+#include "Character/Enemy/Types/EnemyStat.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Kismet/GameplayStatics.h"
 #include "Component/Player/PlayerAttributeComponent.h"
 
-// Sets default values for this component's properties
 UEnemyAttributeComponent::UEnemyAttributeComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
-// Called when the game starts
 void UEnemyAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 	APlayerCharacter* PlayerCharacter = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0));
 
-	if (PlayerCharacter)
-	{
-		PlayerAttributeComponent = PlayerCharacter->FindComponentByClass<UPlayerAttributeComponent>();
-	}
-	else
-	{
-		UE_LOG(LogTemp, Error, TEXT("PlayerCharacter From EnemyComp Load Failed"));
-	}
+	// Cache PlayerAttribute safely
+	CachePlayerAttribute();
 
+	// Load stats from DataTable
 	if (AEnemy* OwnerEnemy = Cast<AEnemy>(GetOwner()))
 	{
-		EnemyTypeName = OwnerEnemy->GetEnemyTypeName();  // Blueprint에서 설정된 이름 받콅E
+		EnemyTypeName = OwnerEnemy->GetEnemyTypeName();
 	}
 
 	FEnemyStat* Row = EnemyStatTable->FindRow<FEnemyStat>(FName(EnemyTypeName), TEXT("Load Enemy Stat Data"));
@@ -50,52 +40,53 @@ void UEnemyAttributeComponent::BeginPlay()
 	{
 		UE_LOG(LogTemp, Error, TEXT("EnemyStatTable Load Failed"));
 	}
-	// ...
 }
 
-
-void UEnemyAttributeComponent::InitializeEnemyStat()
+void UEnemyAttributeComponent::CachePlayerAttribute()
 {
+	if (APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(GetWorld(), 0)))
+	{
+		CachedPlayerAttributeComponent = Player->FindComponentByClass<UPlayerAttributeComponent>();
+	}
 }
-
-
 
 int32 UEnemyAttributeComponent::CalcDamage()
 {
-	if (!PlayerAttributeComponent)
+	if (!CachedPlayerAttributeComponent)
 	{
-		UE_LOG(LogTemp, Error, TEXT("EAC is not Found"));
+		UE_LOG(LogTemp, Error, TEXT("PlayerAttributeComp is not Found"));
 		return 0;
 	}
 
-	int32 BaseDamage = ATK - PlayerAttributeComponent->GetDEF();
+	int32 BaseDamage = ATK - CachedPlayerAttributeComponent->GetDEF();
 	int32 FinalDamage = FMath::Max(BaseDamage, 0);
 
 	return FinalDamage;
-
 }
 
 void UEnemyAttributeComponent::ApplyDamage()
 {
-	if (PlayerAttributeComponent)
+	if (!CachedPlayerAttributeComponent)
 	{
-		int32 Damage = PlayerAttributeComponent->CalcDamage();
-
-		if (IsInfected)
-		{
-			Damage *= 2;
-		}
-
-		CurrentHP -= Damage;
-		UE_LOG(LogTemp, Display, TEXT("EnemyHP: %d"), CurrentHP);
+		UE_LOG(LogTemp, Error, TEXT("No PlayerAttribute cached"));
+		return;
 	}
-	else
+
+	int32 Damage = CachedPlayerAttributeComponent->CalcDamage();
+	if (IsInfected)
 	{
-		UE_LOG(LogTemp, Error, TEXT("PAC CANNOT FIND"));
+		Damage *= 2;
 	}
+
+	CurrentHP -= Damage;
+	UE_LOG(LogTemp, Display, TEXT("EnemyHP: %d"), CurrentHP);
 }
 
 void UEnemyAttributeComponent::SendEXPValue()
 {
-	PlayerAttributeComponent->AddEXP(EXPValue);
+	if (CachedPlayerAttributeComponent)
+	{
+		CachedPlayerAttributeComponent->AddEXP(EXPValue);
+		UE_LOG(LogTemp, Log, TEXT("EXP granted: %d"), EXPValue);
+	}
 }

@@ -1,11 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Player stats management: HP/BP/EXP/Level/Skills/Save
+// Handles damage calc, level-up, persistent data via GameInstance
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Components/ActorComponent.h"
 #include "Interface/AttributeInterface.h"
-//#include "Player/Types/PlayerStat.h"
 #include "Game/SaveGameData.h"
 #include "Character/Player/Types/LevelData.h"
 #include "PlayerAttributeComponent.generated.h"
@@ -29,18 +29,39 @@ class RPG_API UPlayerAttributeComponent : public UActorComponent, public IAttrib
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UPlayerAttributeComponent();
 
+	// IAttributeInterface
 	virtual int32 CalcDamage() override;
 	virtual void ApplyDamage() override;
 
+	// Set target enemy/boss for damage calculation
 	void SetEnemyAttributeComponent(AActor* Target);
+
 	void AddEXP(int32 EXPValue);
 
-	//For SkillTree
+	// Apply skill upgrade effects (ATK/DEF/HP/BP multipliers)
 	void UpdateStatsBySkill(int SkillNum);
 
+
+	// Save/Load (called by GameInstance)
+	UFUNCTION()
+	void LoadPlayerData();
+
+	UFUNCTION()
+	void SavePlayerData();
+
+	UFUNCTION()
+	void RequestSave();
+
+	UFUNCTION()
+	void RestoreRunTimeData(USaveGameData* RuntimeSaveGameData);
+
+	// UI Initialize
+	void BroadcastInitialUIState();
+
+
+	// Delegates (PlayerCharacter/HUD binding)
 	UPROPERTY()
 	FOnBPUpdate OnBPUpdate;
 
@@ -68,23 +89,8 @@ public:
 	UPROPERTY()
 	FOnBPMax OnBPMax;
 
-	//Load & Save
-	UFUNCTION()
-	void LoadPlayerData();
-
-	//Save when exit game
-	UFUNCTION()
-	void SavePlayerData();
-
-	UFUNCTION()
-	void RequestSave();
-
-	UFUNCTION()
-	void RestoreRunTimeData(USaveGameData* RuntimeSaveGameData);
-
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Level")
@@ -93,12 +99,12 @@ protected:
 private:
 	//to get enemy's DEF value for Damage Calculation
 	UEnemyAttributeComponent* EnemyAttributeComponent;
-
-	//to get boss's DEF value for Damage Calculation
 	UBossAttributeComponent* BossAttributeComponent;
+	//store Enemy or Boss's DEF value for CalcDamage
+	int32 TargetDEF; 
 
-	int32 TargetDEF; //store Enemy or Boss's DEF value for CalcDamage
 
+	// Core stats
 	int32 ATK;
 	int32 DEF;
 	int32 CurrentHP;
@@ -114,10 +120,10 @@ private:
 	int32 Ult1XSetting;
 	int32 Ult1YSetting;
 
-	float AttackMultiplier;
 
+	// Combat modifiers
+	float AttackMultiplier = 1.f;
 	int32 BPtoGet = 0;
-
 	bool IsBPMax = false;
 
 	float ATKMutiplier; //for Skill1
@@ -125,16 +131,24 @@ private:
 	float MaxHPMultiplier; //for SKill3
 	float BPMultiplier; //for Skill4
 
+
 	//Leveling Variables
 	int32 BaseEXP;
 	float GrowthRate;
 
+
+	// Helpers
 	void InitializePlayerStat();
-
 	FLevelData* GetLevelData(int32 Level);
-
 	void CheckLevelUp();
 	void LevelUp();
+
+	void SubscribeToGameInstance();
+
+	bool TryRestoreRuntimeData();
+	bool TryLoadSavedData();
+
+	void BindGameModeEvents();
 
 
 public:
@@ -144,13 +158,14 @@ public:
 	FORCEINLINE virtual int32 GetMaxHP() override { return MaxHP; }
 	FORCEINLINE virtual int32 GetCurrentBP() { return CurrentBP; }
 	FORCEINLINE virtual int32 GetMaxBP() { return MaxBP; }
-
+	FORCEINLINE void UseBPforUlt() { CurrentBP = 0; IsBPMax = false; }
 	FORCEINLINE int32 GetCurrentLevel() { return CurrentLevel; }
-
-	FORCEINLINE int32 ADDCurrentHP(int32 HPtoAdd) { return CurrentHP += HPtoAdd; }
-
+	FORCEINLINE void ADDCurrentHP(int32 HPtoAdd) { CurrentHP = FMath::Clamp(CurrentHP + HPtoAdd, 0, MaxHP); }
 	FORCEINLINE void SetAttackMultiplier(float CurrentAttackMultiplier) { AttackMultiplier = CurrentAttackMultiplier; }
 	FORCEINLINE void SetBPtoGet(int32 BPValue) { BPtoGet = BPValue; }
 	FORCEINLINE int32 GetSkillPoint() { return SkillPoint; }
-	//FORCEINLINE void AddEXP(int32 EXPValue) { EXP += EXPValue; }
+	FORCEINLINE int32 GetUltSkill() { return EquippedUlt; }
+	FORCEINLINE void SetUltSkill(int32 UltNum) { EquippedUlt = UltNum; }
+	FORCEINLINE void SetUlt1XSetting(int32 Num) { Ult1XSetting = Num; }
+	FORCEINLINE void SetUlt1YSetting(int32 Num) { Ult1YSetting = Num; }
 };

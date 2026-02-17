@@ -1,30 +1,16 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Actor/GroundSlam.h"
 #include "Component/Common/EnemyAttackComponent.h"
 
-// Sets default values
 AGroundSlam::AGroundSlam()
 {
-    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
-
+     PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void AGroundSlam::BeginPlay()
 {
     Super::BeginPlay();
 
-    CachedAttackComponent = FindComponentByClass<UEnemyAttackComponent>();
-    if (!CachedAttackComponent)
-    {
-        UE_LOG(LogTemp, Warning, TEXT("BossAttackComp Finding Failed in BeginPlay"));
-    }
-
     StartSlam();
-
 }
 
 void AGroundSlam::StartSlam()
@@ -44,7 +30,9 @@ void AGroundSlam::StartSlam()
             }
         }
 
-        
+
+        // Delayed collision enable
+        // cause lightening particle arrives at ground after few seconds 
         GetWorld()->GetTimerManager().SetTimer(
             CollisionStartTimer,
             this,
@@ -55,7 +43,6 @@ void AGroundSlam::StartSlam()
     }
 }
 
-//콜리전 활성화 위한 함수(추후 리네이밍 필요)
 void AGroundSlam::CollisionEnable()
 {
     for (auto Actor : SpawnedLightningActors)

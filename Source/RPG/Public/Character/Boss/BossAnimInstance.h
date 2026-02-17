@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage animations montage playing of boss
 
 #pragma once
 
@@ -12,9 +12,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossCollisionDisable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnBossDead);
 
-/**
- *
- */
 UCLASS()
 class RPG_API UBossAnimInstance : public UAnimInstance
 {
@@ -39,6 +36,7 @@ public:
 	FOnBossDead OnBossDead;
 
 protected:
+	// Callback funcs by animnotify
 	UFUNCTION()
 	void AnimNotify_BattleStart();
 

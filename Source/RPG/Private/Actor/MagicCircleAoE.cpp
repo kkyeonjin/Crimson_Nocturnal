@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// 
 
 
 #include "Actor/MagicCircleAoE.h"
@@ -10,12 +10,10 @@
 // Sets default values
 AMagicCircleAoE::AMagicCircleAoE()
 {
-    // Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-    PrimaryActorTick.bCanEverTick = true;
-
+     PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
+
 void AMagicCircleAoE::BeginPlay()
 {
     Super::BeginPlay();
@@ -26,7 +24,6 @@ void AMagicCircleAoE::BeginPlay()
 
 void AMagicCircleAoE::InitializeCircle()
 {
-
     SetRandomPoints();
 
     //1. Spawn MagicCircle Decal at Random Points
@@ -42,7 +39,7 @@ void AMagicCircleAoE::InitializeCircle()
         }
     }
 
-    //Warning TImer Start 
+    //Warning Timer Start 
     if (GetWorld())
     {
         GetWorld()->GetTimerManager().SetTimer(
@@ -71,10 +68,10 @@ void AMagicCircleAoE::OnWarningEnd()
     }
 }
 
+// when phase1 ends
 void AMagicCircleAoE::OnExplosionEnd()
 {
     Destroy();
-    UE_LOG(LogTemp, Display, TEXT("ActorDestroyed"));
 }
 
 void AMagicCircleAoE::SetRandomPoints()
@@ -88,13 +85,14 @@ void AMagicCircleAoE::SetRandomPoints()
 
     for (int i = 0; i < 5; i++)
     {
+        // Base angle for perfect pentagon arrangement
         float BaseAngle = AngleStep * i;
 
+        // Add small random offset for organic feel (¡¾5¡Æ)
         float RandomOffset = FMath::RandRange(-5.f, 5.f);
         float FinalAngle = (BaseAngle + RandomOffset) * PI / 180.f;
 
-        //float Distance = FMath::RandRange(MagicCircleRadius * 0.75f, MagicCircleRadius * 0.95f);
-
+        // Polar ¡æ Cartesian: radius 500 units, Z=50 (slightly above ground)
         FVector RandomPoint = StageCenter + FVector(
             FMath::Cos(FinalAngle) * 500.f,
             FMath::Sin(FinalAngle) * 500.f,

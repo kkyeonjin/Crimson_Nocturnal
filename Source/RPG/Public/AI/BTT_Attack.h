@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Attack Node for enemy AI
+// Called when distance between player&enemy getting closer than AttackRadius
 
 #pragma once
 
@@ -8,9 +9,6 @@
 
 class AEnemy;
 
-/**
- *
- */
 UCLASS()
 class RPG_API UBTT_Attack : public UBTTaskNode
 {
@@ -27,7 +25,6 @@ protected:
 
 private:
 	AEnemy* Enemy;
-
 	UBehaviorTreeComponent* CachedOwnerComp;
 
 };

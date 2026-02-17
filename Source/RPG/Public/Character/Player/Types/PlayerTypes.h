@@ -9,7 +9,7 @@ enum class EPlayerCombatState : uint8
 	EPCS_Dead UMETA(DisplayName = "Dead")
 };
 
-//접두사 안 붙이는 게 나음 -> 추후 다른 ENUM들도 변경 필 
+
 UENUM(BlueprintType)
 enum class EUltimateSkill : uint8
 {

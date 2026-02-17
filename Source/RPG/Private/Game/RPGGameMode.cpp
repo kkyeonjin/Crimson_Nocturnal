@@ -1,13 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Game/RPGGameMode.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Game/RPGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 #include "UI/TutorialWidget.h"
 
-//Called When New Map is open
+//Called When New Map(Level) is open
 void ARPGGameMode::BeginPlay()
 {
 	Super::BeginPlay();
@@ -16,7 +13,7 @@ void ARPGGameMode::BeginPlay()
     {
         GI->RequestLoadGame();
 
-        // 현재 맵에 맞는 BGM 재생
+        // Play BGM for each level
         FString LevelName = GetWorld()->GetMapName();
 
         if (LevelName.Contains(TEXT("Hospital")))
@@ -24,7 +21,6 @@ void ARPGGameMode::BeginPlay()
             GI->PlayHospitalBGM();
             if (GI->IsFirstPlay())
             {
-                // MenuWidget 없이 Tutorial만!
                 ShowStandaloneTutorial();
             }
         }
@@ -47,7 +43,7 @@ void ARPGGameMode::OnTutorialClosed()
 {
     if (APlayerCharacter* Player = Cast<APlayerCharacter>(GetWorld()->GetFirstPlayerController()->GetPawn()))
     {
-        Player->ShowStartPopUp();  // PlayerCharacter에 새 함수 추가
+        Player->ShowStartPopUp();  
     }
 }
 
@@ -61,7 +57,7 @@ void ARPGGameMode::ShowStandaloneTutorial()
     APlayerController* PC = GetWorld()->GetFirstPlayerController();
     if (!PC) return;
 
-    // 1. TutorialWidget 독립 생성
+    // 1. Create TutorialWidget 
     if (TutorialUIClass)
     {
         TutorialWidget = CreateWidget<UTutorialWidget>(PC, TutorialUIClass);
@@ -69,12 +65,12 @@ void ARPGGameMode::ShowStandaloneTutorial()
 
         TutorialWidget->OnTutorialClose.AddDynamic(this, &ARPGGameMode::OnTutorialClosed);
 
-        // 2. UI Only 모드
+        // 2. Set InpuMode to UI Only
         FInputModeUIOnly InputMode;
         InputMode.SetWidgetToFocus(TutorialWidget->TakeWidget());
         PC->SetInputMode(InputMode);
 
-        // 3. 시간 정지
+        // 3. Stop game play
         GetWorld()->GetWorldSettings()->SetTimeDilation(0.0f);
     }
 }

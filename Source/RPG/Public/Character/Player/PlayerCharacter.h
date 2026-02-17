@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/**
+ * @class APlayerCharacter
+ * @brief Core Player Character class implementing component-based architecture
+ * Routes input to specialized components via delegates/events instead of direct references (loose coupling)
+ * Manages combat/movement states and orchestrates combo/QTE/ultimate skill flow between components
+ */
 
 #pragma once
 
@@ -8,9 +13,8 @@
 #include "Character/Player/Types/SkillTypes.h"
 #include "Interface/HitInterface.h"
 #include "GameFramework/PlayerController.h"
-#include "Character/Player/Types/PlayerTypes.h" //for EPlayerState
+#include "Character/Player/Types/PlayerTypes.h"
 #include "Character/Player/Types/ComboInput.h"
-#include "Interface/InteractableInterface.h"
 #include "PlayerCharacter.generated.h"
 
 class UEnhancedInputLocalPlayerSubsystem;
@@ -44,32 +48,32 @@ public:
 
 	void HandleAttack(AActor* Target);
 
-	//HitInterface
+	// Apply damage when player gets hit via HitInterface
 	void GetHit(const FVector& ImpactPoint, AActor* Target) override;
 
+	// Start boss QTE mode: lock player movement and show QTE UI
 	void StartBossQTEMode();
 
-	void ShowStartPopUp();
-
-	//Portal / NPC Detected (Raycast)
+	
+	// PopUp Functions 
 	UFUNCTION()
 	void InteractPopUp();
-
-	//Dance Event (Saloon)
+	void ShowStartPopUp();
 	void DancePopUp();
-
 	void HideInteractPopUp();
 
+
+	// Public delegates for inter-component communication
 	FOnSkillCReady OnSkillCReady;
-
 	FOnQTESuccess OnQTESuccess;
-
 	FOnInteractPressed OnInteractPressed;
+
 
 protected:
 	virtual void BeginPlay() override;
-	virtual void Jump() override;
 
+
+	//Input assets
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* PlayerContext;
 
@@ -88,46 +92,50 @@ protected:
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillActivation;
 
-	//Open SkillTree Screen
+
+	// UI open/close actions
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillTreeOn;
-
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* PopUpOff;
-
-	//Open Menu Screen
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* MenuOn;
-
-	//Interact with Portal / NPC ...etc (+Dialogue)
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* Interact;
-
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* HideDialogue;
 
-	//for event Level(Saloon)
+
+	// Saloon event-specific context (map-based priority adjustment)
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputMappingContext* SaloonContext;
-
 	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* Dance;
 
-	//Function for Input Binding 
+
+	//Input handlers
 	void Move(const FInputActionValue& Value);
 	void Look(const FInputActionValue& Value);
-	void Attack(const FInputActionValue& Value);
-	void SkillStart();
 
+	// Handle player basic attack input (X/Y) and route to combo/QTE/ultimate
+	// Applies attack state & disables movement during attack
+	void Attack(const FInputActionValue& Value);
+	// Attack handlers with InputValue
+	void HandleUltimateSkillAttack(float AttackValue);
+	EAttackKeyType GetAttackKeyType(float AttackValue);
+	void HandleQTEAttack(EAttackKeyType InputType, float AttackValue);
+	void HandleNormalComboAttack(EAttackKeyType InputType);
+
+	void SkillStart();
+	void OnInteract();
 	//Open SKillTree
 	void OpenSkillTree();
-
 	//Saloon event
 	void StartDance();
+	virtual void Jump() override;
 
-	UFUNCTION()
-	void SetIsSkillEnable();
 
+	//Animation/Combo callbacks
 	UFUNCTION()
 	void OnAttackMontageEnded();
 
@@ -140,122 +148,97 @@ protected:
 	UFUNCTION()
 	void SetMoveEnable();
 
+	// Weapon/kick collision enable/disable callbacks (called from animation notifies)
 	UFUNCTION()
 	void SetBladeLCollisionEnable();
 
 	UFUNCTION()
 	void SetBladeLCollisionDisable();
-
 	UFUNCTION()
 	void SetBladeRCollisionEnable();
-
 	UFUNCTION()
 	void SetBladeRCollisionDisable();
-
 	UFUNCTION()
 	void SetKickCollisionEnable();
-
 	UFUNCTION()
 	void SetKickCollisionDisable();
 
+
+	//UI/Attribute callbacks
 	UFUNCTION()
 	void UpdateBP(int32 CurrentBP, int32 MaxBP);
-
 	UFUNCTION()
 	void UpdateHP(int32 CurrentHP, int32 MaxHP);
-
 	UFUNCTION()
 	void OnSkillTreeUISet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills);
-
 	UFUNCTION()
 	void OnLevelUp(int32 CurrentLevel, int32 SkillPoint);
-
 	UFUNCTION()
 	void OnDamageCalculated(int32 Damage);
-
 	UFUNCTION()
 	void OnSkillPointUpdate(int32 SkillPoint);
-
 	UFUNCTION()
-	void UltTimeOver();
-
+	void OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index);
 	UFUNCTION()
 	void OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting);
 
 	UFUNCTION()
-	void OnQTEFailed();
-
-	//UltA
+	void SetIsSkillEnable();
 	UFUNCTION()
-	void OnSkill1Attack(int32 AnimNum, float AttackMultiplier);
-
-	//Move to GameOver Level
+	void UltTimeOver();
+	UFUNCTION()
+	void OnQTEFailed();
+	UFUNCTION()
+	void OnUltSkillAAttack(int32 AnimNum, float AttackMultiplier);
 	UFUNCTION()
 	void OpenGameOverLevel();
 
-	//For Event Level (Saloon)
-	UFUNCTION()
-	void EnterSaloonMode();
-
-	UFUNCTION()
-	void ExitSaloonMode();
-
-	UFUNCTION()
-	void OnInteract();
-
 
 private:
+	/** Initialization split for performance + readability */
+	void SetupInputSubsystem();
+	void CacheComponents();
+	void BindDelegates();
+	UFUNCTION()
+	void InitializeHUD();
 
+
+	// Cached subsystems/components
 	UEnhancedInputLocalPlayerSubsystem* InputSubsystem = nullptr;
 
-	//default state is unequipped
+
+	// Player states
 	EPlayerCombatState PlayerCombatState = EPlayerCombatState::EPCS_NotAttacking;
-
-	//default state is moveEnabled
 	EPlayerMoveState PlayerMoveState = EPlayerMoveState::EPMS_MoveEnabled;
-
 	EUltimateSkill SelectedSkill = EUltimateSkill::None;
 
+
+	// Cached components for performance
 	UPlayerAnimInstance* CachedAnimInstance;
-
 	UComboManageComponent* CachedComboManageComponent;
-
 	UWeaponComponent* CachedWeaponComponent;
-
 	UKickComponent* CachedKickComponent;
-
 	UPlayerAttributeComponent* CachedAttributeComponent;
-
 	UUltimateSkillComponent* CachedUltimateSkillComponent;
-
 	UHUDComponent* CachedHUDComponent;
-
 	UInteractionComponent* CachedInteractionComponent;
-
 	USFXComponent* CachedSFXComponent;
 
+
+	// State flags
 	bool IsSkillOn = false;
-
 	bool IsTrapped = false;
-
 	//turn true when BP is full
 	bool IsSkillEnable = false;
 
-	UFUNCTION()
-	void OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Index);
 
 public:
-	//FORCEINLINE void SetOverlappingItem(AItem* Item) { OverlappingItem = Item; }
+	// INLINE getters & setters
 	FORCEINLINE EPlayerCombatState GetPlayerCombatState() const { return PlayerCombatState; }
 	FORCEINLINE void SetPlayerCombatState(EPlayerCombatState State) { PlayerCombatState = State; }
-
 	FORCEINLINE EPlayerMoveState GetPlayerMoveState() const { return PlayerMoveState; }
 	FORCEINLINE void SetPlayerMoveState(EPlayerMoveState State) { PlayerMoveState = State; }
-
 	FORCEINLINE void SetUltimateSkill(int32 SkillNum) { SelectedSkill = static_cast<EUltimateSkill>(SkillNum); }
-
 	FORCEINLINE void SetIsSkillOn(bool bIsSkillOn) { IsSkillOn = bIsSkillOn; }
-
-	//FORCEINLINE void SetIsTrapped(bool bIsTrapped) { IsTrapped = bIsTrapped; }
 };
 

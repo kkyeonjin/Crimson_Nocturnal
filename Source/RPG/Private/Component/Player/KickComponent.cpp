@@ -1,29 +1,19 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Player/KickComponent.h"
 #include "Interface/HitInterface.h"
 #include "Components/ShapeComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-// Sets default values for this component's properties
 UKickComponent::UKickComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
-// Called when the game starts
 void UKickComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
 	InitializeActorsToIgnore();
-
 }
 
 void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
@@ -43,7 +33,7 @@ void UKickComponent::OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedCom
 		TraceChannel,
 		false,
 		ActorsToIgnore,
-		EDrawDebugTrace::Persistent,
+		EDrawDebugTrace::None,
 		HitResult,
 		true,
 		FLinearColor::Blue

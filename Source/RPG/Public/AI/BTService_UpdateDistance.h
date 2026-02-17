@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Service node for enemy AI that calculating dist between player & enemy (Tick)
+// Perception is not enough for appropriate movement of AI
 
 #pragma once
 
@@ -6,9 +7,7 @@
 #include "BehaviorTree/BTService.h"
 #include "BTService_UpdateDistance.generated.h"
 
-/**
- *
- */
+
 UCLASS()
 class RPG_API UBTService_UpdateDistance : public UBTService
 {
@@ -18,15 +17,12 @@ public:
     virtual void TickNode(UBehaviorTreeComponent& OwnerComp, uint8* NodeMemory, float DeltaSeconds) override;
 
 protected:
-    // Service가 활성화될 때 실행 간격 (초)
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
     float TickInterval = 0.1f;
 
-    // 공격 사정거리
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
     float AttackRadius = 300.0f;
 
-    // Blackboard 키
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
     FName TargetActorKey = FName(TEXT("TargetActor"));
 

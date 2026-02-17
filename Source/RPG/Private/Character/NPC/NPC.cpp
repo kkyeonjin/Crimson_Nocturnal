@@ -1,15 +1,10 @@
-﻿// Fill out your copyright notice in the Description page of Project Settings.
-
-
-#include "Character/NPC/NPC.h"
+﻿#include "Character/NPC/NPC.h"
 #include "Component/NPC/DialogueComponent.h"
-#include "Game/RPGGameInstance.h"
 #include "Game/RPGGameMode.h"
 
 ANPC::ANPC()
 {
     PrimaryActorTick.bCanEverTick = false;
-
 }
 
 void ANPC::BeginPlay()
@@ -22,7 +17,6 @@ void ANPC::BeginPlay()
 
 void ANPC::OnInteract()
 {
-    //대화
     if (DialogueComponent)
     {
         FString DialogueName = DialogueComponent->GetDialogueName();

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// GameMode only for levels that don't load PlayerCharacter(Title, GameOver, Ending)
 
 #pragma once
 
@@ -7,9 +7,7 @@
 #include "TitleGameMode.generated.h"
 
 class USoundCue;
-/**
- * 
- */
+
 UCLASS()
 class RPG_API ATitleGameMode : public AGameMode
 {

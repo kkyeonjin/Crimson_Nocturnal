@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage SFX playing of player
 
 #pragma once
 
@@ -14,62 +14,8 @@ class RPG_API USFXComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	USFXComponent();
 
-    // ===== Attack SFX =====
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* Chain1AttackXSFX;  // 첫 번째 체인
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* Chain2AttackXSFX;  // 두 번째 체인
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* Chain3AttackXSFX;  // 세 번째 체인c
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* Chain1AttackYSFX;  // 첫 번째 체인
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* Chain2AttackYSFX;  // 두 번째 체인
-
-    // Combo SFX
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* ComboAttackASFX;   // 콤보 마무리
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* ComboAttackBSFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* ComboAttackCSFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Attack")
-    USoundCue* ComboAttackDSFX;
-
-    // ===== Damage SFX =====
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Damage")
-    USoundCue* HitSFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|Damage")
-    USoundCue* DeathSFX;
-
-    // ===== Ultimate Skill SFX =====
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|UltSkill")
-    USoundCue* UltASFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|UltSkill")
-    USoundCue* UltBSFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|UltSkill")
-    USoundCue* UltCSFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|LevelUp")
-    USoundCue* LevelUpSFX;
-
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|BPMax")
-    USoundCue* BPMaxSFX;
-
-    // ===== 재생 함수들 =====
     void PlayChainAttackSFX(int32 AnimNum, FName SectionName);
     void PlayComboAttackSFX(int32 ComboNum);
     void PlayHitSFX();
@@ -80,6 +26,50 @@ public:
 
 	
 private:
+    // Sword Attack
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* Chain1AttackXSFX;  
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* Chain2AttackXSFX;  
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* Chain3AttackXSFX;  
+
+    // Kick Attack
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* Chain1AttackYSFX;  
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* Chain2AttackYSFX;  
+
+    // Combo SFX
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* ComboAttackASFX;   
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* ComboAttackBSFX;
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* ComboAttackCSFX;
+    UPROPERTY(EditAnywhere, Category = "Audio|Attack")
+    USoundCue* ComboAttackDSFX;
+
+    
+    UPROPERTY(EditAnywhere, Category = "Audio|Damage")
+    USoundCue* HitSFX;
+    UPROPERTY(EditAnywhere, Category = "Audio|Damage")
+    USoundCue* DeathSFX;
+
+    // Ult Skill
+    UPROPERTY(EditAnywhere, Category = "Audio|UltSkill")
+    USoundCue* UltASFX;
+    UPROPERTY(EditAnywhere, Category = "Audio|UltSkill")
+    USoundCue* UltBSFX;
+    UPROPERTY(EditAnywhere, Category = "Audio|UltSkill")
+    USoundCue* UltCSFX;
+
+
+    UPROPERTY(EditAnywhere, Category = "Audio|LevelUp")
+    USoundCue* LevelUpSFX;
+    UPROPERTY(EditAnywhere, Category = "Audio|BPMax")
+    USoundCue* BPMaxSFX;
+
     void PlaySoundAtPlayer(USoundCue* SoundCue);
 		
 };

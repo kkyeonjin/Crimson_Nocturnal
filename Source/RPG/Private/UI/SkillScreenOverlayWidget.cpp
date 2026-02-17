@@ -1,13 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/SkillScreenOverlayWidget.h"
 #include "Components/Image.h"
 
 
-
 void USkillScreenOverlayWidget::ShowSkillEffect(int32 SkillNum)
 {
+	NativeConstruct();
+
 	SetVisibility(ESlateVisibility::Visible);
 	SkillImages[SkillNum]->SetVisibility(ESlateVisibility::Visible);
 	

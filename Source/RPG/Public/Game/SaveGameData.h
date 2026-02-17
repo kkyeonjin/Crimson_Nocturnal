@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// SaveData that saved in game file permanently
+// Used in Load&Save / runtime load& save
 
 #pragma once
 
@@ -6,18 +7,15 @@
 #include "GameFramework/SaveGame.h"
 #include "SaveGameData.generated.h"
 
-/**
- *
- */
 UCLASS()
 class RPG_API USaveGameData : public USaveGame
 {
 	GENERATED_BODY()
 
 public:
-	USaveGameData();
-
 	void ClearData();
+
+	void SetTutorialSeen(bool HasSeenTuto);
 
 	UPROPERTY()
 	FString SaveSlotName;
@@ -66,5 +64,8 @@ public:
 
 	UPROPERTY()
 	int32 Ult1YSetting;
+
+	UPROPERTY()
+	bool IsTutorialChecked = false;
 
 };

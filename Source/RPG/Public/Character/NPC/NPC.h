@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// NPC that can speak (Dialogue)
 
 #pragma once
 
@@ -25,7 +25,7 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "NPC")
     FString NPCName;
 
-    // IInteractable ±¸Çö
+    // IInteractable
     virtual void OnInteract() override;
 
 private:

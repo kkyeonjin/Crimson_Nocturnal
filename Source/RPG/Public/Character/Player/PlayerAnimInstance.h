@@ -1,11 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage animations montage playing of player
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimInstance.h"
 #include "Character/Player/Types/ComboInput.h"
-//#include "Character/Player/Types/"
 #include "PlayerAnimInstance.generated.h"
 
 class UCharacterMovementComponent;
@@ -17,9 +16,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionDisable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameOver);
 
-/**
- *
- */
 UCLASS()
 class RPG_API UPlayerAnimInstance : public UAnimInstance
 {
@@ -64,7 +60,7 @@ public:
 
 
 protected:
-
+	// Callback funcs by animnotify
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
 
@@ -92,20 +88,19 @@ protected:
 	UFUNCTION()
 	void AnimNotify_GameOver();
 
-	UPROPERTY(BlueprintReadOnly)
-	APlayerCharacter* PlayerCharacter;
 
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
-	UCharacterMovementComponent* PlayerCharacterMovement;
-
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	UPROPERTY(BlueprintReadWrite)
 	float GroundSpeed;
-
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	UPROPERTY(BlueprintReadWrite)
 	bool IsFalling;
 
-	//UPROPERTY(BlueprintReadOnly, Category="Movement | Player State")
-	//EPlayerState PlayerState;
+
+private:
+	UPROPERTY()
+	APlayerCharacter* PlayerCharacter;
+
+	UPROPERTY()
+	UCharacterMovementComponent* PlayerCharacterMovement;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackA;
@@ -133,6 +128,7 @@ protected:
 
 	UPROPERTY(EditAnywhere, Category = "Dance")
 	UAnimMontage* Dance;
+
 
 public:
 	FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }

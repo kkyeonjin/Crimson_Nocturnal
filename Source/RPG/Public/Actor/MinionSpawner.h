@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Spawn minions(monster) in boss fight zone
 
 #pragma once
 
@@ -14,7 +14,6 @@ class RPG_API AMinionSpawner : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	AMinionSpawner();
 
 	void SpawnNewMinion();
@@ -26,14 +25,13 @@ public:
 	void ClearAllMinions();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<AEnemy> Monster;
 
 private:
-	int32 MaxMinions = 2;
+	int32 MaxMinions = 3;
 
 	UPROPERTY(EditAnywhere)
 	TArray<FVector> SpawnPoints;
@@ -41,10 +39,7 @@ private:
 	int32 SpawnPointsIndex = -1;
 
 	UPROPERTY()
-	TArray<AEnemy*> AliveMinions;  // TWeakObjectPtr<AEnemy> Á¦°Å
-
+	TArray<AEnemy*> AliveMinions;  
 	FTimerHandle RespawnTimer;
-
-public:
 
 };

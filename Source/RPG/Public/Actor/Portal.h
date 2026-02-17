@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Portal that helps move to the another Level
+// Teleport enables when interact with portal
 
 #pragma once
 
@@ -24,14 +25,12 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Portal")
     FName DestinationMap;
 
-    // IInteractable 구현
+    // IInteractable
     virtual void OnInteract() override;
 
 private:
-    UPROPERTY(EditAnywhere) 
-    bool EnteringSaloon = false;  // Saloon으로 가는 포탈
-
-    UPROPERTY(EditAnywhere)
-    bool ExitingSaloon = false;  // Saloon에서 나가는 포탈
+    // Check ture when the portal is in Saloon
+	UPROPERTY(EditAnywhere)
+    bool ExitingSaloon = false;  
    
 };

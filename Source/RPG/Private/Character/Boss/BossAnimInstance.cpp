@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/Boss/BossAnimInstance.h"
 
 void UBossAnimInstance::AnimNotify_BattleStart()
@@ -33,7 +30,6 @@ void UBossAnimInstance::PlayBossAnimMontage(int32 AnimNum)
 {
 	switch (AnimNum)
 	{
-		//0-9: primary animations(attack, hit reaction,,,etc)
 	case 0:
 		Montage_Play(BattleStartMotion);
 		break;

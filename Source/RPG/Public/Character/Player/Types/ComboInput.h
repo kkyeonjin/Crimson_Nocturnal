@@ -1,31 +1,28 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Animation/AnimMontage.h"
 #include "ComboInput.generated.h"
 
-// 콤보 이름을 Enum으로 정의
 UENUM(BlueprintType)
 enum class EComboType : uint8
 {
-    // X-X-Y 콤보
+    // X-X-Y 
     PowerStrike UMETA(DisplayName = "Power Strike (X-X-Y)"),
 
-    // X-Y-X 콤보
+    // X-Y-X 
     SpinAttack UMETA(DisplayName = "Spin Attack (X-Y-X)"),
 
-    // X-Y-Y-X 콤보
+    // X-Y-Y-X 
     AdvancedCombo UMETA(DisplayName = "Advanced (X-Y-Y-X)"),
 
-    // Y-X-Y-Y 콤보
+    // Y-X-Y-Y 
     UltimateCombo UMETA(DisplayName = "Ultimate (Y-X-Y-Y)"),
 
     MAX_COMBOS
 };
 
-// 애니메이션 몬타주 인덱스를 Enum으로
+
 UENUM(BlueprintType)
 enum class EAnimMontageType : uint8
 {
@@ -48,7 +45,7 @@ struct FComboPattern
     GENERATED_BODY()
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
-    EComboType ComboType;  // 이제 의미가 명확
+    EComboType ComboType;  
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combo")
     TArray<EAttackKeyType> ComboKeySequence;
@@ -68,7 +65,7 @@ struct FComboPattern
 
 };
 
-//
+
 namespace ComboConstants
 {
     // chain attack multipliers

@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/Enemy/Enemy.h"
 #include "AI/EnemyAIController.h"
 #include "Character/Enemy/EnemyAnimInstance.h"
@@ -12,26 +9,20 @@
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 AEnemy::AEnemy()
 {
-	// Set this character to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+	PrimaryActorTick.bCanEverTick = false;
 }
 
-// Called when the game starts or when spawned
 void AEnemy::BeginPlay()
 {
 	Super::BeginPlay();
 
-	
 	APlayerCharacter* Player = Cast<APlayerCharacter>(UGameplayStatics::GetPlayerCharacter(this, 0));
 	if (Player)
 	{
 		Player->OnSkillCReady.AddDynamic(this, &AEnemy::ReadyToInfect);
 	}
-
 
 	InitializeMaterials();
 
@@ -40,12 +31,8 @@ void AEnemy::BeginPlay()
 		//bind delegates only when all components are found safely
 		BindDelegates();
 	}
-	
 }
 
-
-
-//Callback Func called by InfectionComp
 void AEnemy::OnInfectionStarted()
 {
 	CachedEnemyAttributeComponent->SetIsInfected(true);
@@ -74,13 +61,10 @@ void AEnemy::SetAttackCollisionDisable()
 	}
 }
 
-//BT, NODE 받아서 저장 (공격 시작하는 시점에) 
 void AEnemy::AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode)
 {
 	if (CachedEnemyAnimInstance)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("[%s] EnemyAttackStart"), *GetName());
-
 		// Store BT Component 
 		CachedBTComponent = BTComp;
 		CachedBTTaskNode = TaskNode;
@@ -96,66 +80,34 @@ void AEnemy::AttackStart(UBehaviorTreeComponent* BTComp, UBTTaskNode* TaskNode)
 
 void AEnemy::OnEnemyAttackMontageEnded()
 {
-	//UE_LOG(LogTemp, Warning, TEXT("[%s] OnEnemyAttackMontageEnded"), *GetName());
-
-	if (CachedEnemyAnimInstance)
-	{
-		//OnEnemyAttackEnd.Broadcast();
-	}
 	CachedEnemyAttackComponent->InitializeActorsToIgnore();
 	EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
 
-	// BT Task 직접 종료
+	// Finish BT Task
 	if (CachedBTComponent && CachedBTTaskNode)
 	{
 		CachedBTTaskNode->FinishLatentTask(*CachedBTComponent, EBTNodeResult::Succeeded);
-		//UE_LOG(LogTemp, Display, TEXT("[%s] BT Task Finished from Enemy"), *GetName());
-
-		// 캐시 초기화
-		//CachedBTComponent = nullptr;
-		//CachedBTTaskNode = nullptr;
 	}
-}
-
-void AEnemy::SetEnemyGroundSpeed(float NewSpeed)
-{
-	GetCharacterMovement()->MaxWalkSpeed = NewSpeed;
 }
 
 bool AEnemy::InitializeComponents()
 {
 	CachedEnemyAnimInstance = Cast<UEnemyAnimInstance>(GetMesh()->GetAnimInstance());
-	if (!CachedEnemyAnimInstance)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("AnimInstance Cast Failed in BeginPlay"));
-		return false;
-	}
-	CachedEnemyAttributeComponent = FindComponentByClass<UEnemyAttributeComponent>();
-	if (!CachedEnemyAttributeComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyAttributeComp Finding Failed in BeginPlay"));
-		return false;
-	}
-	CachedEnemyAttackComponent = FindComponentByClass<UEnemyAttackComponent>();
-	if (!CachedEnemyAttackComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("EnemyAttackComp Finding Failed in BeginPlay"));
-		return false;
-	}
 
-	CachedInfectionComponent = FindComponentByClass<UInfectionComponent>();
-	if (!CachedInfectionComponent)
-	{
-		UE_LOG(LogTemp, Warning, TEXT("InfectionComp Finding Failed in BeginPlay"));
-		return false;
-	}
+	TArray<UActorComponent*> Components = {
+		CachedEnemyAttributeComponent = FindComponentByClass<UEnemyAttributeComponent>(),
+		CachedEnemyAttackComponent = FindComponentByClass<UEnemyAttackComponent>(),
+		CachedInfectionComponent = FindComponentByClass<UInfectionComponent>()
+	};
+
+	for (auto* Comp : Components)
+		if (!Comp) return false;
 
 	return true;
 }
 
 void AEnemy::BindDelegates()
 {
-	//for debug
 	check(CachedEnemyAnimInstance);
 	check(CachedEnemyAttributeComponent);
 	check(CachedEnemyAttackComponent);
@@ -168,18 +120,16 @@ void AEnemy::BindDelegates()
 	CachedInfectionComponent->OnInfectionEnded.AddDynamic(this, &AEnemy::OnInfectionEnded);
 }
 
-// Called to bind functionality to input
+
 void AEnemy::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
-
 }
 
 //Callback Func called by player when player match combos & Skill C is Activated
 void AEnemy::ReadyToInfect()
 {
 	bReadyToInfect = true;
-	UE_LOG(LogTemp, Warning, TEXT("ReadyToInfect"));
 }
 
 TArray<UMaterialInstanceDynamic*> AEnemy::GetOriginalDynamicMaterials_Implementation()
@@ -205,15 +155,10 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 	//Infection Part (through InfectionComp & InfectionInterface)
 	if (bReadyToInfect && CachedInfectionComponent)
 	{
-		// InfectionComponent가 Interface를 통해 자동으로 처리
-	   // (이제 Enemy가 감염 머티리얼 로직을 직접 하지 않음)
 		CachedInfectionComponent->StartInfection();
 		bReadyToInfect = false;
-
 	}
 
-
-	UE_LOG(LogTemp, Display, TEXT("EnemyHit!!!"));
 	if (CachedEnemyAttributeComponent)
 	{
 		CachedEnemyAttributeComponent->ApplyDamage();
@@ -228,19 +173,17 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 
 			UGameplayStatics::PlaySoundAtLocation(GetWorld(), DeathSFX, GetActorLocation());
 
-			OnEnemyDefeated.Broadcast(this);
-
-			// 1. BT/Controller 먼저 정리 (Movement 전에)
+			// 1. BT/Controller stop
 			if (CachedBTComponent) CachedBTComponent->StopLogic(TEXT("EnemyDead"));
 
-			// 2. Null 체크 Movement 중단
+			// 2. Movement stop
 			if (UCharacterMovementComponent* MoveComp = GetCharacterMovement())
 			{
 				MoveComp->StopMovementImmediately();
-				MoveComp->DisableMovement();  // 순서 반대로 해도 OK
+				MoveComp->DisableMovement();  
 			}
 
-			// 3. 페이드 시작 (Movement 후)
+			// 3. Material Fade Start
 			StartDeathSequence();
 		}
 		else
@@ -261,30 +204,23 @@ void AEnemy::GetHit(const FVector& ImpactPoint, AActor* unused)
 
 void AEnemy::StartDeathSequence()
 {
-	// 페이드아웃 타이머 시작 (0.05초마다 업데이트)
 	GetWorldTimerManager().SetTimer(
 		DeathTimer,
 		this,
 		&AEnemy::FadeOutAndDestroy,
-		0.05f,  // 업데이트 간격
-		true    // 반복
+		0.05f,  
+		true    
 	);
-
-	UE_LOG(LogTemp, Display, TEXT("[%s] Fade out started"), *GetName());
-
 }
 
 void AEnemy::FadeOutAndDestroy()
 {
-	// Alpha 감소 (1.0 → 0.0)
-	FadeOutAlpha -= (0.05f / FadeOutDuration);  // Delta = 업데이트 간격 / 전체 시간
+	FadeOutAlpha -= (0.05f / FadeOutDuration);  
 
 	if (FadeOutAlpha <= 0.0f)
 	{
 		FadeOutAlpha = 0.0f;
 		GetWorldTimerManager().ClearTimer(DeathTimer);
-
-		UE_LOG(LogTemp, Display, TEXT("[%s] Fade out complete, destroying"), *GetName());
 		Destroy();
 		return;
 	}
@@ -303,7 +239,7 @@ void AEnemy::InitializeMaterials()
 	USkeletalMeshComponent* MeshComp = GetMesh();
 	if (!MeshComp) return;
 
-	// ==================== OriginalMaterials 수집 ====================
+	// Collect Original Materials
 	if (OriginalMaterials.Num() == 0)
 	{
 		int32 NumMaterials = MeshComp->GetNumMaterials();
@@ -319,7 +255,7 @@ void AEnemy::InitializeMaterials()
 			*GetName(), NumMaterials);
 	}
 
-	// ==================== DynamicMaterials 생성 및 적용 ====================
+	// Create Dynamic Materials 
 	for (int32 i = 0; i < OriginalMaterials.Num(); i++)
 	{
 		if (OriginalMaterials[i])
@@ -333,14 +269,7 @@ void AEnemy::InitializeMaterials()
 				*GetName(), i);
 		}
 	}
-
 	CurrentAppliedMaterials = DynamicMaterials;
-
-}
-
-FOnCharacterDefeated& AEnemy::OnCharacterDefeatedDelegate()
-{
-	return OnEnemyDefeated;
 }
 
 

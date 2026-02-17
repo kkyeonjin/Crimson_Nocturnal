@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/Enemy/EnemyAnimInstance.h"
 #include "Character/Enemy/Enemy.h"
 #include "GameFramework/CharacterMovementComponent.h"
@@ -9,14 +6,12 @@
 void UEnemyAnimInstance::AnimNotify_AttackEnd()
 {
 	OnEnemyAttackMontageEnd.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("EnemyAttackEndNotifyRings"));
 	IsAttacking = false;
 }
 
 void UEnemyAnimInstance::AnimNotify_CollisionEnable()
 {
 	OnEnemyCollisionEnable.Broadcast();
-	//UE_LOG(LogTemp, Warning, TEXT("CollisionEnableNotifyRings"));
 }
 
 void UEnemyAnimInstance::AnimNotify_CollisionDisable()
@@ -43,7 +38,6 @@ void UEnemyAnimInstance::NativeUpdateAnimation(float DeltaSeconds)
 	if (EnemyMovement)
 	{
 		GroundSpeed = UKismetMathLibrary::VSizeXY(EnemyMovement->Velocity);
-		//UE_LOG(LogTemp, Warning, TEXT("Ground Speed: %f"), GroundSpeed);
 	}
 }
 
@@ -51,7 +45,6 @@ void UEnemyAnimInstance::PlayAnimMontage(int32 Num)
 {
 	switch (Num)
 	{
-		//0-9: primary animations(attack, hit reaction,,,etc)
 	case 0:
 		IsAttacking = true;
 		Montage_Play(AttackA);

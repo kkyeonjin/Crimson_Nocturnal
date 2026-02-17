@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Crystal that around the Boss (3 crystals)
+// each crystal is broke according to the boss's HP (2/3, 1/3, 0(when dead))
 
 #pragma once
 
@@ -17,9 +18,9 @@ class RPG_API ACrystal : public AActor, public IHitInterface
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ACrystal();
 
+	// IHitInterface cause last crystal to break(in the middle) is hittable & interactable with player
 	virtual void GetHit(const FVector& ImpactPoint, AActor* Target) override;
 
 	void DestroyCrystal(int32 CrystalToBreak);
@@ -48,6 +49,5 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	USoundCue* BreakSFX;
-
 
 };

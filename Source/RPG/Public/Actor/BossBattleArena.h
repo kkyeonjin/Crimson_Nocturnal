@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Start battle func & logics when player get in the boss fight zone
+// manage boss fight zone collision
 
 #pragma once
 
@@ -19,14 +20,13 @@ class RPG_API ABossBattleArena : public AActor
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this actor's properties
 	ABossBattleArena();
 
 	UPROPERTY(EditAnywhere)
 	UBoxComponent* BattleTrigger;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Arena")
-	ABossDoor* ArenaDoor;  // ±‚¡∏ AActor* °Ê ABossDoor*
+	ABossDoor* ArenaDoor;  
 
 	UPROPERTY(EditAnywhere)
 	ABoss* BossActor;
@@ -43,7 +43,6 @@ public:
 	void ClearMinionSpawner();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
@@ -64,20 +63,15 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	FVector ClosedDoorPosition;
-
 	void CloseDoor();
 	FTimerHandle DoorTimer;
 
-	FTimerHandle MinionSpawnerTimer;
-
+	// func calling interval when DoorTimer start
 	float DoorCloseTime = 0.016f;
 	float DoorAnimationElapsedTime = 0.f;
 	float DoorAnimationDuration = 2.f;
 
+	FTimerHandle MinionSpawnerTimer;
 	AMinionSpawner* CachedMinionSpawner;
-
-
-public:
-
 
 };

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage attack collision used by player (sword attack with X Button)
 
 #pragma once
 
@@ -14,7 +14,6 @@ class RPG_API UWeaponComponent : public UActorComponent, public IAttackCollision
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UWeaponComponent();
 
 	UFUNCTION()
@@ -31,7 +30,6 @@ public:
 	virtual void InitializeActorsToIgnore() override;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "WeaponL")

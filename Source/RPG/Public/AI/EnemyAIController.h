@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// For TargetActor setting (basic actions in enemy AI)
 
 #pragma once
 
@@ -9,18 +9,12 @@
 struct FAIStimulus;
 class AEnemy;
 
-//class UAIPerceptionComponent;
-
-/**
- *
- */
 UCLASS()
 class RPG_API AEnemyAIController : public AAIController
 {
 	GENERATED_BODY()
 
 public:
-	virtual void Tick(float DeltaSeconds) override;
 	virtual void BeginPlay() override;
 
 protected:

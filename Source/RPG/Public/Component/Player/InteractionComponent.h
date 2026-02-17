@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// For interaction with NPC / Portal / DanceFloor
+// Manage overlap with player's capsule collision & other Interactables
 
 #pragma once
 
@@ -14,7 +15,6 @@ class RPG_API UInteractionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UInteractionComponent();
 
     UPROPERTY()
@@ -29,13 +29,10 @@ public:
     UFUNCTION()
     void InteractionStart();
 
-    UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Raycast")
-    float TraceDistance = 500.0f;
-
 protected:
     virtual void BeginPlay() override;
 
-    UPROPERTY(EditAnywhere, Category = "Raycast Collision")
+    UPROPERTY(EditAnywhere)
     UShapeComponent* PlayerCapsule;
 
     UFUNCTION(BlueprintCallable)
@@ -43,6 +40,5 @@ protected:
 
 private:
     APlayerCharacter* PlayerCharacter;
-
 		
 };

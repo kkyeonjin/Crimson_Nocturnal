@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Player/PlayerAttributeComponent.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "Component/Boss/BossAttributeComponent.h"
@@ -10,63 +7,79 @@
 #include "Kismet/GameplayStatics.h"
 
 
-// Sets default values for this component's properties
 UPlayerAttributeComponent::UPlayerAttributeComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 
-// Called when the game starts
 void UPlayerAttributeComponent::BeginPlay()
 {
 	Super::BeginPlay();
 
-	// GameInstance 델리게이트 구독 (느슨한 결합)
+	// 1. Subscribe to GameInstance events (loose coupling)
+	SubscribeToGameInstance();
+
+	// 2. Restore data (runtime > save > new game priority)
+	if (!TryRestoreRuntimeData() && !TryLoadSavedData())
+	{
+		InitializePlayerStat();
+	}
+
+	// 3. Bind GameMode events
+	BindGameModeEvents();
+}
+
+void UPlayerAttributeComponent::SubscribeToGameInstance()
+{
 	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
 	{
 		GI->OnSaveGameRequested.AddDynamic(this, &UPlayerAttributeComponent::SavePlayerData);
 		GI->OnLoadGameRequested.AddDynamic(this, &UPlayerAttributeComponent::LoadPlayerData);
 		GI->OnRuntimeRestoreRequested.AddDynamic(this, &UPlayerAttributeComponent::RestoreRunTimeData);
 	}
+}
 
-	// 2. 런타임 백업 우선 복원 (맵 전환용)
+bool UPlayerAttributeComponent::TryRestoreRuntimeData()
+{
 	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
 	{
-		if (GI->HasRunTimeSaveData()) {
-			GI->RestorePlayerData(); 
-			// 스탯 복원 + UI Broadcast 내부 처리
+		if (GI->HasRunTimeSaveData())
+		{
+			GI->RestorePlayerData();
 			UE_LOG(LogTemp, Warning, TEXT("Runtime restore complete"));
-			return;  // 끝!
+			return true;
 		}
 	}
+	return false;
+}
 
-	// 저장 있으면 자동 로드
+bool UPlayerAttributeComponent::TryLoadSavedData()
+{
 	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
 	{
 		if (GI->HasSaveData())
 		{
 			LoadPlayerData();
-		}
-		else
-		{
-			InitializePlayerStat();
+			return true;
 		}
 	}
+	return false;
+}
 
+void UPlayerAttributeComponent::BindGameModeEvents()
+{
 	if (ARPGGameMode* GM = Cast<ARPGGameMode>(GetWorld()->GetAuthGameMode()))
 	{
 		GM->OnSaveRequired.AddDynamic(this, &UPlayerAttributeComponent::RequestSave);
 	}
+}
 
-	//여기에서 UI setting 델리게이트!!
-	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills, Ult1XSetting, Ult1YSetting);
+void UPlayerAttributeComponent::BroadcastInitialUIState()
+{
 	OnBPUpdate.Broadcast(CurrentBP, MaxBP);
 	OnHPUpdate.Broadcast(CurrentHP, MaxHP);
+	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 }
 
 void UPlayerAttributeComponent::InitializePlayerStat()
@@ -81,8 +94,6 @@ void UPlayerAttributeComponent::InitializePlayerStat()
 	DEF = Data->DefaultDEF;
 	EquippedUlt = 10;
 	ActivatedSkills = { 0, 0, 0, 0, 0 };
-
-	UE_LOG(LogTemp, Warning, TEXT("CurrentBP: %d MaxBP: %d CurrentHP: %d MaxHP: %d"), CurrentBP, MaxBP, CurrentHP, MaxHP);
 }
 
 FLevelData* UPlayerAttributeComponent::GetLevelData(int32 Level)
@@ -148,14 +159,16 @@ void UPlayerAttributeComponent::LoadPlayerData()
 		EquippedUlt = PlayerGameData->EquippedUlt;
 		Ult1XSetting = PlayerGameData->Ult1XSetting;
 		Ult1YSetting = PlayerGameData->Ult1YSetting;
+
+		if (CurrentBP == MaxBP)
+		{
+			IsBPMax = true;
+		}
+		else
+		{
+			IsBPMax = false;
+		}
 	}
-
-	UE_LOG(LogTemp, Warning, TEXT("LoadPlayerData in AttributeComp"));
-
-	//여기에서 UI setting 델리게이트!!
-	OnBPUpdate.Broadcast(CurrentBP, MaxBP);
-	OnHPUpdate.Broadcast(CurrentHP, MaxHP);
-	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 }
 
 void UPlayerAttributeComponent::SavePlayerData()
@@ -181,19 +194,20 @@ void UPlayerAttributeComponent::SavePlayerData()
 	NewPlayerData->Ult1XSetting = Ult1XSetting;
 	NewPlayerData->Ult1YSetting = Ult1YSetting;
 	NewPlayerData->CurrentMap = GetWorld()->GetMapName();
+	NewPlayerData->IsTutorialChecked = true;
 
 	UGameplayStatics::SaveGameToSlot(NewPlayerData, TEXT("PlayerSaveSlot"), 0);
-
 }
 
+// Called in runtime (before teleport to another level)
 void UPlayerAttributeComponent::RequestSave()
 {
 	SavePlayerData();
 
-	// 2. GI 백업 (1줄)
+	// BackUp runtime data in GI
 	if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
 	{
-		GI->BackupPlayerData(); // GI.CurrentPlayerSaveBackup 저장
+		GI->BackupPlayerData(); 
 	}
 }
 
@@ -213,11 +227,20 @@ void UPlayerAttributeComponent::RestoreRunTimeData(USaveGameData* RuntimeSaveGam
 	Ult1XSetting = RuntimeSaveGameData->Ult1XSetting;
 	Ult1YSetting = RuntimeSaveGameData->Ult1YSetting;
 
-	//여기에서 UI setting 델리게이트!!
-	OnBPUpdate.Broadcast(CurrentBP, MaxBP);
-	OnHPUpdate.Broadcast(CurrentHP, MaxHP);
-	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills, Ult1XSetting, Ult1YSetting);
-	
+
+	ActivatedSkills.Empty();
+	ActivatedSkills.SetNum(5, false); 
+	if (RuntimeSaveGameData->ActivatedSkills.IsValidIndex(0) && RuntimeSaveGameData->ActivatedSkills.Num() >= 5)
+	{
+		ActivatedSkills = RuntimeSaveGameData->ActivatedSkills;
+	}
+	else
+	{
+		ActivatedSkills.Init(0, 5);
+		UE_LOG(LogTemp, Warning, TEXT("Restore: ActivatedSkills reset to default (empty save)"));
+	}
+
+	BroadcastInitialUIState();
 }
 
 //Calculation Damage Value to Enemy when Player hits Enemy
@@ -230,8 +253,9 @@ int32 UPlayerAttributeComponent::CalcDamage()
 		UE_LOG(LogTemp, Display, TEXT("CurrentBP: %d"), CurrentBP);
 		OnBPUpdate.Broadcast(CurrentBP, MaxBP);
 
-		if (CurrentBP == MaxBP)
+		if (CurrentBP >= MaxBP)
 		{
+			CurrentBP = MaxBP;
 			OnBPMax.Broadcast();
 			IsBPMax = true;
 		}
@@ -256,54 +280,46 @@ int32 UPlayerAttributeComponent::CalcDamage()
 //Apply Damage(=Reduce Player's HP) that Enemy gave to Player
 void UPlayerAttributeComponent::ApplyDamage()
 {
+	int32 Damage = 0;
+
 	if (EnemyAttributeComponent)
 	{
-		int32 Damage = EnemyAttributeComponent->CalcDamage();
-		CurrentHP -= Damage;
-		OnHPUpdate.Broadcast(CurrentHP, MaxHP);
-		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
+		Damage = EnemyAttributeComponent->CalcDamage();
 	}
 	else if (BossAttributeComponent)
 	{
-		int32 Damage = BossAttributeComponent->CalcDamage();
-		CurrentHP -= Damage;
-		OnHPUpdate.Broadcast(CurrentHP, MaxHP);
-		UE_LOG(LogTemp, Display, TEXT("PlayerHP: %d"), CurrentHP);
+		Damage = BossAttributeComponent->CalcDamage();
 	}
 	else
 	{
 		UE_LOG(LogTemp, Error, TEXT("EnemyAttributeComponent CANNOT FIND"));
+		return;
 	}
+
+	CurrentHP -= Damage;
+	OnHPUpdate.Broadcast(CurrentHP, MaxHP);
 }
 
 void UPlayerAttributeComponent::SetEnemyAttributeComponent(AActor* Target)
 {
 	if (!Target) return;
 
-	// 1순위: BossAttributeComponent 확인
+	// Priority: Boss > Enemy
 	if (UBossAttributeComponent* BossComp = Target->FindComponentByClass<UBossAttributeComponent>())
 	{
-		EnemyAttributeComponent = nullptr;  // Enemy 타입은 Clear
-		BossAttributeComponent = BossComp;  // Boss 타입 저장
-
-		UE_LOG(LogTemp, Display, TEXT("Found BossAttributeComponent"));
+		EnemyAttributeComponent = nullptr;  
+		BossAttributeComponent = BossComp;  
 		TargetDEF = BossAttributeComponent->GetDEF();
 		return;
 	}
 
-	// 2순위: EnemyAttributeComponent 확인
 	if (UEnemyAttributeComponent* EnemyComp = Target->FindComponentByClass<UEnemyAttributeComponent>())
 	{
 		EnemyAttributeComponent = EnemyComp;
-		BossAttributeComponent = nullptr;  // Boss 타입은 Clear
-
-		UE_LOG(LogTemp, Display, TEXT("Found EnemyAttributeComponent"));
+		BossAttributeComponent = nullptr;  
 		TargetDEF = EnemyAttributeComponent->GetDEF();
 		return;
 	}
-
-	// 둘 다 없음
-	UE_LOG(LogTemp, Warning, TEXT("No Attribute Component found on %s"), *Target->GetName());
 }
 
 //take Enemy's EXP value who player just killed 
@@ -325,16 +341,17 @@ void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
 {
 	switch (SkillNum)
 	{
-	case 0: //공격력 증가
+	case 0: 
 		ATK += 3;
 		break;
-	case 1: //방어력 증가
+	case 1: 
 		DEF += 4;
 		break;
-	case 2: //최대HP증가
+	case 2: 
 		MaxHP += 30;
+		OnHPUpdate.Broadcast(CurrentHP, MaxHP);
 		break;
-	case 3: //BP획득량 증가
+	case 3: 
 		BPMultiplier = 1.3f;
 		break;
 	default:
@@ -342,8 +359,9 @@ void UPlayerAttributeComponent::UpdateStatsBySkill(int SkillNum)
 	}
 
 	SkillPoint -= 1;
+
+	//UI Update(SkillPoint Text)
 	OnSkillPointUpdate.Broadcast(SkillPoint);
-	//HP 표시량(숫자) 변화하도록 델리게이트 브로드캐스팅 해주기
 
 	ActivatedSkills[SkillNum] = 1;
 }

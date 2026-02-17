@@ -1,16 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Actor/Crystal.h"
 #include "Sound/SoundCue.h"
 #include "Kismet/GameplayStatics.h"
 
-// Sets default values
 ACrystal::ACrystal()
 {
- 	// Set this actor to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
-	PrimaryActorTick.bCanEverTick = true;
-
+ 	PrimaryActorTick.bCanEverTick = false;
 }
 
 void ACrystal::GetHit(const FVector& ImpactPoint, AActor* Target)
@@ -24,11 +18,7 @@ void ACrystal::GetHit(const FVector& ImpactPoint, AActor* Target)
 void ACrystal::DestroyCrystal(int32 CrystalToBreak)
 {
 	if (CrystalNum == CrystalToBreak)
-	{
-		//PlayVFX;
-		//PlaySound();
-		UE_LOG(LogTemp, Warning, TEXT("Crystal%d BREAK!!"), CrystalNum);
-
+	{	
 		Destroy();
 
 		PlayCrystalSFX();
@@ -41,9 +31,10 @@ void ACrystal::DestroyLastCrystal()
 	PlayCrystalSFX();
 	PlayCrystalVFX();
 
-	//ownerBoss->PlayAnimation
+	Destroy();
+
+	// delegate to owner(Boss)
 	OnLastCrystalDestroyed.Broadcast();
-	
 }
 
 void ACrystal::PlayCrystalSFX()
@@ -66,6 +57,7 @@ void ACrystal::PlayCrystalVFX()
 
 void ACrystal::SetReadyToBreak()
 {
+	// Only when crystal is breakable (can be hit by player's attack)
 	if (CrystalNum == 3)
 	{
 		bIsBreakable = true;

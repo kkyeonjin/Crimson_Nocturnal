@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Boss stats with phase transitions (70%/20% HP thresholds)
+// Broadcasts OnHpThreshold for phase changes/QTE/crystal events
 
 #pragma once
 #define HP_THRESHOLD_1 700
@@ -22,19 +23,20 @@ class RPG_API UBossAttributeComponent : public UActorComponent, public IAttribut
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UBossAttributeComponent();
 
+	// IAttributeInterface
 	virtual int32 CalcDamage();
 	virtual void ApplyDamage();
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stats")
 	UDataTable* BossStatTable;
 
+
+	// Delegate (send to Boss)
 	FOnHpThreshold OnHpThreshold;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
@@ -42,27 +44,24 @@ private:
 	int32 MaxHP;
 	int32 DEF;
 
-	//to set different ATK by Phases easily (through Editor)
-	//Phase 1, 3: Actor has Attack Collision / Phase2: Boss has Attack Collision
-	// -> and All Phases have different ATK Value!!
 	UPROPERTY(EditAnywhere)
 	int32 ATK;
 
 	int32 PhaseNum;
 
-	UPlayerAttributeComponent* PlayerAttributeComponent;
+	UPlayerAttributeComponent* CachedPlayerAttributeComponent;
 	ABoss* Owner;
 
 	bool IsInfected = false;
+
+	void CachePlayerAttribute();
 
 public:
 	FORCEINLINE virtual int32 GetATK() { return ATK; }
 	FORCEINLINE virtual int32 GetDEF() { return DEF; }
 	FORCEINLINE virtual int32 GetCurrentHP() { return CurrentHP; }
 	FORCEINLINE virtual int32 GetMaxHP() { return MaxHP; }
-
 	FORCEINLINE bool ReadyToStartUlt() { return CurrentHP <= MaxHP / 10; }
-
 	FORCEINLINE void SetIsInfected(bool bIsInfected) { IsInfected = bIsInfected; }
 
 };

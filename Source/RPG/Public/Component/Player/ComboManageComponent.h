@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manages combo input sequences, chain attacks, and boss QTE
+// Broadcasts to PlayerCharacter for animation/BP rewards
 
 #pragma once
 
@@ -7,8 +8,6 @@
 #include "Character/Player/Types/ComboInput.h"
 #include "ComboManageComponent.generated.h"
 
-
-//delegate rings(broadcast) when combo matches
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnComboMatch, int32, ComboNum, int32, BPValue);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnChainAttack, int32, AttackAnimNum, FName, SectionName);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQTEFailed);
@@ -19,15 +18,20 @@ class RPG_API UComboManageComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UComboManageComponent();
 
-	//Check Combo Attack is complete or not
+	// Check Combo Attack is complete or not
 	bool IsComboMatch(EAttackKeyType Key);
 
-	//check normal(chain) attack times 
+	// Increment chain attack counter for basic attacks
 	void ChainAttackCount(EAttackKeyType Key);
 
+	void StartQTETimer();
+
+	//Check BossUlt QTE Matched 
+	bool BossUltimateQTE(EAttackKeyType Key);
+
+	// Delegates (external binding from PlayerCharacter)
 	UPROPERTY()
 	FOnComboMatch OnComboMatch;
 
@@ -37,16 +41,7 @@ public:
 	UPROPERTY()
 	FOnQTEFailed OnQTEFailed;
 
-	int32 GetComboAnimMontage(int32 ComboAnimNum);
-
-	//Check BossUlt QTE Matched (Renaming Required)
-	bool BossUltimateQTE(EAttackKeyType Key);
-
-	void StartQTETimer();
-
 protected:
-	// Called when the game starts
-	virtual void BeginPlay() override;
 
 	UPROPERTY(BlueprintReadOnly, Category = "Combo")
 	TArray<FComboPattern> ComboPatterns;
@@ -79,12 +74,17 @@ private:
 
 	void QTEFailed();
 
+	bool ProcessComboInput(EAttackKeyType Key, bool bUseAllPatterns);
+
+
 	int32 RequiredBossComboNum = 0;
 
 public:
 	FORCEINLINE float GetCurrentAttackMultiplier() { return CurrentAttackMultiplier; }
+	// Get combo patterns for UI / Skill system
 	FORCEINLINE TArray<FComboPattern>* GetComboPatterns() { return &ComboPatterns; }
-
-	FORCEINLINE void SetRequiredBossComboNum() { RequiredBossComboNum = 0;/*RequiredBossComboNum = FMath::Rand() % 4;*/ UE_LOG(LogTemp, Warning, TEXT("Combo Num: %d"), RequiredBossComboNum); }
+	// Set random boss QTE target combo
+	FORCEINLINE void SetRequiredBossComboNum() { RequiredBossComboNum = FMath::Rand() % 4; }
 	FORCEINLINE int32 GetRequiredBossComboNum() { return RequiredBossComboNum; }
+	FORCEINLINE int32 GetComboAnimMontage(int32 ComboAnimNum) { return ComboPatterns[ComboAnimNum].AnimMontageNum; }
 };

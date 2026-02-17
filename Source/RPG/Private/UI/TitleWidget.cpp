@@ -39,8 +39,6 @@ void UTitleWidget::OnNavigate(int32 Input)
         TitleMenuSelectCount = 0;
     }
 
-    //UE_LOG(LogTemp, Warning, TEXT("TitleMenuCount: %d"), TitleMenuSelectCount);
-
     MenuCircles[TitleMenuSelectCount]->SetVisibility(ESlateVisibility::Visible);
 
 }
@@ -51,7 +49,7 @@ void UTitleWidget::OnSelect()
     {
         if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetGameInstance()))
         {
-            GI->ClearSaveData();  // 저장 삭제
+            GI->ClearSaveData();  
             GI->SetTutorialSeen(false);
             UGameplayStatics::OpenLevel(GetWorld(), FName("Hospital"));
         }
@@ -62,16 +60,14 @@ void UTitleWidget::OnSelect()
     }
     else if (TitleMenuSelectCount == 1) //continue
     {
-        UE_LOG(LogTemp, Display, TEXT("Continue"));
         if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetGameInstance()))
         {
             if (GI->HasSaveData())
             {
-                GI->RequestLoadGame();  // 저장된 데이터 로드
+                GI->RequestLoadGame();  
             }
             else
             {
-                // 저장 없으면 새 게임
                 GI->SetTutorialSeen(false);
                 UGameplayStatics::OpenLevel(GetWorld(), FName("Hospital"));
             }

@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// DanceFloor in Saloon
+// Created for the BP of this class
 
 #pragma once
 
@@ -12,7 +13,6 @@ class RPG_API ADanceFloor : public AActor
 	GENERATED_BODY()
 	
 public:	
-	// Sets default values for this actor's properties
 	ADanceFloor();
 
 };

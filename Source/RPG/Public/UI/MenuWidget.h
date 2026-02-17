@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Menu widget that can be opened during gameplay
 
 #pragma once
 
@@ -6,15 +6,11 @@
 #include "UI/BaseUIInputWidget.h"
 #include "MenuWidget.generated.h"
 
-
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMenuClose);
 
 class UImage;
 class UControllerMapWidget;
 
-/**
- * 
- */
 UCLASS()
 class RPG_API UMenuWidget : public UBaseUIInputWidget
 {
@@ -26,8 +22,6 @@ public:
 	//Sub Widget
 	UPROPERTY(EditAnywhere)
 	class UTutorialWidget* TutorialWidget;
-
-	//Sub Widget
 	UPROPERTY(EditAnywhere)
 	UControllerMapWidget* ControllerMapWidget;
 
@@ -60,7 +54,6 @@ protected:
 	virtual void OnDPadDown() override { OnDirectionalInput(-1); }
 	virtual void OnFaceButtonA() override { OnSelect(); }
 	virtual void OnFaceButtonB() override { CloseMenu(); }
-
 
 private:
 	TArray<UImage*> MenuHighlights;

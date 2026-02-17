@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// UltimateSkillActor used in boss fight
 
 #pragma once
 
@@ -14,7 +14,6 @@ class RPG_API ABossUltimateSkill : public AActor
 	GENERATED_BODY()
 	
 public:
-	// Sets default values for this actor's properties
 	ABossUltimateSkill();
 
 	void StartUltSkill();
@@ -23,7 +22,6 @@ public:
 	void TeleportPlayerToCenter();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Ultimate|References")
@@ -40,6 +38,5 @@ private:
 
 public:
 	FORCEINLINE void SetTargetPlayer(APlayerCharacter* NewPlayer) { TargetPlayer = NewPlayer; }
-
 
 };

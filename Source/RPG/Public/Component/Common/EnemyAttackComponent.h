@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage attack collision of enemy (overlap logics)
 
 #pragma once
 
@@ -14,15 +14,14 @@ class RPG_API UEnemyAttackComponent : public UActorComponent, public IAttackColl
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UEnemyAttackComponent();
 
 	UFUNCTION()
 	virtual void OnAttackCollisionOverlap(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 
+	// Callback funcs by AnimNotify
 	UFUNCTION()
 	virtual void OnAttackCollisionEnable(int32 Unused) override;
-
 	UFUNCTION()
 	virtual void OnAttackCollisionDisable(int32 Unused) override;
 
@@ -31,7 +30,6 @@ public:
 	virtual void InitializeActorsToIgnore() override;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Attack")
@@ -51,12 +49,10 @@ private:
 
 	UPROPERTY(EditAnywhere)
 	bool IsCollisionEnableAtStart;
-
 	UPROPERTY(EditAnywhere)
 	bool IsTraceEnable;
 
 	UPROPERTY(EditAnywhere, Category="Attack")
 	FVector AttackTraceSize;
-
 
 };

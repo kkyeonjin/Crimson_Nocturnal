@@ -1,28 +1,10 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Player/ComboManageComponent.h"
 
 
-// Sets default values for this component's properties
 UComboManageComponent::UComboManageComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
+	PrimaryComponentTick.bCanEverTick = false;
 	InitializeComboPattern();
-
-	// ...
-}
-
-
-// Called when the game starts
-void UComboManageComponent::BeginPlay()
-{
-	Super::BeginPlay();
-
-	// ...
-
 }
 
 //called when combo timeout is over 
@@ -36,6 +18,18 @@ void UComboManageComponent::ResetInputSequence()
 //return value: whether combo matched or not (bool)
 bool UComboManageComponent::IsComboMatch(EAttackKeyType Key)  
 {
+	return ProcessComboInput(Key, /*useAllPatterns=*/true);
+}
+
+bool UComboManageComponent::BossUltimateQTE(EAttackKeyType Key)
+{
+	return ProcessComboInput(Key, /*useAllPatterns=*/false);
+}
+
+// Core combo matching logic(shared by normal / QTE)
+// bUseAllPatterns True for normal combo scan, false for boss QTE specific
+bool UComboManageComponent::ProcessComboInput(EAttackKeyType Key, bool bUseAllPatterns)
+{
 	//add input key in key sequence array & initialize combo time 
 	InputKeySequence.Add(Key);
 	TimeSinceLastInput = 0.f;
@@ -43,40 +37,50 @@ bool UComboManageComponent::IsComboMatch(EAttackKeyType Key)
 	//ComboTimerOutTimer Starts
 	GetWorld()->GetTimerManager().SetTimer(
 		ComboTimeOutTimer,
-		this, 
-		&UComboManageComponent::CheckComboTimeOut, 
+		this,
+		&UComboManageComponent::CheckComboTimeOut,
 		ComboTimeOut,
 		false
 	); //last parameter false-> call Timer just once 
 
+	const int32 TargetPatternIndex = bUseAllPatterns ? -1 : RequiredBossComboNum;
+	const int32 PatternCount = bUseAllPatterns ? ComboPatterns.Num() : 1;
 
-	for (int32 i = 0; i < ComboPatterns.Num(); i++)
+
+	for (int32 i = 0; i < PatternCount; ++i)
 	{
-		//Compare key sequence Array with Designated Combo Patterns
-		if (InputKeySequence.Num() == ComboPatterns[i].ComboKeySequence.Num())
-		{
-			bool bIsComboMatch = true;
+		const int32 PatternIdx = bUseAllPatterns ? i : TargetPatternIndex;
+		const FComboPattern& Pattern = ComboPatterns[PatternIdx];
 
-			for (int32 j = 0; j < InputKeySequence.Num(); j++)
+		if (InputKeySequence.Num() == Pattern.ComboKeySequence.Num())
+		{
+			bool bIsMatch = true;
+			for (int32 j = 0; j < InputKeySequence.Num(); ++j)
 			{
-				if (InputKeySequence[j] != ComboPatterns[i].ComboKeySequence[j])
+				if (InputKeySequence[j] != Pattern.ComboKeySequence[j])
 				{
-					bIsComboMatch = false;
+					bIsMatch = false;
 					break;
 				}
 			}
-			if (bIsComboMatch)
-			{
-				//Set AttackMultiplier
-				CurrentAttackMultiplier = ComboPatterns[i].ComboAttackMultiplier;
 
-				//start broadcast when combo matches
-				OnComboMatch.Broadcast(ComboPatterns[i].ComboNum, ComboPatterns[i].BPValue);
+			if (bIsMatch)
+			{
+				CurrentAttackMultiplier = Pattern.ComboAttackMultiplier;
+
+				// Clear timers on success
+				GetWorld()->GetTimerManager().ClearTimer(ComboTimeOutTimer);
+				if (!bUseAllPatterns)
+				{
+					GetWorld()->GetTimerManager().ClearTimer(BossSurvivalTimer);
+				}
+
+				// Broadcast (QTE uses AnimMontageNum for combo num)
+				OnComboMatch.Broadcast(bUseAllPatterns ? Pattern.ComboNum : Pattern.AnimMontageNum, Pattern.BPValue);
 				UE_LOG(LogTemp, Warning, TEXT("ComboMatch!!"));
 
-				//reset key sequence array for new combo
 				ResetInputSequence();
-				return bIsComboMatch;
+				return true;
 			}
 		}
 	}
@@ -96,17 +100,17 @@ void UComboManageComponent::ChainAttackCount(EAttackKeyType Key)
 			ChainAttackCountX = 0;
 		}
 		ChainAttackCountX++;
-		//UE_LOG(LogTemp, Display, TEXT("CountX : %d"), ChainAttackCountX);
+
 		SectionNameStr = FString::Printf(TEXT("Chain%d"), ChainAttackCountX);
 		AnimNum = 0;
 
 		//Set CurrentAttackMultiplier for each ChainCountSteps
 		switch (ChainAttackCountX)
 		{
-		case 1: CurrentAttackMultiplier = ComboConstants::CHAIN_X1_MULTIPLIER; break;
-		case 2: CurrentAttackMultiplier = ComboConstants::CHAIN_X2_MULTIPLIER; break;
-		case 3: CurrentAttackMultiplier = ComboConstants::CHAIN_X3_MULTIPLIER; break;
-		default: CurrentAttackMultiplier = 1.0f; break;
+			case 1: CurrentAttackMultiplier = ComboConstants::CHAIN_X1_MULTIPLIER; break;
+			case 2: CurrentAttackMultiplier = ComboConstants::CHAIN_X2_MULTIPLIER; break;
+			case 3: CurrentAttackMultiplier = ComboConstants::CHAIN_X3_MULTIPLIER; break;
+			default: CurrentAttackMultiplier = 1.0f; break;
 		}
 	}
 	else if (Key == EAttackKeyType::Y)
@@ -117,10 +121,11 @@ void UComboManageComponent::ChainAttackCount(EAttackKeyType Key)
 			ChainAttackCountY = 0;
 		}
 		ChainAttackCountY++;
-		//UE_LOG(LogTemp, Display, TEXT("CountY : %d"), ChainAttackCountX);
+
 		SectionNameStr = FString::Printf(TEXT("Chain%d"), ChainAttackCountY);
 		AnimNum = 1;
 
+		//Set CurrentAttackMultiplier for each ChainCountSteps
 		switch (ChainAttackCountY)
 		{
 		case 1: CurrentAttackMultiplier = ComboConstants::CHAIN_Y1_MULTIPLIER; break;
@@ -128,6 +133,7 @@ void UComboManageComponent::ChainAttackCount(EAttackKeyType Key)
 		default: CurrentAttackMultiplier = 1.0f; break;
 		}
 	}
+
 	FName SectionName(*SectionNameStr);
 	OnChainAttack.Broadcast(AnimNum, SectionName);
 }
@@ -141,9 +147,7 @@ void UComboManageComponent::InitializeComboPattern()
 	ComboA.ComboNum = 0;
 	ComboA.AnimMontageNum = static_cast<int32>(EAnimMontageType::ComboA);
 	ComboA.ComboAttackMultiplier = 3.5;
-	//ComboA.BPValue = 20;
-	//for debug
-	ComboA.BPValue = 100;
+	ComboA.BPValue = 20;
 	ComboPatterns.Add(ComboA);
 
 	//ComboB
@@ -195,58 +199,9 @@ void UComboManageComponent::StartQTETimer()
 	);
 }
 
-int32 UComboManageComponent::GetComboAnimMontage(int32 ComboAnimNum)
-{
-	return ComboPatterns[ComboAnimNum].AnimMontageNum;
-}
-
-
-//parameter: input key value from player (x/y)
-bool UComboManageComponent::BossUltimateQTE(EAttackKeyType Key)
-{
-	InputKeySequence.Add(Key);
-	TimeSinceLastInput = 0.f;
-
-	GetWorld()->GetTimerManager().SetTimer(
-		ComboTimeOutTimer, 
-		this, &UComboManageComponent::CheckComboTimeOut, 
-		ComboTimeOut, 
-		false
-	);
-
-	for (int32 i = 0; i < ComboPatterns.Num(); i++)
-	{
-		//Compare InputSequence to Designated Combo Patterns
-		if (InputKeySequence.Num() == ComboPatterns[RequiredBossComboNum].ComboKeySequence.Num())
-		{
-			bool bIsComboMatch = true;
-			for (int32 j = 0; j < InputKeySequence.Num(); j++)
-			{
-				if (InputKeySequence[j] != ComboPatterns[RequiredBossComboNum].ComboKeySequence[j])
-				{
-					bIsComboMatch = false;
-					break;
-				}
-			}
-			if (bIsComboMatch)
-			{
-				//Set AttackMultiplier
-				CurrentAttackMultiplier = ComboPatterns[RequiredBossComboNum].ComboAttackMultiplier;
-				//start broadcast when combo matches
-				GetWorld()->GetTimerManager().ClearTimer(ComboTimeOutTimer);
-				GetWorld()->GetTimerManager().ClearTimer(BossSurvivalTimer);
-				OnComboMatch.Broadcast(ComboPatterns[RequiredBossComboNum].AnimMontageNum, ComboPatterns[RequiredBossComboNum].BPValue);
-				UE_LOG(LogTemp, Warning, TEXT("ComboMatch!!"));
-				ResetInputSequence();
-				return bIsComboMatch;
-			}
-		}
-	}
-	return false;
-}
-
 
 void UComboManageComponent::QTEFailed()
 {
 	OnQTEFailed.Broadcast();
 }
+

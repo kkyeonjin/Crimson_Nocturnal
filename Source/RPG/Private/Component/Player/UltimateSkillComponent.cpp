@@ -1,62 +1,55 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Player/UltimateSkillComponent.h"
 #include "Character/Player/Types/PlayerTypes.h"
 
-// Sets default values for this component's properties
 UUltimateSkillComponent::UUltimateSkillComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UUltimateSkillComponent::TimerStart(EUltimateSkill* SelectedSkill)
 {
 	bIsSkillActivated = true;
+
 	if (*SelectedSkill == EUltimateSkill::SkillA)
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			SkillActiveTimer, this, &UUltimateSkillComponent::SkillTimeOver, SkillAActiveTime, false
-		); //last parameter false-> call Timer just once
-		UE_LOG(LogTemp, Warning, TEXT("Skill A Activated"));
+		); 
 	}
-	else if (*SelectedSkill == EUltimateSkill::SkillB) //피흡
+	else if (*SelectedSkill == EUltimateSkill::SkillB) 
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			SkillActiveTimer, this, &UUltimateSkillComponent::SkillTimeOver, SkillBActiveTime, false
 		);
 
 	}
-	else if (*SelectedSkill == EUltimateSkill::SkillC) //감염
+	else if (*SelectedSkill == EUltimateSkill::SkillC) 
 	{
 		GetWorld()->GetTimerManager().SetTimer(
 			SkillActiveTimer, this, &UUltimateSkillComponent::SkillTimeOver, SkillCActiveTime, false
 		);
-
 	}
 }
 
 void UUltimateSkillComponent::SkillTimeOver()
 {
-	//VFX해제
 	OnUltTimeOver.Broadcast();
 	bIsSkillActivated = false;
-	UE_LOG(LogTemp, Warning, TEXT("Skill Time Over"));
 }
 
 //take AttackValue(X/Y)
 void UUltimateSkillComponent::Skill1(float AttackValue)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Skill Action Pressed"));
+	if (!CachedComboPatterns || CachedComboPatterns->IsEmpty())
+	{
+		UE_LOG(LogTemp, Error, TEXT("ComboPatterns not set for SkillA"));
+		return;
+	}
 
 	//X Button
 	if (AttackValue == 1.f)
 	{
-		//포인터라서 이렇게 접근해야함
+		// CachedComboPatterns : pointer
 		UE_LOG(LogTemp, Warning, TEXT("Attack Value: %f"), AttackValue);
 		UE_LOG(LogTemp, Warning, TEXT("Combo AnimNum: %d"), (*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum);
 		OnSkill1Attack.Broadcast((*CachedComboPatterns)[XSettingForSkillA].AnimMontageNum, (*CachedComboPatterns)[XSettingForSkillA].ComboAttackMultiplier);

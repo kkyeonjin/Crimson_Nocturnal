@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage kick collision used by player (kick attack with Y Button)
 
 #pragma once
 
@@ -7,14 +7,12 @@
 #include "Interface/AttackCollisionInterface.h"
 #include "KickComponent.generated.h"
 
-
 UCLASS(ClassGroup = (Custom), meta = (BlueprintSpawnableComponent))
 class RPG_API UKickComponent : public UActorComponent, public IAttackCollisionInterface
 {
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UKickComponent();
 
 	UFUNCTION()
@@ -22,16 +20,16 @@ public:
 
 	virtual void BindingOverlapDelegate() override;
 
+
+	// Callback funcs by AnimNotify
 	UFUNCTION()
 	virtual void OnAttackCollisionEnable(int32 Unused) override;
-
 	UFUNCTION()
 	virtual void OnAttackCollisionDisable(int32 Unused) override;
 
 	virtual void InitializeActorsToIgnore() override;
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Kick")
@@ -49,7 +47,6 @@ protected:
 		USceneComponent* NewTraceEndPoint,
 		UShapeComponent* NewLegBox
 	);
-
 
 private:
 	TArray<AActor*> ActorsToIgnore;

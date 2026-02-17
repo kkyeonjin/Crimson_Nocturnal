@@ -1,19 +1,11 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Component/Common/EnemyAttackComponent.h"
 #include "Components/ShapeComponent.h"
 #include "Interface/HitInterface.h"
 #include "Kismet/KismetSystemLibrary.h"
 
-// Sets default values for this component's properties
 UEnemyAttackComponent::UEnemyAttackComponent()
 {
-	// Set this component to be initialized when the game starts, and to be ticked every frame.  You can turn these features
-	// off to improve performance if you don't need them.
-	PrimaryComponentTick.bCanEverTick = true;
-
-	// ...
+	PrimaryComponentTick.bCanEverTick = false;
 }
 
 void UEnemyAttackComponent::InitializeEnemyAttackComponents(USceneComponent* NewTraceStartPoint, USceneComponent* NewTraceEndPoint, UShapeComponent* NewAttackCollision)
@@ -45,7 +37,6 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 
 	if (IsTraceEnable)
 	{
-		//UE_LOG(LogTemp, Display, TEXT("Overlap Start"));
 		const FVector Start = TraceStartPoint->GetComponentLocation();
 		const FVector End = TraceEndPoint->GetComponentLocation();
 
@@ -61,7 +52,7 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 			TraceChannel,
 			false,
 			ActorsToIgnore,
-			EDrawDebugTrace::ForDuration,
+			EDrawDebugTrace::None,
 			HitResult,
 			true,
 			FLinearColor::Yellow
@@ -80,10 +71,9 @@ void UEnemyAttackComponent::OnAttackCollisionOverlap(UPrimitiveComponent* Overla
 
 	if (!bHitValid) return;
 
-	// 히트 리스트에 추가 (중복 방지)
+	// Prevent to give damage several times
 	ActorsToIgnore.AddUnique(OtherActor);
 
-	// 데미지 적용
 	if (IHitInterface* HitInterface = Cast<IHitInterface>(OtherActor)) 
 	{
 		HitInterface->GetHit(HitLocation, GetOwner());
@@ -111,7 +101,7 @@ void UEnemyAttackComponent::InitializeActorsToIgnore()
 	ActorsToIgnore.Add(GetOwner());
 }
 
-// Called when the game starts
+
 void UEnemyAttackComponent::BeginPlay()
 {
 	Super::BeginPlay();

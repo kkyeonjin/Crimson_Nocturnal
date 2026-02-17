@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/**
+ * @class ABoss
+ * @brief Boss AI managing phases, crystals, ultimate QTE via components
+ * Delegates handle phase transitions, infection, HP thresholds (loose coupling)
+ * Tracks crystals destruction → final phase trigger
+ */
 
 #pragma once
 
@@ -29,11 +34,11 @@ class RPG_API ABoss : public ACharacter, public IHitInterface, public IInfectabl
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this character's properties
 	ABoss();
-	// Called to bind functionality to input
+
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/** HitInterface: applies damage + infection check + phase change */
 	virtual void GetHit(const FVector& ImpactPoint, AActor* Target) override;
 
 	UFUNCTION()
@@ -47,8 +52,6 @@ public:
 
 	UFUNCTION()
 	void StartBattle(); //Called when BattleStart Anim is Done (Notify)
-
-	void EndBattle();
 
 	UFUNCTION()
 	void OnPhaseChange(EBossPhase NewPhase);
@@ -74,27 +77,30 @@ public:
 	UFUNCTION()
 	void StartEnding();
 
+
+	// Public delegates
 	UPROPERTY()
 	FOnBossBattleStarted OnBossBattleStarted;
-
 	UPROPERTY()
 	FOnLastAttackStarted OnLastAttackStarted;
 
+
+	// Triggers QTE mechanic
 	void StartUltimateMechanic();
 
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UPROPERTY()
 	APlayerCharacter* PlayerCharacter;
 
 private:
-
+	// Component caching & validation
 	bool InitializeComponents();
-
 	void BindDelegates();
 
+
+	// components for performance
 	UBossAnimInstance* CachedBossAnimInstance;
 	UPhaseManageComponent* CachedPhaseManageComponent;
 	UBossAttributeComponent* CachedBossAttributeComponent;
@@ -103,14 +109,13 @@ private:
 	UBossSFXComponent* CachedBossSFXComponent;
 
 	EBossPhase CurrentPhase;
-
 	bool bBattleActivated = false;
-
 	bool bReadyToInfect = false;
 
+
+	// Dynamic materials for infection visual effects
 	void InitializeMaterials();
 
-	//Materials
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInterface*> OriginalMaterials;
 
@@ -124,33 +129,29 @@ private:
 	UPROPERTY(EditAnywhere)
 	UParticleSystem* HitParticles;
 
-	//UltSkill,,,
+
+	//UltSkill spawning
 	UPROPERTY(EditAnywhere)
 	TSubclassOf<ABossUltimateSkill> UltSkillClass;
-
 	ABossUltimateSkill* UltActor;
-
-	FTimerHandle RoarTimerHandle;     // 1.5초 타이머
 	FTimerHandle UltSkillActorTimerHandle;
-
-	//for debug
-	FTimerHandle DebugTimer;
-
 	void SpawnUltimateActor();
 
 	UPROPERTY(EditAnywhere)
 	FVector UltSpawnPoint;
 
 	UPROPERTY(EditAnywhere, Category = "Crystals")
-	TArray<ACrystal*> Crystals;  // 맵에서 할당 (3개)
+	TArray<ACrystal*> Crystals;  
+
 
 	//IInfectable
 	virtual USkeletalMeshComponent* GetMeshComponent_Implementation() override;
 	virtual TArray<UMaterialInstanceDynamic*> GetOriginalDynamicMaterials_Implementation() override;
 	virtual void SetCurrentMaterial_Implementation(UMaterialInstanceDynamic* Material) override;
 
+	bool IsUltSkillStarted = false;
+
+
 public:
 	FORCEINLINE EBossPhase GetCurrentPhase() { return CurrentPhase; }
-
-
 };

@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manages game rules: dialogue events, save triggers, player respawn, BGM switching
+// Singleplayer - focused: delegates UI / game state changes to PlayerCharacter
 
 #pragma once
 
@@ -8,15 +9,9 @@
 
 class UTutorialWidget;
 
-// Dialogue ╫ц╫╨еш
 DECLARE_DYNAMIC_MULTICAST_DELEGATE_TwoParams(FOnDialogueEvent, const FString&, DialogueName, const FString&, DialogueLine);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnterSaloon);
-DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnExitSaloon);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSaveRequired);
 
-/**
- * 
- */
 UCLASS()
 class RPG_API ARPGGameMode : public AGameMode
 {
@@ -34,14 +29,9 @@ public:
 	UPROPERTY(EditDefaultsOnly, Category = "UI")
 	TSubclassOf<UTutorialWidget> TutorialUIClass;  
 
+	//Triggers dialogue UI in Player HUD
 	UPROPERTY()
 	FOnDialogueEvent OnDialogueEvent;
-
-	UPROPERTY()
-	FOnEnterSaloon OnEnterSaloon;
-
-	UPROPERTY()
-	FOnExitSaloon OnExitSaloon;
 
 	UPROPERTY()
 	FOnSaveRequired OnSaveRequired;

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Spawning particle & decals for Boss Phase1 Attack (AoE)
 
 #pragma once
 
@@ -15,22 +15,19 @@ class RPG_API AMagicCircleAoE : public AActor
     GENERATED_BODY()
 
 public:
-
-    // Sets default values for this actor's properties
     AMagicCircleAoE();
 
     UFUNCTION(BlueprintCallable)
     void InitializeCircle();
 
 protected:
-    // Called when the game starts or when spawned
     virtual void BeginPlay() override;
 
-    // 마법진 Decal
+    // MagicCircle
     UPROPERTY(EditAnywhere, Category = "VFX")
     TSubclassOf<AActor> DecalClass;
 
-    // 폭발 파티클 (에디터에서 설정)
+    // FireStorm
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "VFX")
     TSubclassOf<AActor> ParticleEffectClass;
 
@@ -42,7 +39,7 @@ protected:
     UPROPERTY(EditAnywhere, Category = "Settings")
     float ExplosionDuration = 2.0f;
 
-    //보스 스테이지 센터(위치 랜덤 배정할 때의 기준점) 
+    // Center of the fight zone (for setting spawn points)
     UPROPERTY(EditAnywhere, Category = "Settings")
     FVector StageCenter;
 

@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage animations montage playing of enemy
 
 #pragma once
 
@@ -13,9 +13,6 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackMontageEnd);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyCollisionDisable);
 
-/**
- *
- */
 UCLASS()
 class RPG_API UEnemyAnimInstance : public UAnimInstance
 {
@@ -32,8 +29,9 @@ public:
 	FOnEnemyCollisionEnable OnEnemyCollisionEnable;
 	FOnEnemyCollisionDisable OnEnemyCollisionDisable;
 
-protected:
 
+protected:
+	// Callback funcs by animnotify
 	UFUNCTION()
 	void AnimNotify_AttackEnd();
 
@@ -43,17 +41,18 @@ protected:
 	UFUNCTION()
 	void AnimNotify_CollisionDisable();
 
-	UPROPERTY(BlueprintReadOnly)
+	UPROPERTY(BlueprintReadWrite)
+	float GroundSpeed;
+	UPROPERTY(BlueprintReadWrite)
+	bool IsAttacking;
+
+
+private:
+	UPROPERTY()
 	AEnemy* Enemy;
 
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
+	UPROPERTY()
 	UCharacterMovementComponent* EnemyMovement;
-
-	UPROPERTY(BlueprintReadOnly, Category = Movement)
-	float GroundSpeed;
-
-	UPROPERTY(BlueprintReadOnly)
-	bool IsAttacking;
 
 	UPROPERTY(EditAnywhere, Category = "Attack")
 	UAnimMontage* AttackA;
@@ -64,10 +63,4 @@ protected:
 	UPROPERTY(EditAnywhere, Category = "Death")
 	UAnimMontage* Death;
 
-private:
-	//void AnimNotify_AttackEnd();
-
-
-public:
-	//FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }
 };

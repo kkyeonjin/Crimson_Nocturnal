@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Manage material change & restore when enemy is infected
 
 #pragma once
 
@@ -15,9 +15,7 @@ class RPG_API UInfectionComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:
-	// Sets default values for this component's properties
 	UInfectionComponent();
-
 
 	UPROPERTY()
 	FOnInfectionStarted OnInfectionStarted;
@@ -35,7 +33,6 @@ public:
 	void EndInfection();
 
 protected:
-	// Called when the game starts
 	virtual void BeginPlay() override;
 
 private:
@@ -54,14 +51,8 @@ private:
 
 	bool bIsInfected = false;
 
-
 	UPROPERTY()
 	AActor* InfectableOwner;
-
-	/*
-	UPROPERTY()
-	UAttributeComponent* OwnerAttribute;
-	*/
 
 	FTimerHandle InfectTimerHandle;
 

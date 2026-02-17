@@ -1,6 +1,3 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "Character/Player/PlayerCharacter.h"
 #include "Components/InputComponent.h"
 #include "EnhancedInputComponent.h"
@@ -18,24 +15,39 @@
 #include "Component/Player/SFXComponent.h"
 #include "Game/RPGGameMode.h"
 #include "Kismet/GameplayStatics.h"
-#include "UI/SkillTreeWidget.h"
 
 
 APlayerCharacter::APlayerCharacter()
 {
-
 	PrimaryActorTick.bCanEverTick = true;
 
 	bUseControllerRotationPitch = false;
 	bUseControllerRotationYaw = false;
 	bUseControllerRotationRoll = false;
-
 }
 
 void APlayerCharacter::BeginPlay()
 {
 	Super::BeginPlay();
 
+	// 1. Input Subsystem Setup
+	SetupInputSubsystem();
+
+	// 2. Cache Components (for performance, avoid repeated FindComponentByClass)
+	CacheComponents();
+
+	// 3. Bind Delegates (Animation, Combo, Attribute, HUD)
+	BindDelegates();
+
+	// 4. Initialize UI (HP/BP/Level)
+	InitializeHUD();
+
+
+	SetupPlayerInputComponent(InputComponent);
+}
+
+void APlayerCharacter::SetupInputSubsystem()
+{
 	if (APlayerController* PlayerController = Cast<APlayerController>(Controller))
 	{
 		InputSubsystem = ULocalPlayer::GetSubsystem<UEnhancedInputLocalPlayerSubsystem>(
@@ -43,23 +55,26 @@ void APlayerCharacter::BeginPlay()
 
 		if (InputSubsystem)
 		{
-			//둘 다 추가 (Saloon은 Priority 낮게)
+			// Map-based context priority
+			// Default priority: Player > Saloon
 			if (GetWorld()->GetMapName().Contains(TEXT("Saloon")))
 			{
-				InputSubsystem->AddMappingContext(PlayerContext, 0);  
+				InputSubsystem->AddMappingContext(PlayerContext, 0);
 				InputSubsystem->AddMappingContext(SaloonContext, 1);
 			}
 			else
 			{
-				InputSubsystem->AddMappingContext(PlayerContext, 1);  // 기본 Priority 높게
+				InputSubsystem->AddMappingContext(PlayerContext, 1); 
 				InputSubsystem->AddMappingContext(SaloonContext, 0);
 			}
 
 			UE_LOG(LogTemp, Warning, TEXT("Both Contexts Loaded"));
 		}
 	}
+}
 
-	//cast animInstance In here (for reuse)
+void APlayerCharacter::CacheComponents()
+{
 	CachedAnimInstance = Cast<UPlayerAnimInstance>(GetMesh()->GetAnimInstance());
 	CachedComboManageComponent = FindComponentByClass<UComboManageComponent>();
 	CachedWeaponComponent = FindComponentByClass<UWeaponComponent>();
@@ -69,11 +84,12 @@ void APlayerCharacter::BeginPlay()
 	CachedInteractionComponent = FindComponentByClass<UInteractionComponent>();
 	CachedAttributeComponent = FindComponentByClass<UPlayerAttributeComponent>();
 	CachedSFXComponent = FindComponentByClass<USFXComponent>();
+}
 
-
+void APlayerCharacter::BindDelegates()
+{
 	if (CachedAnimInstance)
 	{
-		//binding to MontageEnd Delegate 
 		CachedAnimInstance->OnAttackMontageEnd.AddDynamic(this, &APlayerCharacter::OnAttackMontageEnded);
 		CachedAnimInstance->OnMoveEnable.AddDynamic(this, &APlayerCharacter::SetMoveEnable);
 
@@ -97,27 +113,21 @@ void APlayerCharacter::BeginPlay()
 
 	if (CachedUltimateSkillComponent)
 	{
-		CachedUltimateSkillComponent->OnSkill1Attack.AddDynamic(this, &APlayerCharacter::OnSkill1Attack);
+		CachedUltimateSkillComponent->OnSkill1Attack.AddDynamic(this, &APlayerCharacter::OnUltSkillAAttack);
 		CachedUltimateSkillComponent->OnUltTimeOver.AddDynamic(this, &APlayerCharacter::UltTimeOver);
 	}
-	
+
 	if (CachedHUDComponent)
 	{
-		//Initialize HP&BP Bar
-		UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
-		UpdateBP(CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
-		CachedHUDComponent->UpdateLevelText(CachedAttributeComponent->GetCurrentLevel());
-
 		CachedHUDComponent->OnPlayerSkillConfirmed.AddDynamic(this, &APlayerCharacter::OnSkillConfirmed);
+		CachedHUDComponent->OnWidgetsReady.AddDynamic(this, &APlayerCharacter::InitializeHUD);
 	}
 
 	if (CachedAttributeComponent)
 	{
 		CachedAttributeComponent->OnBPUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::UpdatePlayerBP);
 		CachedAttributeComponent->OnHPUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::UpdatePlayerHP);
-		//For Level Text Update
 		CachedAttributeComponent->OnLevelUpdate.AddDynamic(CachedHUDComponent, &UHUDComponent::UpdateLevelText);
-		//For Level Up PopUp 
 		CachedAttributeComponent->OnLevelUp.AddDynamic(this, &APlayerCharacter::OnLevelUp);
 		CachedAttributeComponent->OnDamageCalculated.AddDynamic(this, &APlayerCharacter::OnDamageCalculated);
 		CachedAttributeComponent->OnBPMax.AddDynamic(this, &APlayerCharacter::SetIsSkillEnable);
@@ -127,26 +137,16 @@ void APlayerCharacter::BeginPlay()
 
 	if (ARPGGameMode* GM = Cast<ARPGGameMode>(GetWorld()->GetAuthGameMode()))
 	{
-		GM->OnEnterSaloon.AddDynamic(this, &APlayerCharacter::EnterSaloonMode);
-		GM->OnExitSaloon.AddDynamic(this, &APlayerCharacter::ExitSaloonMode);
 		GM->OnDialogueEvent.AddDynamic(CachedHUDComponent, &UHUDComponent::ShowDialogue);
-
-		//Save When move to another level
 		GM->OnSaveRequired.AddDynamic(CachedAttributeComponent, &UPlayerAttributeComponent::SavePlayerData);
-
-		//load when open a new map
-
 	}
+}
 
-	SetupPlayerInputComponent(InputComponent);
-
-	//For Debug
-	//CachedHUDComponent->ShowSkillTreeUI();
-
-	//CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
-
-
-
+void APlayerCharacter::InitializeHUD()
+{
+	//Initialize HP&BP Bar & SkillTree
+	CachedAttributeComponent->BroadcastInitialUIState();
+	CachedHUDComponent->UpdateLevelText(CachedAttributeComponent->GetCurrentLevel());
 }
 
 void APlayerCharacter::OnAttackMontageEnded()
@@ -159,21 +159,19 @@ void APlayerCharacter::OnAttackMontageEnded()
 //delegate callback function (when combo matches)
 void APlayerCharacter::OnComboComplete(int32 ComboNum, int32 BPValue)
 {
-	//play Combo Anim
 	const EAnimMontageType ComboMontage = static_cast<EAnimMontageType>(ComboNum);
 	CachedAnimInstance->PlayComboAttackMontage(ComboMontage);
 	CachedSFXComponent->PlayComboAttackSFX(ComboNum);
 	
-	//PlayAnimMontage(ComboAnimNum); //Play Combo Animation
 	CachedAttributeComponent->SetBPtoGet(BPValue);//Set BPValue to get
 	UE_LOG(LogTemp, Warning, TEXT("Combo!!"));
 
-	//Combo PopUp
 	CachedHUDComponent->ShowComboPopUp(ComboNum);
 
-	//감염 스킬 On 상태에서 콤보 Match 시 적으로 Broadcast
-	//For SkillC
-	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillC)
+	//For UltSkillC
+	// Broadcast to enemy when combo matches & UltSkillC is activated
+	if (CachedUltimateSkillComponent->IsSkillActivated() && 
+		CachedAttributeComponent->GetUltSkill() == static_cast<int32>(EUltimateSkill::SkillC))
 	{
 		OnSkillCReady.Broadcast();
 	}
@@ -251,7 +249,8 @@ void APlayerCharacter::OnLevelUp(int32 CurrentLevel, int32 SkillPoint)
 
 void APlayerCharacter::OnDamageCalculated(int32 Damage) //for SkillB(HP Drain)
 {
-	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillB)
+	if (CachedUltimateSkillComponent->IsSkillActivated() && 
+		CachedAttributeComponent->GetUltSkill() == static_cast<int32>(EUltimateSkill::SkillB))
 	{
 		CachedAttributeComponent->ADDCurrentHP(Damage);
 		UpdateHP(CachedAttributeComponent->GetCurrentHP(), CachedAttributeComponent->GetMaxHP());
@@ -268,26 +267,26 @@ void APlayerCharacter::UltTimeOver()
 	CachedHUDComponent->HideSkillEffect();
 }
 
-//called when start game
+// called when start game
+// Initialize SkillTree based on SaveGameData
 void APlayerCharacter::OnSkillTreeSet(int32 SkillPoint, int32 UltNum, TArray<int32> ActivatedSkills, int32 Ult1XSetting, int32 Ult1YSetting)
 {
-	SetUltimateSkill(UltNum);
+	CachedAttributeComponent->SetUltSkill(UltNum);
+	CachedUltimateSkillComponent->SetKeyBindingXInSkillA(Ult1XSetting);
+	CachedUltimateSkillComponent->SetKeyBindingYInSkillA(Ult1YSetting);
 	CachedHUDComponent->SetSkillTree(SkillPoint, UltNum, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 }
 
 void APlayerCharacter::OnQTEFailed()
 {
-	UE_LOG(LogTemp, Error, TEXT("QTE FAILED!!!!!!"));
 	CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
-	CachedAnimInstance->PlayAnimMontage(3);
+	CachedAnimInstance->PlayAnimMontage(3); // Play death Anim
 }
 
 //Callback Func (from delegate at UltSkillComp)
-void APlayerCharacter::OnSkill1Attack(int32 AnimNum, float AttackMultiplier)
+void APlayerCharacter::OnUltSkillAAttack(int32 AnimNum, float AttackMultiplier)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Skill Broadcast Received"));
 	CachedAttributeComponent->SetAttackMultiplier(AttackMultiplier);
-	//play Combo Anim
 	const EAnimMontageType ComboMontage = static_cast<EAnimMontageType>(AnimNum);
 	CachedAnimInstance->PlayComboAttackMontage(ComboMontage);
 	CachedSFXComponent->PlayComboAttackSFX(AnimNum);
@@ -300,7 +299,6 @@ void APlayerCharacter::StartBossQTEMode()
 	CachedComboManageComponent->SetRequiredBossComboNum();
 	CachedComboManageComponent->StartQTETimer();
 
-	//HUD 함수 아래에 연결
 	CachedHUDComponent->ShowQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
 }
 
@@ -356,114 +354,113 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
 	const float AttackValue = Value.Get<float>();
 
-	if (CachedUltimateSkillComponent->IsSkillActivated() && SelectedSkill == EUltimateSkill::SkillA)
-		//if (SelectedSkill == EUltimateSkill::SkillA)
+	HandleUltimateSkillAttack(AttackValue);
+
+	if (GetPlayerCombatState() != EPlayerCombatState::EPCS_NotAttacking)
+	{
+		return;
+	}
+
+	SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
+	//disable move input when player is attacking
+	SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+
+	const EAttackKeyType InputType = GetAttackKeyType(AttackValue);
+
+	//When Player Is Trapped by Boss's Ult Skill -> RandomComboQTE Start!
+	if (IsTrapped)
+	{
+		HandleQTEAttack(InputType, AttackValue);
+		return;
+	}
+		
+	HandleNormalComboAttack(InputType);
+}
+
+void APlayerCharacter::HandleUltimateSkillAttack(float AttackValue)
+{
+	// If ultimate SkillA is active, use attack input as skill - specific combo trigger
+	if (CachedUltimateSkillComponent->IsSkillActivated() &&
+		CachedAttributeComponent->GetUltSkill() == static_cast<int32>(EUltimateSkill::SkillA))
 	{
 		CachedUltimateSkillComponent->Skill1(AttackValue);
 	}
+}
 
-	EAttackKeyType InputType;
-
-	if (GetPlayerCombatState() == EPlayerCombatState::EPCS_NotAttacking)
+EAttackKeyType APlayerCharacter::GetAttackKeyType(float AttackValue)
+{
+	if (AttackValue == 1.f)
 	{
-		SetPlayerCombatState(EPlayerCombatState::EPCS_Attacking);
-		//disable move input when player is attacking
-		SetPlayerMoveState(EPlayerMoveState::EPMS_MoveDisabled);
+		return EAttackKeyType::X;
+	}
 
+	return EAttackKeyType::Y;
+}
+
+void APlayerCharacter::HandleQTEAttack(EAttackKeyType InputType, float AttackValue)
+{
+	if (!CachedComboManageComponent->BossUltimateQTE(InputType))
+	{
 		//X Button
 		if (AttackValue == 1.f)
 		{
-			InputType = EAttackKeyType::X;
+			CachedComboManageComponent->ChainAttackCount(InputType);
 		}
 		//Y Button
 		else if (AttackValue == -1.f)
 		{
-			InputType = EAttackKeyType::Y;
+			CachedComboManageComponent->ChainAttackCount(InputType);
 		}
+	}
+	else
+	{
+		//Broadcast to Boss
+		OnQTESuccess.Broadcast();
+		IsTrapped = false;
 
-		//When Player Is Trapped by Boss's Ult Skill -> RandomComboQTE Start!
-		if (IsTrapped)
-		{
-			if (!CachedComboManageComponent->BossUltimateQTE(InputType))
-			{
-				//X Button
-				if (AttackValue == 1.f)
-				{
-					CachedComboManageComponent->ChainAttackCount(InputType);
-				}
-				//Y Button
-				else if (AttackValue == -1.f)
-				{
-					CachedComboManageComponent->ChainAttackCount(InputType);
-				}
-			}
-			else
-			{
-				//Broadcast to Boss
-				OnQTESuccess.Broadcast();
-				//Trapped 상태 풀림
-				IsTrapped = false;
-
-				CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
-				CachedHUDComponent->NoticeToBreak();
-
-			}
-			return;
-		}
-
-		//send ENUM to InputSequence array (for Combo check)
-		if (!CachedComboManageComponent->IsComboMatch(InputType))
-		{
-			//X Button
-			if (AttackValue == 1.f)
-			{
-				CachedComboManageComponent->ChainAttackCount(InputType);
-			}
-			//Y Button
-			else if (AttackValue == -1.f)
-			{
-				CachedComboManageComponent->ChainAttackCount(InputType);
-			}
-		}
-		CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
+		CachedHUDComponent->HideQTEUI(CachedComboManageComponent->GetRequiredBossComboNum());
+		CachedHUDComponent->NoticeToBreak();
 	}
 }
 
+void APlayerCharacter::HandleNormalComboAttack(EAttackKeyType InputType)
+{
+	//send ENUM to InputSequence array (for Combo check)
+	if (!CachedComboManageComponent->IsComboMatch(InputType))
+	{
+		CachedComboManageComponent->ChainAttackCount(InputType);
+	}
+	CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
+}
 
 void APlayerCharacter::SkillStart()
 {
-	//for debug
-	IsSkillEnable = true;
-
 	if (IsSkillEnable)
 	{
-		UE_LOG(LogTemp, Warning, TEXT("SkillStart!!!"));
+		EUltimateSkill UltSkill = static_cast<EUltimateSkill>(CachedAttributeComponent->GetUltSkill());
 
 		//SKill 1
-		if (SelectedSkill == EUltimateSkill::SkillA)
+		if (UltSkill == EUltimateSkill::SkillA)
 		{
-			CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
+			CachedUltimateSkillComponent->TimerStart(&UltSkill);
 			CachedUltimateSkillComponent->SetCachedComboPatters(CachedComboManageComponent->GetComboPatterns());
-			UE_LOG(LogTemp, Display, TEXT("SkillA"));
 		}
-		else if (SelectedSkill == EUltimateSkill::SkillB)
+		else if (UltSkill == EUltimateSkill::SkillB)
 		{
-			CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
-			UE_LOG(LogTemp, Display, TEXT("SkillB"));
+			CachedUltimateSkillComponent->TimerStart(&UltSkill);
 		}
-		else if (SelectedSkill == EUltimateSkill::SkillC)
+		else if (UltSkill == EUltimateSkill::SkillC)
 		{
-			CachedUltimateSkillComponent->TimerStart(&SelectedSkill);
-			UE_LOG(LogTemp, Display, TEXT("SkillC"));
+			CachedUltimateSkillComponent->TimerStart(&UltSkill);
 		}
 
-		const int32 SkillNum = static_cast<int32>(SelectedSkill);
+		const int32 SkillNum = static_cast<int32>(UltSkill);
 
 		CachedHUDComponent->ShowSkillEffect(SkillNum);
 		CachedSFXComponent->PlayUltSkillSFX(SkillNum);
+		CachedAttributeComponent->UseBPforUlt();
 
-		//Make BP to Zero (0) 
-		UpdateBP(0, CachedAttributeComponent->GetMaxBP());
+		UpdateBP(CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
 
 		IsSkillEnable = false;
 	}
@@ -493,11 +490,11 @@ void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Ind
 	switch (ConfirmType)
 	{
 	case ESkillConfirmType::UltimateSkill:
-		SetUltimateSkill(Index);
+		CachedAttributeComponent->SetUltSkill(Index);
 		break;
 
 	case ESkillConfirmType::NormalSkill:
-		if (CachedAttributeComponent->GetSkillPoint() > 0) //Get Skill Only when SkillPoint Remains
+		if (CachedAttributeComponent->GetSkillPoint() > 0) 
 		{
 			CachedAttributeComponent->UpdateStatsBySkill(Index);
 		}
@@ -509,10 +506,12 @@ void APlayerCharacter::OnSkillConfirmed(ESkillConfirmType ConfirmType, int32 Ind
 
 	case ESkillConfirmType::KeyBindingX:
 		CachedUltimateSkillComponent->SetKeyBindingXInSkillA(Index);
+		CachedAttributeComponent->SetUlt1XSetting(Index);
 		break;
 
 	case ESkillConfirmType::KeyBindingY:
 		CachedUltimateSkillComponent->SetKeyBindingYInSkillA(Index);
+		CachedAttributeComponent->SetUlt1YSetting(Index);
 		break;
 	}
 }
@@ -537,17 +536,6 @@ void APlayerCharacter::OpenGameOverLevel()
 	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("GameOver")));
 }
 
-void APlayerCharacter::EnterSaloonMode()
-{
-	//IsInSaloon = true;
-	UE_LOG(LogTemp, Error, TEXT("Set IsInSaloon TRUE"));
-}
-
-void APlayerCharacter::ExitSaloonMode()
-{
-	//IsInSaloon = false;
-}
-
 void APlayerCharacter::OnInteract()
 {
 	CachedInteractionComponent->InteractionStart();
@@ -555,7 +543,7 @@ void APlayerCharacter::OnInteract()
 
 void APlayerCharacter::SetIsSkillEnable()
 {
-	UE_LOG(LogTemp, Warning, TEXT("SkillEnable !!BPMAX!!"));
+	CachedHUDComponent->UpdatePlayerBP(CachedAttributeComponent->GetCurrentBP(), CachedAttributeComponent->GetMaxBP());
 	CachedSFXComponent->PlayBPMaxSPX();
 	CachedHUDComponent->ShowReadyToUseUlt();
 	IsSkillEnable = true;
@@ -608,7 +596,6 @@ void APlayerCharacter::GetHit(const FVector& ImpactPoint, AActor* Target)
 
 		if (CachedAttributeComponent->GetCurrentHP() <= 0.f)
 		{
-			UE_LOG(LogTemp, Warning, TEXT("LowHP!!!"));
 			CachedAnimInstance->PlayAnimMontage(3); //Play Death Anim
 			CachedSFXComponent->PlayDeathSFX();
 			PlayerCombatState = EPlayerCombatState::EPCS_Dead;

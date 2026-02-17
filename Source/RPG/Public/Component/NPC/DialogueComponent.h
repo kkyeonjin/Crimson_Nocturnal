@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Created for BP of this Component 
 
 #pragma once
 
@@ -13,16 +13,15 @@ class RPG_API UDialogueComponent : public UActorComponent
 	GENERATED_BODY()
 
 public:	
-	// Sets default values for this component's properties
 	UDialogueComponent();
 
 
 protected:
-	//Define in Editor 
+	//Define in Editor for different dialogue in each NPC
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	FString DialogueName;
 
-	//Define in Editor 
+	//Define in Editor for different dialogue in each NPC
 	UPROPERTY(EditAnywhere, Category = "Dialogue")
 	FString DialogueLine;
 

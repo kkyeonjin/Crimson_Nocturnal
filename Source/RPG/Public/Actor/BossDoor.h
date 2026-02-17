@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Door that close when player enter boss fight zone
+// manage door's location (closing anim)
 
 #pragma once
 
@@ -22,7 +23,7 @@ public:
     UStaticMeshComponent* DoorMesh;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door Settings")
-    FVector ClosedPosition = FVector(0, 0, -300);  // 월드 오프셋 (현재 위치 기준)
+    FVector ClosedPosition = FVector(0, 0, -300);  
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Door Settings")
     float DoorAnimationDuration = 2.0f;

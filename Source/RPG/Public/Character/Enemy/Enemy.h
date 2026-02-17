@@ -1,4 +1,9 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+/**
+ * @class AEnemy
+ * @brief Generic enemy with AI, infection, attack animations via components
+ * BT-driven attacks, delegate-based anim/attribute sync, fade-out death
+ * Supports SkillC infection spreading from player combos
+ */
 
 #pragma once
 
@@ -7,7 +12,6 @@
 #include "Interface/HitInterface.h"
 #include "Character/Enemy/Types/EnemyType.h"
 #include "BehaviorTree/BTTaskNode.h"
-#include "Interface/DefeatInterface.h"
 #include "Interface/InfectableInterface.h"
 #include "Enemy.generated.h"
 
@@ -22,27 +26,24 @@ class USoundCue;
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnEnemyAttackEnd);
 
 UCLASS()
-class RPG_API AEnemy : public ACharacter, public IHitInterface, public IDefeatInterface, public IInfectableInterface
+class RPG_API AEnemy : public ACharacter, public IHitInterface, public IInfectableInterface
 {
 	GENERATED_BODY()
 
 public:
-
-	// Called to bind functionality to input
 	virtual void SetupPlayerInputComponent(class UInputComponent* PlayerInputComponent) override;
 
+	/** HitInterface: damage + infection + death sequence */
 	virtual void GetHit(const FVector& ImpactPoint, AActor* unused) override;
 
-	// Sets default values for this character's properties
 	AEnemy();
 
 
+	// SFX assets
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|SFX")
 	USoundCue* AttackSFX;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|SFX")
 	USoundCue* HitSFX;
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio|SFX")
 	USoundCue* DeathSFX;
 
@@ -53,21 +54,19 @@ public:
 	UFUNCTION()
 	void OnEnemyAttackMontageEnded();
 
+	//UltSkillC infection trigger
 	UFUNCTION()
 	void ReadyToInfect();
-
-	FOnEnemyAttackEnd OnEnemyAttackEnd;
-
-	FOnCharacterDefeated OnEnemyDefeated;
-
 	UFUNCTION()
 	void OnInfectionStarted();
-
 	UFUNCTION()
 	void OnInfectionEnded();
 
+	// delegate
+	FOnEnemyAttackEnd OnEnemyAttackEnd;
+
+
 protected:
-	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
 
 	UFUNCTION()
@@ -76,22 +75,8 @@ protected:
 	UFUNCTION()
 	void SetAttackCollisionDisable();
 
-	UFUNCTION(BlueprintCallable)
-	void SetEnemyGroundSpeed(float NewSpeed);
-
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Stat")
 	FName EnemyTypeName = FName(TEXT("Mutant"));
-
-
-	
-	//쓰는지 안 쓰는지 확인 필
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-	float PatrolSpeed = EnemyConstants::PATROL_SPEED;
-
-	UPROPERTY(EditDefaultsOnly, BlueprintReadWrite, Category = "AI")
-	float ChaseSpeed = EnemyConstants::CHASE_SPEED;
-	
-
 	
 private:
 	//for safe referencing
@@ -109,10 +94,9 @@ private:
 	UPROPERTY(EditAnywhere, Category = "VFX")
 	UParticleSystem* HitParticles;
 
-	//Materials
+	// Materials for infection visuals
 	UPROPERTY(EditAnywhere)
 	TArray<UMaterialInterface*> OriginalMaterials;
-
 	UPROPERTY()
 	TArray<UMaterialInstanceDynamic*> DynamicMaterials;
 
@@ -128,7 +112,6 @@ private:
 	//tracking Current Materials for Material change/restore,,,,etc
 	UPROPERTY()
 	TArray<UMaterialInstanceDynamic*> CurrentAppliedMaterials;
-
 	FTimerHandle DeathTimer;
 
 	UPROPERTY(EditAnywhere, Category = "Death")
@@ -139,24 +122,19 @@ private:
 
 	float FadeOutAlpha = 1.0f;
 
-	//UMaterialInterface* OriginalMaterial;
-
-	//각 Enemy마다 BT, BB 가지고 관리하도록 변수 선언 
+	// to manage AI state at each enemy (prevent to move same compared to other enemies)
 	UBehaviorTreeComponent* CachedBTComponent = nullptr;
 	UBTTaskNode* CachedBTTaskNode = nullptr;
 
 	EEnemyCombatState EnemyCombatState = EEnemyCombatState::EECS_NotAttacking;
-
-	//IDefeatable
-	virtual FOnCharacterDefeated& OnCharacterDefeatedDelegate() override;
 
 	//IInfectable
 	virtual USkeletalMeshComponent* GetMeshComponent_Implementation() override;
 	virtual TArray<UMaterialInstanceDynamic*> GetOriginalDynamicMaterials_Implementation() override;
 	virtual void SetCurrentMaterial_Implementation(UMaterialInstanceDynamic* Material) override;
 
+
 public:
-	//FORCEINLINE bool IsDead() { return bIsDead; }
 	FORCEINLINE EEnemyCombatState GetEnemyCombatState() { return EnemyCombatState; }
 	FORCEINLINE void SetEnemyCombatState(EEnemyCombatState State) { EnemyCombatState = State; }
 	FORCEINLINE FName GetEnemyTypeName() { return EnemyTypeName; }

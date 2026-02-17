@@ -1,16 +1,12 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Screen Effect appears when player's Ultimate Skill is activated
 
 #pragma once
 
 #include "CoreMinimal.h"
 #include "Blueprint/UserWidget.h"
-#include "Character/Player/Types/PlayerTypes.h"
 #include "Components/Image.h"
 #include "SkillScreenOverlayWidget.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class RPG_API USkillScreenOverlayWidget : public UUserWidget
 {

@@ -1,8 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-
-
 #include "UI/GameOverWidget.h"
-
 #include "Game/RPGGameInstance.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -11,14 +7,13 @@ void UGameOverWidget::NativeConstruct()
 	Super::NativeConstruct();
 
     //Change InputMode to UI InputMode
-    //for Use of BaseUIInputWidget::NativeOnKeyDown 
-    SetIsFocusable(true);
+    this->SetKeyboardFocus();
     if (APlayerController* PC = GetOwningPlayer())
     {
+        GetWorld()->GetWorldSettings()->SetTimeDilation(0.0f);
         FInputModeUIOnly InputMode;
-        InputMode.SetWidgetToFocus(TakeWidget());
+        InputMode.SetWidgetToFocus(this->TakeWidget());
         PC->SetInputMode(InputMode);
-        PC->bShowMouseCursor = false;
     }
 }
 
@@ -28,12 +23,12 @@ void UGameOverWidget::ReStart()
     {
         if (GI->HasSaveData())
         {
-            GI->RequestLoadGame();  // 저장된 데이터 로드
+            GI->RequestLoadGame();  
         }
         else
         {
-            // 저장 없으면 새 게임
-            GI->SetTutorialSeen(false);
+            // Start new game if there's no SaveData
+            GI->SetTutorialSeen(true);
             UGameplayStatics::OpenLevel(GetWorld(), FName("Hospital"));
         }
     }

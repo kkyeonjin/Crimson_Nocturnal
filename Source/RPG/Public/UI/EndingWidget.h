@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Ending widget appears when game ends (after killing boss)
 
 #pragma once
 
@@ -6,9 +6,6 @@
 #include "UI/BaseUIInputWidget.h"
 #include "EndingWidget.generated.h"
 
-/**
- * 
- */
 UCLASS()
 class RPG_API UEndingWidget : public UBaseUIInputWidget
 {
