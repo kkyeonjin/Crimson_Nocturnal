@@ -11,6 +11,15 @@ void ARPGGameMode::BeginPlay()
 
     if (URPGGameInstance* GI = Cast<URPGGameInstance>(GetWorld()->GetGameInstance()))
     {
+        if (APlayerController* PC = GetWorld()->GetFirstPlayerController())
+        {
+            FInputModeGameOnly GameMode;
+            PC->SetInputMode(GameMode);
+            PC->bShowMouseCursor = false;
+        }
+        UGameplayStatics::SetGlobalTimeDilation(GetWorld(), 1.0f);
+
+
         GI->RequestLoadGame();
 
         // Play BGM for each level

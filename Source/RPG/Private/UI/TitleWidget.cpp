@@ -4,6 +4,7 @@
 #include "UI/TitleWidget.h"
 #include "Components/Image.h"
 #include "Game/RPGGameInstance.h"
+#include "Game/SaveGameData.h"
 #include "Kismet/GameplayStatics.h"
 
 void UTitleWidget::NativeConstruct()
@@ -64,7 +65,20 @@ void UTitleWidget::OnSelect()
         {
             if (GI->HasSaveData())
             {
-                GI->RequestLoadGame();  
+                if (auto PlayerGameData = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(TEXT("PlayerSaveSlot"), 0)))
+                {
+                    FString RawMapName = PlayerGameData->CurrentMap;
+
+                    FString CleanMapName = RawMapName;
+                    CleanMapName.RemoveFromStart(GetWorld()->StreamingLevelsPrefix);
+                    CleanMapName.RemoveFromStart(TEXT("PersistentLevel::"));
+
+                    UE_LOG(LogTemp, Error, TEXT("CLEAN MAP NAME: '%s'"), *CleanMapName);
+
+                    FName SavedMapName = FName(*CleanMapName);
+
+                    UGameplayStatics::OpenLevel(GetWorld(), SavedMapName);
+                }
             }
             else
             {

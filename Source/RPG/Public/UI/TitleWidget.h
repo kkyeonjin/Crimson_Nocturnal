@@ -18,7 +18,7 @@ class RPG_API UTitleWidget : public UBaseUIInputWidget
 	GENERATED_BODY()
 	
 public:
-	virtual void NativeConstruct() override; //BeginPlay같은거, 초기세팅 
+	virtual void NativeConstruct() override; 
 
 	UPROPERTY(meta = (BindWidget))
 	UImage* StartCircle;
@@ -30,7 +30,6 @@ public:
 	UImage* ExitCircle;
 
 protected:
-	// Title은 정말 최소한만!
 	virtual void OnDPadUp() override { OnNavigate(1); }
 	virtual void OnDPadDown() override { OnNavigate(-1); }
 	virtual void OnFaceButtonA() override { OnSelect(); }

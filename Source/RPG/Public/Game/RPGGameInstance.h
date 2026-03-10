@@ -22,14 +22,16 @@ class RPG_API URPGGameInstance : public UGameInstance
 public:
     virtual void Init() override;
     virtual void Shutdown() override;
+    ~URPGGameInstance();
 
     FOnLoadGameRequested OnLoadGameRequested;
     FOnSaveGameRequested OnSaveGameRequested;
     FOnRuntimeRestoreRequested OnRuntimeRestoreRequested;
+
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Audio")
     TSubclassOf<UBGMManager> BGMManagerClass; 
 
-    UPROPERTY(BlueprintReadWrite, Category = "Audio")
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Audio", Instanced, meta = (AllowPrivateAccess = "true"))
     UBGMManager* BGMManager;  
 
     //Func to Communicate with BGMManager
@@ -52,11 +54,11 @@ public:
     UPROPERTY(EditAnywhere, BlueprintReadWrite)
     TSubclassOf<USaveGameData> SaveGameDataClass; 
 
-    UPROPERTY(BlueprintReadWrite)
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Save", Instanced, meta = (AllowPrivateAccess = "true"))
     USaveGameData* SaveGameData;  
 
     //for runtime backup
-    UPROPERTY()
+    UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Save", Instanced, meta = (AllowPrivateAccess = "true"))
     USaveGameData* RunTimeSaveGameData;
 
     // Load & Save

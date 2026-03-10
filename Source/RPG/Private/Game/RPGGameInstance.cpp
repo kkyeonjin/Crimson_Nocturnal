@@ -11,31 +11,40 @@ void URPGGameInstance::Init()
 	if (BGMManagerClass && !BGMManager)
 	{
 		BGMManager = NewObject<UBGMManager>(this, BGMManagerClass);
-		UE_LOG(LogTemp, Warning, TEXT("BGMManager Created: %s"),
-			BGMManager ? TEXT("OK") : TEXT("FAIL"));
 	}
 
-	if (SaveGameDataClass && !SaveGameData)
+	if (HasSaveData())
+	{
+		SaveGameData = Cast<USaveGameData>(UGameplayStatics::LoadGameFromSlot(TEXT("PlayerSaveSlot"), 0));
+	}
+	else
 	{
 		SaveGameData = NewObject<USaveGameData>(this, SaveGameDataClass);
-
-		bHasSeenTutorial = SaveGameData->IsTutorialChecked;
 	}
+
+	bHasSeenTutorial = SaveGameData->IsTutorialChecked;
 }
 
 void URPGGameInstance::Shutdown()
 {
 	RequestSaveGame();
-	Super::Shutdown();
+	FGenericPlatformMisc::RequestExit(false);
+}
+
+URPGGameInstance::~URPGGameInstance()
+{
+	UE_LOG(LogTemp, Warning, TEXT("GI ~DTOR: BGM=%p SAVE=%p"), BGMManager, SaveGameData);
 }
 
 void URPGGameInstance::RequestSaveGame()
 {
+	//broadcast to PlayerAttributeComp
 	OnSaveGameRequested.Broadcast();
 }
 
 void URPGGameInstance::RequestLoadGame()
 {
+	//broadcast to PlayerAttributeComp
 	OnLoadGameRequested.Broadcast();
 }
 
@@ -99,6 +108,7 @@ void URPGGameInstance::StopBGM()
 void URPGGameInstance::SetTutorialSeen(bool HasSeenTuto)
 {
 	SaveGameData->SetTutorialSeen(HasSeenTuto);
+	bHasSeenTutorial = HasSeenTuto;
 }
 
 
