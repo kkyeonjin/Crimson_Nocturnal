@@ -49,6 +49,9 @@ public:
 
 	void CloseMenu();
 
+	UFUNCTION()
+	void ReturnFocus();
+
 protected:
 	virtual void OnDPadUp() override { OnDirectionalInput(1); }
 	virtual void OnDPadDown() override { OnDirectionalInput(-1); }

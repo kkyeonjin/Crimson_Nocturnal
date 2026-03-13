@@ -9,4 +9,6 @@ void UControllerMapWidget::InitializeContMap()
 void UControllerMapWidget::CloseContMap()
 {
 	this->SetVisibility(ESlateVisibility::Hidden);
+
+	OnContMapClose.Broadcast();
 }

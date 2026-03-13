@@ -9,6 +9,9 @@ void UMenuWidget::SetSubWidget(UTutorialWidget* TutoWidget, UControllerMapWidget
 {
 	TutorialWidget = TutoWidget;
 	ControllerMapWidget = ContWidget;
+
+	TutorialWidget->OnTutorialClose.AddDynamic(this, &UMenuWidget::ReturnFocus);
+	ControllerMapWidget->OnContMapClose.AddDynamic(this, &UMenuWidget::ReturnFocus);
 }
 
 // up&down
@@ -62,6 +65,11 @@ void UMenuWidget::CloseMenu()
 		//Send to HUDComp in order to set MainHUDWidget as visible
 		OnMenuClose.Broadcast();
 	}
+}
+
+void UMenuWidget::ReturnFocus()
+{
+	this->SetKeyboardFocus();
 }
 
 void UMenuWidget::NativeConstruct()
