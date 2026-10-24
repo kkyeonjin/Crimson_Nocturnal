@@ -28,11 +28,13 @@ void UBTService_UpdateDistance::TickNode(UBehaviorTreeComponent& OwnerComp, uint
     // ก็ "Set Blackboard Value as Bool" (IsInAttackRange)
     Blackboard->SetValue<UBlackboardKeyType_Bool>(Blackboard->GetKeyID(IsInAttackRangeKey), bIsInRange);
 
+    /*
     // Set IsPlayerDetected -> false when distance gets longer 
     // Enable to start patrol again
     if (Distance >= 1500.f)
     {
         Blackboard->SetValue<UBlackboardKeyType_Bool>(Blackboard->GetKeyID(IsPlayerDetectedKey), false);
     }
+	*/
 }
 

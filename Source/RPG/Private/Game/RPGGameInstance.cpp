@@ -28,7 +28,7 @@ void URPGGameInstance::Init()
 void URPGGameInstance::Shutdown()
 {
 	RequestSaveGame();
-	FGenericPlatformMisc::RequestExit(false);
+	//FGenericPlatformMisc::RequestExit(false);
 }
 
 URPGGameInstance::~URPGGameInstance()

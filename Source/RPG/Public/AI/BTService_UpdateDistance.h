@@ -21,7 +21,7 @@ protected:
     float TickInterval = 0.1f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
-    float AttackRadius = 300.0f;
+    float AttackRadius = 250.0f;
 
     UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
     FName TargetActorKey = FName(TEXT("TargetActor"));
