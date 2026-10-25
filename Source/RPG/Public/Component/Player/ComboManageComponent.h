@@ -28,6 +28,8 @@ public:
 
 	void StartQTETimer();
 
+	void StartComboTimer();
+
 	//Check BossUlt QTE Matched 
 	bool BossUltimateQTE(EAttackKeyType Key);
 

@@ -129,7 +129,8 @@ private:
 	UPROPERTY(EditAnywhere, Category = "Dance")
 	UAnimMontage* Dance;
 
-
+	UPROPERTY(EditAnywhere, Category = "Dodge")
+	UAnimMontage* Dodge;
 public:
 	FORCEINLINE float GetGroundSpeed() const { return GroundSpeed; }
 

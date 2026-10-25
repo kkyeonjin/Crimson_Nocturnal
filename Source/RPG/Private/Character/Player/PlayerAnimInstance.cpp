@@ -95,6 +95,10 @@ void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)
 			Montage_Play(Dance);
 			break;
 
+		case 5:
+			Montage_Play(Dodge);
+			break;
+
 		default:
 			UE_LOG(LogTemp, Warning, TEXT("Unknown animation montage: %d"), AnimNum);
 			break;

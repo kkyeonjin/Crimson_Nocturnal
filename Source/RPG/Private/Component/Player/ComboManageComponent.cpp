@@ -35,13 +35,7 @@ bool UComboManageComponent::ProcessComboInput(EAttackKeyType Key, bool bUseAllPa
 	TimeSinceLastInput = 0.f;
 
 	//ComboTimerOutTimer Starts
-	GetWorld()->GetTimerManager().SetTimer(
-		ComboTimeOutTimer,
-		this,
-		&UComboManageComponent::CheckComboTimeOut,
-		ComboTimeOut,
-		false
-	); //last parameter false-> call Timer just once 
+	StartComboTimer();
 
 	const int32 TargetPatternIndex = bUseAllPatterns ? -1 : RequiredBossComboNum;
 	const int32 PatternCount = bUseAllPatterns ? ComboPatterns.Num() : 1;
@@ -197,6 +191,18 @@ void UComboManageComponent::StartQTETimer()
 		BossSurvivalTimeOut,
 		false
 	);
+}
+
+void UComboManageComponent::StartComboTimer()
+{
+	//ComboTimerOutTimer Starts
+	GetWorld()->GetTimerManager().SetTimer(
+		ComboTimeOutTimer,
+		this,
+		&UComboManageComponent::CheckComboTimeOut,
+		ComboTimeOut,
+		false
+	); //last parameter false-> call Timer just once 
 }
 
 

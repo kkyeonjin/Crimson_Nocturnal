@@ -31,6 +31,7 @@ class UPlayerAnimInstance;
 class UComboManageComponent;
 class UInteractionComponent;
 class USFXComponent;
+class UDodgeComponent;
 
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnSkillCReady);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnQTESuccess);
@@ -90,6 +91,9 @@ protected:
 	UInputAction* AttackAction;
 
 	UPROPERTY(EditAnywhere, Category = Input)
+	UInputAction* DodgeAction;
+
+	UPROPERTY(EditAnywhere, Category = Input)
 	UInputAction* SkillActivation;
 
 
@@ -125,6 +129,8 @@ protected:
 	EAttackKeyType GetAttackKeyType(float AttackValue);
 	void HandleQTEAttack(EAttackKeyType InputType, float AttackValue);
 	void HandleNormalComboAttack(EAttackKeyType InputType);
+
+	void Dodge(const FInputActionValue& Value);
 
 	void SkillStart();
 	void OnInteract();

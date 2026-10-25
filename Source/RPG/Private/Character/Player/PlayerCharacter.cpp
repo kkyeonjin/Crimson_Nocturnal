@@ -13,6 +13,7 @@
 #include "Component/Player/UltimateSkillComponent.h"
 #include "Component/Player/InteractionComponent.h"
 #include "Component/Player/SFXComponent.h"
+#include "Component/Player/DodgeComponent.h"
 #include "Game/RPGGameMode.h"
 #include "Kismet/GameplayStatics.h"
 
@@ -354,7 +355,7 @@ void APlayerCharacter::Attack(const FInputActionValue& Value)
 {
 	const float AttackValue = Value.Get<float>();
 
-	HandleUltimateSkillAttack(AttackValue);
+	HandleUltimateSkillAttack(AttackValue); //for SkillA
 
 	if (GetPlayerCombatState() != EPlayerCombatState::EPCS_NotAttacking)
 	{
@@ -431,6 +432,15 @@ void APlayerCharacter::HandleNormalComboAttack(EAttackKeyType InputType)
 		CachedComboManageComponent->ChainAttackCount(InputType);
 	}
 	CachedAttributeComponent->SetAttackMultiplier(CachedComboManageComponent->GetCurrentAttackMultiplier());
+}
+
+void APlayerCharacter::Dodge(const FInputActionValue& Value)
+{
+	if (CachedComboManageComponent)
+	{
+		CachedComboManageComponent->StartComboTimer();
+	}
+	CachedAnimInstance->PlayAnimMontage(5); //PlayDodgeAnim
 }
 
 void APlayerCharacter::SkillStart()
@@ -561,6 +571,7 @@ void APlayerCharacter::SetupPlayerInputComponent(UInputComponent* PlayerInputCom
 		EnhancedInputComponent->BindAction(LookAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Look);
 		EnhancedInputComponent->BindAction(JumpAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Jump);
 		EnhancedInputComponent->BindAction(AttackAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Attack);
+		EnhancedInputComponent->BindAction(DodgeAction, ETriggerEvent::Triggered, this, &APlayerCharacter::Dodge);
 		EnhancedInputComponent->BindAction(SkillActivation, ETriggerEvent::Triggered, this, &APlayerCharacter::SkillStart);
 		EnhancedInputComponent->BindAction(PopUpOff, ETriggerEvent::Triggered, CachedHUDComponent, &UHUDComponent::HidePopUp);
 
