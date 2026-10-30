@@ -60,6 +60,13 @@ public:
 	// UI Initialize
 	void BroadcastInitialUIState();
 
+	//callbackFUNC
+	UFUNCTION()
+	void InvincibleStart();
+
+	UFUNCTION()
+	void InvincibleEnd();
+
 
 	// Delegates (PlayerCharacter/HUD binding)
 	UPROPERTY()
@@ -135,6 +142,10 @@ private:
 	//Leveling Variables
 	int32 BaseEXP;
 	float GrowthRate;
+
+
+	//DodgeFlag
+	bool IsInvincible = false;
 
 
 	// Helpers

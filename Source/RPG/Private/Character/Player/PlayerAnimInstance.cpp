@@ -1,4 +1,4 @@
-#include "Character/Player//PlayerAnimInstance.h"
+#include "Character/Player/PlayerAnimInstance.h"
 #include "Character/Player/PlayerCharacter.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetMathLibrary.h"
@@ -69,6 +69,16 @@ void UPlayerAnimInstance::AnimNotify_KickCollisionDisable()
 void UPlayerAnimInstance::AnimNotify_GameOver()
 {
 	OnGameOver.Broadcast();
+}
+
+void UPlayerAnimInstance::AnimNotify_InvincibleStart()
+{
+	OnInvincibleStart.Broadcast();
+}
+
+void UPlayerAnimInstance::AnimNotify_InvincibleEnd()
+{
+	OnInvincibleEnd.Broadcast();
 }
 
 void UPlayerAnimInstance::PlayAnimMontage(int32 AnimNum)

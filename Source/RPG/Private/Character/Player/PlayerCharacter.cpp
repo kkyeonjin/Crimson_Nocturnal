@@ -103,6 +103,9 @@ void APlayerCharacter::BindDelegates()
 		CachedAnimInstance->OnKickCollisionDisable.AddDynamic(this, &APlayerCharacter::SetKickCollisionDisable);
 
 		CachedAnimInstance->OnGameOver.AddDynamic(this, &APlayerCharacter::OpenGameOverLevel);
+
+		CachedAnimInstance->OnInvincibleStart.AddDynamic(this, &APlayerCharacter::SetInvincibleStart);
+		CachedAnimInstance->OnInvincibleEnd.AddDynamic(this, &APlayerCharacter::SetInvincibleEnd);
 	}
 
 	if (CachedComboManageComponent)
@@ -544,6 +547,16 @@ void APlayerCharacter::HideInteractPopUp()
 void APlayerCharacter::OpenGameOverLevel()
 {
 	UGameplayStatics::OpenLevel(GetWorld(), FName(TEXT("GameOver")));
+}
+
+void APlayerCharacter::SetInvincibleStart()
+{
+	CachedAttributeComponent->InvincibleStart();
+}
+
+void APlayerCharacter::SetInvincibleEnd()
+{
+	CachedAttributeComponent->InvincibleEnd();
 }
 
 void APlayerCharacter::OnInteract()

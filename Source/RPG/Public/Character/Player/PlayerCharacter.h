@@ -199,6 +199,11 @@ protected:
 	UFUNCTION()
 	void OpenGameOverLevel();
 
+	UFUNCTION()
+	void SetInvincibleStart();
+
+	UFUNCTION()
+	void SetInvincibleEnd();
 
 private:
 	/** Initialization split for performance + readability */

@@ -15,6 +15,8 @@ DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnMoveEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionEnable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnCollisionDisable);
 DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnGameOver);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInvincibleStart);
+DECLARE_DYNAMIC_MULTICAST_DELEGATE(FOnInvincibleEnd);
 
 UCLASS()
 class RPG_API UPlayerAnimInstance : public UAnimInstance
@@ -58,6 +60,12 @@ public:
 	UPROPERTY(BlueprintAssignable)
 	FOnGameOver OnGameOver;
 
+	UPROPERTY(BlueprintAssignable)
+	FOnInvincibleStart OnInvincibleStart;
+
+	UPROPERTY(BlueprintAssignable)
+	FOnInvincibleEnd OnInvincibleEnd;
+
 
 protected:
 	// Callback funcs by animnotify
@@ -88,6 +96,11 @@ protected:
 	UFUNCTION()
 	void AnimNotify_GameOver();
 
+	UFUNCTION()
+	void AnimNotify_InvincibleStart();
+
+	UFUNCTION()
+	void AnimNotify_InvincibleEnd();
 
 	UPROPERTY(BlueprintReadWrite)
 	float GroundSpeed;

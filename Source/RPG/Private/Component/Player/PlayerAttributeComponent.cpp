@@ -82,6 +82,16 @@ void UPlayerAttributeComponent::BroadcastInitialUIState()
 	OnSkillTreeUISet.Broadcast(SkillPoint, EquippedUlt, ActivatedSkills, Ult1XSetting, Ult1YSetting);
 }
 
+void UPlayerAttributeComponent::InvincibleStart()
+{
+	IsInvincible = true;
+}
+
+void UPlayerAttributeComponent::InvincibleEnd()
+{
+	IsInvincible = false;
+}
+
 void UPlayerAttributeComponent::InitializePlayerStat()
 {
 	CurrentLevel = 1;
@@ -280,6 +290,11 @@ int32 UPlayerAttributeComponent::CalcDamage()
 //Apply Damage(=Reduce Player's HP) that Enemy gave to Player
 void UPlayerAttributeComponent::ApplyDamage()
 {
+	if (IsInvincible)
+	{
+		return;
+	}
+
 	int32 Damage = 0;
 
 	if (EnemyAttributeComponent)
